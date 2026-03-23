@@ -1,0 +1,551 @@
+{
+  "songbook": {
+    "version": "1.0",
+    "lastUpdated": "2026-03-22",
+    "songs": [
+      {
+        "id": "1",
+        "title": "Wish You Were Here",
+        "artist": "Pink Floyd",
+        "genre": "Rock",
+        "difficulty": "intermediate",
+        "key": "G",
+        "capo": 0,
+        "chords": ["Em", "G", "A", "Am"],
+        "tags": ["classic", "rock", "fingerpicking"],
+        "notes": "Iconic intro with two guitars",
+        "content": [
+          {
+            "type": "intro",
+            "number": 1,
+            "lines": [
+              {
+                "text": "(instrumental)",
+                "chords": [
+                  { "chord": "Em", "position": 0 },
+                  { "chord": "G", "position": 8 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "So, so you think you can tell",
+                "chords": [
+                  { "chord": "Em", "position": 0 },
+                  { "chord": "G", "position": 18 }
+                ]
+              },
+              {
+                "text": "Heaven from hell",
+                "chords": [
+                  { "chord": "A", "position": 0 }
+                ]
+              },
+              {
+                "text": "Blue skies from pain",
+                "chords": [
+                  { "chord": "A", "position": 0 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "How I wish, how I wish you were here",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "G", "position": 24 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "title": "Wonderwall",
+        "artist": "Oasis",
+        "genre": "Britpop",
+        "difficulty": "beginner",
+        "key": "Em",
+        "capo": 2,
+        "chords": ["Em", "G", "D", "A7sus4"],
+        "tags": ["popular", "campfire", "beginner"],
+        "notes": "Capo on fret 2. Classic strumming pattern.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Today is gonna be the day",
+                "chords": [
+                  { "chord": "Em", "position": 0 }
+                ]
+              },
+              {
+                "text": "That they're gonna throw it back to you",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "D", "position": 20 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Because maybe, you're gonna be the one that saves me",
+                "chords": [
+                  { "chord": "A7sus4", "position": 0 },
+                  { "chord": "Em", "position": 30 }
+                ]
+              },
+              {
+                "text": "And after all, you're my wonderwall",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "Em", "position": 20 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "title": "Hotel California",
+        "artist": "Eagles",
+        "genre": "Rock",
+        "difficulty": "advanced",
+        "key": "Bm",
+        "capo": 0,
+        "chords": ["Bm", "F#7", "A", "E", "G", "D", "Em"],
+        "tags": ["classic", "fingerpicking", "solo"],
+        "notes": "Famous arpeggiated intro. Barre chords required.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "On a dark desert highway, cool wind in my hair",
+                "chords": [
+                  { "chord": "Bm", "position": 0 },
+                  { "chord": "F#7", "position": 28 }
+                ]
+              },
+              {
+                "text": "Warm smell of colitas, rising up through the air",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "E", "position": 26 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Welcome to the Hotel California",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "D", "position": 16 }
+                ]
+              },
+              {
+                "text": "Such a lovely place",
+                "chords": [
+                  { "chord": "Em", "position": 0 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "title": "Nothing Else Matters",
+        "artist": "Metallica",
+        "genre": "Rock",
+        "difficulty": "intermediate",
+        "key": "Em",
+        "capo": 0,
+        "chords": ["Em", "Am", "C", "D", "G", "B7"],
+        "tags": ["ballad", "fingerpicking", "classic"],
+        "notes": "Open string fingerpicking pattern throughout.",
+        "content": [
+          {
+            "type": "intro",
+            "number": 1,
+            "lines": [
+              {
+                "text": "(fingerpicking pattern)",
+                "chords": [
+                  { "chord": "Em", "position": 0 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "So close no matter how far",
+                "chords": [
+                  { "chord": "Em", "position": 0 }
+                ]
+              },
+              {
+                "text": "Couldn't be much more from the heart",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "C", "position": 22 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Never cared for what they do",
+                "chords": [
+                  { "chord": "D", "position": 0 },
+                  { "chord": "C", "position": 14 }
+                ]
+              },
+              {
+                "text": "Nothing else matters",
+                "chords": [
+                  { "chord": "Em", "position": 0 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "title": "Redemption Song",
+        "artist": "Bob Marley",
+        "genre": "Reggae",
+        "difficulty": "beginner",
+        "key": "G",
+        "capo": 0,
+        "chords": ["G", "Em", "C", "Am", "D"],
+        "tags": ["acoustic", "beginner", "classic"],
+        "notes": "Simple strumming. Great for beginners.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Old pirates yes they rob I",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "Em", "position": 14 }
+                ]
+              },
+              {
+                "text": "Sold I to the merchant ships",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "G", "position": 18 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Won't you help to sing these songs of freedom",
+                "chords": [
+                  { "chord": "D", "position": 0 },
+                  { "chord": "G", "position": 20 }
+                ]
+              },
+              {
+                "text": "Cause all I ever have, redemption songs",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "D", "position": 18 },
+                  { "chord": "G", "position": 32 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "title": "Stairway to Heaven",
+        "artist": "Led Zeppelin",
+        "genre": "Rock",
+        "difficulty": "advanced",
+        "key": "Am",
+        "capo": 0,
+        "chords": ["Am", "E", "C", "D", "G", "F"],
+        "tags": ["classic", "epic", "fingerpicking"],
+        "notes": "Multiple sections with increasing tempo.",
+        "content": [
+          {
+            "type": "intro",
+            "number": 1,
+            "lines": [
+              {
+                "text": "(arpeggiated intro)",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "E", "position": 12 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "There's a lady who's sure all that glitters is gold",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "E", "position": 24 }
+                ]
+              },
+              {
+                "text": "And she's buying a stairway to heaven",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "D", "position": 18 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "title": "La Bamba",
+        "artist": "Ritchie Valens",
+        "genre": "Latin Rock",
+        "difficulty": "beginner",
+        "key": "C",
+        "capo": 0,
+        "chords": ["C", "F", "G"],
+        "tags": ["latin", "fun", "beginner"],
+        "notes": "Only three chords! Great first song.",
+        "content": [
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Para bailar la bamba",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "F", "position": 10 },
+                  { "chord": "G", "position": 18 }
+                ]
+              },
+              {
+                "text": "Se necesita una poca de gracia",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "F", "position": 14 },
+                  { "chord": "G", "position": 24 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Yo no soy marinero, soy capitan",
+                "chords": [
+                  { "chord": "C", "position": 0 },
+                  { "chord": "F", "position": 12 },
+                  { "chord": "G", "position": 24 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "8",
+        "title": "Knockin on Heavens Door",
+        "artist": "Bob Dylan",
+        "genre": "Folk Rock",
+        "difficulty": "beginner",
+        "key": "G",
+        "capo": 0,
+        "chords": ["G", "D", "Am", "C"],
+        "tags": ["classic", "beginner", "campfire"],
+        "notes": "Four simple chords. Many cover versions exist.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Mama take this badge off of me",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "D", "position": 16 }
+                ]
+              },
+              {
+                "text": "I can't use it anymore",
+                "chords": [
+                  { "chord": "Am", "position": 0 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Knock knock knockin on heavens door",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "D", "position": 16 },
+                  { "chord": "C", "position": 28 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "9",
+        "title": "Tears in Heaven",
+        "artist": "Eric Clapton",
+        "genre": "Ballad",
+        "difficulty": "intermediate",
+        "key": "A",
+        "capo": 0,
+        "chords": ["A", "E", "F#m", "D", "Bm7", "E7"],
+        "tags": ["emotional", "fingerpicking", "classic"],
+        "notes": "Gentle fingerpicking throughout. Emotional piece.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Would you know my name",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "E", "position": 14 }
+                ]
+              },
+              {
+                "text": "If I saw you in heaven",
+                "chords": [
+                  { "chord": "F#m", "position": 0 },
+                  { "chord": "D", "position": 14 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "I must be strong and carry on",
+                "chords": [
+                  { "chord": "Bm7", "position": 0 },
+                  { "chord": "E7", "position": 16 }
+                ]
+              },
+              {
+                "text": "Cause I know I don't belong here in heaven",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "E", "position": 20 },
+                  { "chord": "A", "position": 36 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "title": "De Musica Ligera",
+        "artist": "Soda Stereo",
+        "genre": "Latin Rock",
+        "difficulty": "beginner",
+        "key": "A",
+        "capo": 0,
+        "chords": ["A", "D", "E", "F#m"],
+        "tags": ["latin", "rock", "spanish"],
+        "notes": "Argentine rock classic. Simple power chords.",
+        "content": [
+          {
+            "type": "verse",
+            "number": 1,
+            "lines": [
+              {
+                "text": "Ella durmio al calor de las masas",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "D", "position": 16 }
+                ]
+              },
+              {
+                "text": "Y yo no pude mas, despertar",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "E", "position": 16 }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "chorus",
+            "number": 1,
+            "lines": [
+              {
+                "text": "De musica ligera",
+                "chords": [
+                  { "chord": "F#m", "position": 0 },
+                  { "chord": "D", "position": 10 }
+                ]
+              },
+              {
+                "text": "Nada nos libera",
+                "chords": [
+                  { "chord": "A", "position": 0 },
+                  { "chord": "E", "position": 10 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
