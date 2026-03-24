@@ -19,9 +19,9 @@ import com.guitarapp.songsbook.data.local.SongDatabase
 import com.guitarapp.songsbook.data.repository.AssetSongRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
-import com.guitarapp.songsbook.presentation.screens.SongDetailScreen
+import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
-import com.guitarapp.songsbook.presentation.viewmodel.SongDetailViewModel
+import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
 import com.guitarapp.songsbook.ui.theme.GuitarSongsbookTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,22 +54,22 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 viewModel = homeViewModel,
                                 onSongClick = { songId ->
-                                    navController.navigate("detail/$songId")
+                                    navController.navigate("reader/$songId")
                                 }
                             )
                         }
                         composable(
-                            route = "detail/{songId}",
+                            route = "reader/{songId}",
                             arguments = listOf(
                                 navArgument("songId") { type = NavType.StringType }
                             )
                         ) { backStackEntry ->
                             val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
-                            val detailViewModel: SongDetailViewModel = viewModel(
-                                factory = SongDetailViewModel.Factory(songRepository, songId)
+                            val readerViewModel: ReaderViewModel = viewModel(
+                                factory = ReaderViewModel.Factory(songRepository, songId)
                             )
-                            SongDetailScreen(
-                                viewModel = detailViewModel,
+                            SongReaderScreen(
+                                viewModel = readerViewModel,
                                 onBackClick = { navController.popBackStack() }
                             )
                         }
