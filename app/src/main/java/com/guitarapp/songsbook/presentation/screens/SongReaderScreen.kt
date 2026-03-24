@@ -3,6 +3,8 @@ package com.guitarapp.songsbook.presentation.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +45,11 @@ import androidx.compose.ui.unit.sp
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.utils.buildChordLine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,7 +137,8 @@ fun SongReaderScreen(
                         currentPage = uiState.currentPage,
                         isFullscreen = uiState.isFullscreen,
                         onPageChanged = viewModel::onPageChanged,
-                        onToggleFullscreen = viewModel::toggleFullscreen
+                        onToggleFullscreen = viewModel::toggleFullscreen,
+                        song = uiState.song
                     )
                 }
             }
@@ -144,7 +153,8 @@ private fun SongPager(
     currentPage: Int,
     isFullscreen: Boolean,
     onPageChanged: (Int) -> Unit,
-    onToggleFullscreen: () -> Unit
+    onToggleFullscreen: () -> Unit,
+    song: Song?
 ) {
     val pagerState = rememberPagerState(
         initialPage = currentPage,
@@ -167,7 +177,8 @@ private fun SongPager(
             pageNumber = pageIndex + 1,
             totalPages = pages.size,
             isFullscreen = isFullscreen,
-            onTap = onToggleFullscreen
+            onTap = onToggleFullscreen,
+            song = song
         )
     }
 }
@@ -179,17 +190,26 @@ private fun PageContent(
     pageNumber: Int,
     totalPages: Int,
     isFullscreen: Boolean,
-    onTap: () -> Unit
+    onTap: () -> Unit,
+    song: Song?
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onTap() }
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
+            if (pageNumber == 1 && song != null) {
+                SongHeader(song, fontSize)
+            }
+
             sections.forEach { section ->
                 SectionContent(section, fontSize)
             }
@@ -209,19 +229,80 @@ private fun PageContent(
 }
 
 @Composable
+private fun SongHeader(song: Song, fontSize: Int) {
+    Column(modifier = Modifier.padding(bottom = 16.dp)) {
+        Text(
+            text = song.title,
+            fontSize = (fontSize + 4).sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = song.artist,
+            fontSize = (fontSize + 1).sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 2.dp)
+        )
+        Row(
+            modifier = Modifier.padding(top = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Key: ${song.key}",
+                fontSize = (fontSize - 2).sp,
+                color = MaterialTheme.colorScheme.secondary
+            )
+            if (song.capo > 0) {
+                Text(
+                    text = "Capo: ${song.capo}",
+                    fontSize = (fontSize - 2).sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+        if (song.notes.isNotBlank()) {
+            Text(
+                text = song.notes,
+                fontSize = (fontSize - 2).sp,
+                color = MaterialTheme.colorScheme.outline,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 12.dp),
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+    }
+}
+
+@Composable
 private fun SectionContent(section: SongSection, fontSize: Int) {
+    val sectionColor = getSectionColor(section.type)
+
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Text(
             text = "${section.type.replaceFirstChar { it.uppercase() }} ${section.number}",
             fontSize = (fontSize - 2).sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+            color = sectionColor,
             modifier = Modifier.padding(bottom = 6.dp)
         )
 
         section.lines.forEach { line ->
             LineContent(line, fontSize)
         }
+    }
+}
+
+@Composable
+private fun getSectionColor(type: String): Color {
+    return when (type.lowercase()) {
+        "chorus" -> MaterialTheme.colorScheme.primary
+        "verse" -> MaterialTheme.colorScheme.tertiary
+        "intro", "outro" -> MaterialTheme.colorScheme.secondary
+        "bridge" -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 }
 
@@ -245,27 +326,6 @@ private fun LineContent(line: SongLine, fontSize: Int) {
             lineHeight = (fontSize + 6).sp
         )
     }
-}
-
-private fun buildChordLine(line: SongLine): String {
-    if (line.chords.isEmpty()) return ""
-
-    val maxPosition = maxOf(
-        line.text.length,
-        line.chords.maxOf { it.position + it.chord.length }
-    )
-    val chordLine = CharArray(maxPosition) { ' ' }
-
-    line.chords.forEach { chordPos ->
-        chordPos.chord.forEachIndexed { i, char ->
-            val index = chordPos.position + i
-            if (index < chordLine.size) {
-                chordLine[index] = char
-            }
-        }
-    }
-
-    return String(chordLine).trimEnd()
 }
 
 @Composable

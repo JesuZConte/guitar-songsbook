@@ -40,6 +40,7 @@ import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.presentation.viewmodel.SongDetailViewModel
+import com.guitarapp.songsbook.utils.buildChordLine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -189,27 +190,6 @@ private fun SongLineContent(line: SongLine) {
             lineHeight = 18.sp
         )
     }
-}
-
-private fun buildChordLine(line: SongLine): String {
-    if (line.chords.isEmpty()) return ""
-
-    val maxPosition = maxOf(
-        line.text.length,
-        line.chords.maxOf { it.position + it.chord.length }
-    )
-    val chordLine = CharArray(maxPosition) { ' ' }
-
-    line.chords.forEach { chordPos ->
-        chordPos.chord.forEachIndexed { i, char ->
-            val index = chordPos.position + i
-            if (index < chordLine.size) {
-                chordLine[index] = char
-            }
-        }
-    }
-
-    return String(chordLine).trimEnd()
 }
 
 @Composable
