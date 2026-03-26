@@ -37,8 +37,17 @@ class AssetSongRepository(
         return songDao.getAllDifficulties()
     }
 
+    override suspend fun getFavorites(): List<Song> {
+        ensureSeeded()
+        return songDao.getFavorites().map { it.toDomain() }
+    }
+
+    override suspend fun toggleFavorite(songId: String) {
+        songDao.toggleFavorite(songId)
+    }
+
     private suspend fun ensureSeeded() {
-        if (songDao.count() == 0 || BuildConfig.DEBUG) {
+        if (songDao.count() == 0) {
             seedFromAssets()
         }
     }

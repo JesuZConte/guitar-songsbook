@@ -92,6 +92,18 @@ class ReaderViewModel(
         _uiState.update { it.copy(isFullscreen = !it.isFullscreen) }
     }
 
+    fun toggleFavorite() {
+        val songId = _uiState.value.song?.id ?: return
+        viewModelScope.launch {
+            songRepository.toggleFavorite(songId)
+            _uiState.update { state ->
+                state.copy(
+                    song = state.song?.copy(isFavorite = !state.song.isFavorite)
+                )
+            }
+        }
+    }
+
     companion object {
         fun paginateSections(
             sections: List<SongSection>,

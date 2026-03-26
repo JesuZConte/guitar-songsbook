@@ -14,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -97,7 +99,7 @@ private fun SearchableSongList(
         if (uiState.songs.isEmpty()) {
             EmptyContent()
         } else {
-            SongListContent(uiState.songs, onSongClick)
+            SongListContent(uiState.songs, onSongClick, viewModel::toggleFavorite)
         }
     }
 }
@@ -226,7 +228,11 @@ private fun EmptyContent() {
 }
 
 @Composable
-private fun SongListContent(songs: List<Song>, onSongClick: (String) -> Unit) {
+private fun SongListContent(
+    songs: List<Song>,
+    onSongClick: (String) -> Unit,
+    onFavoriteClick: (String) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -235,14 +241,18 @@ private fun SongListContent(songs: List<Song>, onSongClick: (String) -> Unit) {
     ) {
         item { Box(modifier = Modifier.padding(top = 4.dp)) }
         items(songs) { song ->
-            SongCard(song, onSongClick)
+            SongCard(song, onSongClick, onFavoriteClick)
         }
         item { Box(modifier = Modifier.padding(bottom = 8.dp)) }
     }
 }
 
 @Composable
-private fun SongCard(song: Song, onSongClick: (String) -> Unit) {
+private fun SongCard(
+    song: Song,
+    onSongClick: (String) -> Unit,
+    onFavoriteClick: (String) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -252,16 +262,33 @@ private fun SongCard(song: Song, onSongClick: (String) -> Unit) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                text = song.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = song.artist,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = song.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = song.artist,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(onClick = { onFavoriteClick(song.id) }) {
+                    Icon(
+                        imageVector = if (song.isFavorite) Icons.Filled.Favorite
+                        else Icons.Outlined.FavoriteBorder,
+                        contentDescription = "Toggle favorite",
+                        tint = if (song.isFavorite) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

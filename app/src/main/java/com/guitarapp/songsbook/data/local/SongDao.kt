@@ -23,6 +23,12 @@ interface SongDao {
     )
     suspend fun search(query: String): List<SongEntity>
 
+    @Query("SELECT * FROM songs WHERE is_favorite = 1")
+    suspend fun getFavorites(): List<SongEntity>
+
+    @Query("UPDATE songs SET is_favorite = NOT is_favorite WHERE id = :songId")
+    suspend fun toggleFavorite(songId: String)
+
     @Query("SELECT DISTINCT genre FROM songs ORDER BY genre")
     suspend fun getAllGenres(): List<String>
 

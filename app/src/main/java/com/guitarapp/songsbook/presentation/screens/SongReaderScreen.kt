@@ -17,9 +17,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,6 +90,19 @@ fun SongReaderScreen(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back"
                             )
+                        }
+                    },
+                    actions = {
+                        if (uiState.song != null) {
+                            IconButton(onClick = { viewModel.toggleFavorite() }) {
+                                Icon(
+                                    imageVector = if (uiState.song!!.isFavorite) Icons.Filled.Favorite
+                                    else Icons.Outlined.FavoriteBorder,
+                                    contentDescription = "Toggle favorite",
+                                    tint = if (uiState.song!!.isFavorite) MaterialTheme.colorScheme.error
+                                    else MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(

@@ -1,5 +1,6 @@
 package com.guitarapp.songsbook.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.guitarapp.songsbook.domain.model.Song
@@ -18,7 +19,9 @@ data class SongEntity(
     val chords: List<String>,
     val tags: List<String>,
     val notes: String,
-    val content: List<SongSection>
+    val content: List<SongSection>,
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    val isFavorite: Boolean = false
 ) {
 
     fun toDomain(): Song {
@@ -33,7 +36,8 @@ data class SongEntity(
             chords = chords,
             tags = tags,
             notes = notes,
-            content = content
+            content = content,
+            isFavorite = isFavorite
         )
     }
 
@@ -50,7 +54,8 @@ data class SongEntity(
                 chords = song.chords,
                 tags = song.tags,
                 notes = song.notes,
-                content = song.content
+                content = song.content,
+                isFavorite = song.isFavorite
             )
         }
     }

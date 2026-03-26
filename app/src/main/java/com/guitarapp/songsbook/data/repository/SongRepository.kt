@@ -8,4 +8,6 @@ interface SongRepository {
     suspend fun searchSongs(query: String): List<Song>
     suspend fun getGenres(): List<String>
     suspend fun getDifficulties(): List<String>
+    suspend fun getFavorites(): List<Song>
+    suspend fun toggleFavorite(songId: String)
 }

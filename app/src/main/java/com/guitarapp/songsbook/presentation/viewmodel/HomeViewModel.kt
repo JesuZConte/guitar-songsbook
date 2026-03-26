@@ -101,6 +101,34 @@ class HomeViewModel(
         }
     }
 
+    fun toggleFavorite(songId: String) {
+        viewModelScope.launch {
+            songRepository.toggleFavorite(songId)
+            _uiState.update { state ->
+                state.copy(
+                    songs = state.songs.map { song ->
+                        if (song.id == songId) song.copy(isFavorite = !song.isFavorite)
+                        else song
+                    }
+                )
+            }
+        }
+    }
+
+    fun refreshSongs() {
+        viewModelScope.launch {
+            try {
+                performSearch(
+                    _uiState.value.query,
+                    _uiState.value.selectedGenre,
+                    _uiState.value.selectedDifficulty
+                )
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message ?: "Refresh failed") }
+            }
+        }
+    }
+
     private suspend fun performSearch(query: String, genre: String?, difficulty: String?) {
         try {
             val results = if (query.isBlank()) {

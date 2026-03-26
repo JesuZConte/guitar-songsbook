@@ -15,7 +15,8 @@ data class Song(
     val chords: List<String>,
     val tags: List<String>,
     val notes: String,
-    val content: List<SongSection>
+    val content: List<SongSection>,
+    val isFavorite: Boolean = false
 )
 
 data class SongSection(
