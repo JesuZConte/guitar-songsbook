@@ -13,21 +13,34 @@ class AssetSongRepository(
 ) : SongRepository {
 
     override suspend fun getSongs(): List<Song> {
-        if (shouldReseed()) {
-            seedFromAssets()
-        }
+        ensureSeeded()
         return songDao.getAll().map { it.toDomain() }
     }
 
     override suspend fun getSongById(id: String): Song? {
-        if (shouldReseed()) {
-            seedFromAssets()
-        }
+        ensureSeeded()
         return songDao.getById(id)?.toDomain()
     }
 
-    private suspend fun shouldReseed(): Boolean {
-        return songDao.count() == 0 || BuildConfig.DEBUG
+    override suspend fun searchSongs(query: String): List<Song> {
+        ensureSeeded()
+        return songDao.search(query).map { it.toDomain() }
+    }
+
+    override suspend fun getGenres(): List<String> {
+        ensureSeeded()
+        return songDao.getAllGenres()
+    }
+
+    override suspend fun getDifficulties(): List<String> {
+        ensureSeeded()
+        return songDao.getAllDifficulties()
+    }
+
+    private suspend fun ensureSeeded() {
+        if (songDao.count() == 0 || BuildConfig.DEBUG) {
+            seedFromAssets()
+        }
     }
 
     private suspend fun seedFromAssets() {
