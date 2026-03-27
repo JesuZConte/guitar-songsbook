@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
@@ -19,11 +21,15 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,12 +38,18 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.guitarapp.songsbook.data.local.SongDatabase
 import com.guitarapp.songsbook.data.repository.AssetSongRepository
+import com.guitarapp.songsbook.data.repository.PlaylistRepository
+import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
+import com.guitarapp.songsbook.presentation.Routes
 import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
+import com.guitarapp.songsbook.presentation.screens.PlaylistDetailScreen
+import com.guitarapp.songsbook.presentation.screens.PlaylistsScreen
 import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
 import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
+import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
 import com.guitarapp.songsbook.ui.theme.GuitarSongsbookTheme
 
@@ -48,11 +60,20 @@ data class BottomNavItem(
     val unselectedIcon: ImageVector
 )
 
+private val bottomNavItems = listOf(
+    BottomNavItem(Routes.HOME, "Home", Icons.Filled.Home, Icons.Outlined.Home),
+    BottomNavItem(Routes.FAVORITES, "Favorites", Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
+    BottomNavItem(Routes.PLAYLISTS, "Playlists", Icons.AutoMirrored.Filled.QueueMusic, Icons.AutoMirrored.Outlined.QueueMusic)
+)
+
 class MainActivity : ComponentActivity() {
 
     private val database by lazy { SongDatabase.getInstance(this) }
     private val songRepository: SongRepository by lazy {
         AssetSongRepository(assets, database.songDao())
+    }
+    private val playlistRepository: PlaylistRepository by lazy {
+        RoomPlaylistRepository(database.playlistDao())
     }
 
     private val homeViewModel: HomeViewModel by viewModels {
@@ -63,10 +84,9 @@ class MainActivity : ComponentActivity() {
         FavoritesViewModel.Factory(songRepository)
     }
 
-    private val bottomNavItems = listOf(
-        BottomNavItem("home", "Home", Icons.Filled.Home, Icons.Outlined.Home),
-        BottomNavItem("favorites", "Favorites", Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder)
-    )
+    private val playlistsViewModel: PlaylistsViewModel by viewModels {
+        PlaylistsViewModel.Factory(playlistRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,79 +105,132 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         bottomBar = {
                             if (showBottomBar) {
-                                NavigationBar {
-                                    bottomNavItems.forEach { item ->
-                                        val selected = currentDestination?.hierarchy?.any {
-                                            it.route == item.route
-                                        } == true
-
-                                        NavigationBarItem(
-                                            selected = selected,
-                                            onClick = {
-                                                if (!selected) {
-                                                    navController.navigate(item.route) {
-                                                        popUpTo("home") { saveState = true }
-                                                        launchSingleTop = true
-                                                        restoreState = true
-                                                    }
-                                                }
-                                            },
-                                            icon = {
-                                                Icon(
-                                                    imageVector = if (selected) item.selectedIcon
-                                                    else item.unselectedIcon,
-                                                    contentDescription = item.label
-                                                )
-                                            },
-                                            label = { Text(item.label) }
-                                        )
+                                GuitarBottomBar(
+                                    currentDestination = currentDestination,
+                                    onTabSelected = { route ->
+                                        navController.navigate(route) {
+                                            popUpTo(Routes.HOME) { saveState = true }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
                                     }
-                                }
+                                )
                             }
                         }
                     ) { paddingValues ->
-                        NavHost(
+                        GuitarNavHost(
                             navController = navController,
-                            startDestination = "home",
+                            songRepository = songRepository,
+                            playlistRepository = playlistRepository,
+                            homeViewModel = homeViewModel,
+                            favoritesViewModel = favoritesViewModel,
+                            playlistsViewModel = playlistsViewModel,
                             modifier = Modifier.padding(paddingValues)
-                        ) {
-                            composable("home") {
-                                homeViewModel.refreshSongs()
-                                HomeScreen(
-                                    viewModel = homeViewModel,
-                                    onSongClick = { songId ->
-                                        navController.navigate("reader/$songId")
-                                    }
-                                )
-                            }
-                            composable("favorites") {
-                                favoritesViewModel.loadFavorites()
-                                FavoritesScreen(
-                                    viewModel = favoritesViewModel,
-                                    onSongClick = { songId ->
-                                        navController.navigate("reader/$songId")
-                                    }
-                                )
-                            }
-                            composable(
-                                route = "reader/{songId}",
-                                arguments = listOf(
-                                    navArgument("songId") { type = NavType.StringType }
-                                )
-                            ) { backStackEntry ->
-                                val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
-                                val readerViewModel: ReaderViewModel = viewModel(
-                                    factory = ReaderViewModel.Factory(songRepository, songId)
-                                )
-                                SongReaderScreen(
-                                    viewModel = readerViewModel,
-                                    onBackClick = { navController.popBackStack() }
-                                )
-                            }
-                        }
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GuitarBottomBar(
+    currentDestination: NavDestination?,
+    onTabSelected: (String) -> Unit
+) {
+    NavigationBar {
+        bottomNavItems.forEach { item ->
+            val selected = currentDestination?.hierarchy?.any {
+                it.route == item.route
+            } == true
+
+            NavigationBarItem(
+                selected = selected,
+                onClick = { if (!selected) onTabSelected(item.route) },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                        contentDescription = item.label
+                    )
+                },
+                label = { Text(item.label) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun GuitarNavHost(
+    navController: NavHostController,
+    songRepository: SongRepository,
+    playlistRepository: PlaylistRepository,
+    homeViewModel: HomeViewModel,
+    favoritesViewModel: FavoritesViewModel,
+    playlistsViewModel: PlaylistsViewModel,
+    modifier: Modifier = Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.HOME,
+        modifier = modifier
+    ) {
+        composable(Routes.HOME) {
+            LaunchedEffect(Unit) {
+                homeViewModel.refreshSongs()
+            }
+            HomeScreen(
+                viewModel = homeViewModel,
+                onSongClick = { songId -> navController.navigate(Routes.reader(songId)) }
+            )
+        }
+        composable(Routes.FAVORITES) {
+            LaunchedEffect(Unit) {
+                favoritesViewModel.loadFavorites()
+            }
+            FavoritesScreen(
+                viewModel = favoritesViewModel,
+                onSongClick = { songId -> navController.navigate(Routes.reader(songId)) }
+            )
+        }
+        composable(Routes.PLAYLISTS) {
+            LaunchedEffect(Unit) {
+                playlistsViewModel.loadPlaylists()
+            }
+            PlaylistsScreen(
+                viewModel = playlistsViewModel,
+                onPlaylistClick = { playlistId ->
+                    navController.navigate(Routes.playlistDetail(playlistId))
+                }
+            )
+        }
+        composable(
+            route = Routes.PLAYLIST_DETAIL,
+            arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getLong("playlistId") ?: return@composable
+            LaunchedEffect(playlistId) {
+                playlistsViewModel.loadPlaylistDetail(playlistId)
+            }
+            PlaylistDetailScreen(
+                viewModel = playlistsViewModel,
+                onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Routes.READER,
+            arguments = listOf(navArgument("songId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
+            val readerViewModel: ReaderViewModel = viewModel(
+                factory = ReaderViewModel.Factory(songRepository, songId)
+            )
+            SongReaderScreen(
+                viewModel = readerViewModel,
+                playlistsViewModel = playlistsViewModel,
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }

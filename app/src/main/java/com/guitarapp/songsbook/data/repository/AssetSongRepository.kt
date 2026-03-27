@@ -2,7 +2,6 @@ package com.guitarapp.songsbook.data.repository
 
 import android.content.res.AssetManager
 import com.google.gson.Gson
-import com.guitarapp.songsbook.BuildConfig
 import com.guitarapp.songsbook.data.local.SongDao
 import com.guitarapp.songsbook.data.local.SongEntity
 import com.guitarapp.songsbook.domain.model.Song

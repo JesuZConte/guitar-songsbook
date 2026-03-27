@@ -11,7 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,20 +32,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.domain.model.Song
-import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
+import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(
-    viewModel: FavoritesViewModel,
-    onSongClick: (String) -> Unit
+fun PlaylistDetailScreen(
+    viewModel: PlaylistsViewModel,
+    onSongClick: (String) -> Unit,
+    onBackClick: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val detailState by viewModel.detailState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text(detailState.playlist?.name ?: "Playlist") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -58,21 +65,26 @@ fun FavoritesScreen(
                 .padding(paddingValues)
         ) {
             when {
-                uiState.isLoading -> {
+                detailState.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                uiState.error != null -> {
+                detailState.error != null -> {
                     Text(
-                        text = uiState.error ?: "",
+                        text = detailState.error ?: "",
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                uiState.favorites.isEmpty() -> {
-                    EmptyFavoritesContent()
+                detailState.songs.isEmpty() -> {
+                    EmptyPlaylistDetailContent()
                 }
                 else -> {
-                    FavoritesList(uiState.favorites, onSongClick, viewModel::removeFavorite)
+                    PlaylistSongList(
+                        songs = detailState.songs,
+                        playlistId = detailState.playlist?.id ?: 0,
+                        onSongClick = onSongClick,
+                        onRemoveSong = viewModel::removeSongFromPlaylist
+                    )
                 }
             }
         }
@@ -80,25 +92,19 @@ fun FavoritesScreen(
 }
 
 @Composable
-private fun EmptyFavoritesContent() {
+private fun EmptyPlaylistDetailContent() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = Icons.Filled.Favorite,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
             Text(
-                text = "No favorites yet",
+                text = "No songs in this playlist",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Tap the heart on any song to add it here",
+                text = "Add songs from the reader screen",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -107,10 +113,11 @@ private fun EmptyFavoritesContent() {
 }
 
 @Composable
-private fun FavoritesList(
-    favorites: List<Song>,
+private fun PlaylistSongList(
+    songs: List<Song>,
+    playlistId: Long,
     onSongClick: (String) -> Unit,
-    onRemoveFavorite: (String) -> Unit
+    onRemoveSong: (Long, String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -119,18 +126,19 @@ private fun FavoritesList(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item { Box(modifier = Modifier.padding(top = 8.dp)) }
-        items(favorites) { song ->
-            FavoriteSongCard(song, onSongClick, onRemoveFavorite)
+        items(songs, key = { it.id }) { song ->
+            PlaylistSongCard(song, playlistId, onSongClick, onRemoveSong)
         }
         item { Box(modifier = Modifier.padding(bottom = 8.dp)) }
     }
 }
 
 @Composable
-private fun FavoriteSongCard(
+private fun PlaylistSongCard(
     song: Song,
+    playlistId: Long,
     onSongClick: (String) -> Unit,
-    onRemoveFavorite: (String) -> Unit
+    onRemoveSong: (Long, String) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -138,53 +146,30 @@ private fun FavoriteSongCard(
             .clickable { onSongClick(song.id) },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = song.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = song.artist,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                IconButton(onClick = { onRemoveFavorite(song.id) }) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Remove favorite",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = song.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = song.genre,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-                Text(
-                    text = "Key: ${song.key}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = song.difficulty,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
+            IconButton(onClick = { onRemoveSong(playlistId, song.id) }) {
+                Icon(
+                    imageVector = Icons.Filled.RemoveCircleOutline,
+                    contentDescription = "Remove from playlist",
+                    tint = MaterialTheme.colorScheme.error
                 )
             }
         }

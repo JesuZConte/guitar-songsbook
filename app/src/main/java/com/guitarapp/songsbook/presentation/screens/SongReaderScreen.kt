@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -20,46 +22,56 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.guitarapp.songsbook.domain.model.Playlist
+import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
+import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
-import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.utils.buildChordLine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongReaderScreen(
     viewModel: ReaderViewModel,
+    playlistsViewModel: PlaylistsViewModel,
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val playlistsState by playlistsViewModel.uiState.collectAsState()
+    var showPlaylistPicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -94,6 +106,15 @@ fun SongReaderScreen(
                     },
                     actions = {
                         if (uiState.song != null) {
+                            IconButton(onClick = {
+                                playlistsViewModel.loadPlaylists()
+                                showPlaylistPicker = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
+                                    contentDescription = "Add to playlist"
+                                )
+                            }
                             IconButton(onClick = { viewModel.toggleFavorite() }) {
                                 Icon(
                                     imageVector = if (uiState.song!!.isFavorite) Icons.Filled.Favorite
@@ -158,7 +179,57 @@ fun SongReaderScreen(
                 }
             }
         }
+
+        if (showPlaylistPicker && uiState.song != null) {
+            PlaylistPickerDialog(
+                playlists = playlistsState.playlists,
+                onPlaylistSelected = { playlistId ->
+                    playlistsViewModel.addSongToPlaylist(playlistId, uiState.song!!.id)
+                    showPlaylistPicker = false
+                },
+                onDismiss = { showPlaylistPicker = false }
+            )
+        }
     }
+}
+
+@Composable
+private fun PlaylistPickerDialog(
+    playlists: List<Playlist>,
+    onPlaylistSelected: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to Playlist") },
+        text = {
+            if (playlists.isEmpty()) {
+                Text(
+                    text = "No playlists yet. Create one from the Playlists tab.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn {
+                    items(playlists, key = { it.id }) { playlist ->
+                        Text(
+                            text = "${playlist.name} (${playlist.songCount})",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPlaylistSelected(playlist.id) }
+                                .padding(vertical = 12.dp, horizontal = 8.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
@@ -358,7 +429,6 @@ private fun ReaderBottomBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Font size controls
             IconButton(onClick = onDecreaseFontSize) {
                 Icon(Icons.Filled.Remove, contentDescription = "Decrease font")
             }
@@ -370,14 +440,12 @@ private fun ReaderBottomBar(
                 Icon(Icons.Filled.Add, contentDescription = "Increase font")
             }
 
-            // Page indicator
             Text(
                 text = "${currentPage + 1} / $totalPages",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            // Fullscreen toggle
             IconButton(onClick = onToggleFullscreen) {
                 Icon(
                     imageVector = if (false) Icons.Filled.FullscreenExit

@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class FavoritesUiState(
-    val favorites: List<Song> = emptyList()
+    val favorites: List<Song> = emptyList(),
+    val isLoading: Boolean = true,
+    val error: String? = null
 )
 
 class FavoritesViewModel(
@@ -28,11 +30,14 @@ class FavoritesViewModel(
 
     fun loadFavorites() {
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val favorites = songRepository.getFavorites()
-                _uiState.update { it.copy(favorites = favorites) }
+                _uiState.update { it.copy(favorites = favorites, isLoading = false) }
             } catch (e: Exception) {
-                // Silent fail — empty list is shown
+                _uiState.update {
+                    it.copy(isLoading = false, error = e.message ?: "Failed to load favorites")
+                }
             }
         }
     }
