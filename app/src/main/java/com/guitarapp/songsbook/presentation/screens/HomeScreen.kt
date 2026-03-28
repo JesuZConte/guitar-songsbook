@@ -1,5 +1,8 @@
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,13 +36,24 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.guitarapp.songsbook.ui.theme.DifficultyAdvancedDark
+import com.guitarapp.songsbook.ui.theme.DifficultyAdvancedLight
+import com.guitarapp.songsbook.ui.theme.DifficultyBeginnerDark
+import com.guitarapp.songsbook.ui.theme.DifficultyBeginnerLight
+import com.guitarapp.songsbook.ui.theme.DifficultyIntermediateDark
+import com.guitarapp.songsbook.ui.theme.DifficultyIntermediateLight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -279,13 +293,34 @@ private fun SongCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                IconButton(onClick = { onFavoriteClick(song.id) }) {
+                val bounceScale = remember { Animatable(1f) }
+                val scope = rememberCoroutineScope()
+                IconButton(onClick = {
+                    onFavoriteClick(song.id)
+                    scope.launch {
+                        bounceScale.animateTo(
+                            targetValue = 1.3f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        )
+                        bounceScale.animateTo(
+                            targetValue = 1f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        )
+                    }
+                }) {
                     Icon(
                         imageVector = if (song.isFavorite) Icons.Filled.Favorite
                         else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Toggle favorite",
                         tint = if (song.isFavorite) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.scale(bounceScale.value)
                     )
                 }
             }
@@ -304,12 +339,42 @@ private fun SongCard(
                     text = "Key: ${song.key}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    text = song.difficulty,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
+                DifficultyIndicator(song.difficulty)
             }
         }
+    }
+}
+
+@Composable
+private fun DifficultyIndicator(difficulty: String) {
+    val isDark = isSystemInDarkTheme()
+    val level = when (difficulty.lowercase()) {
+        "beginner" -> 1
+        "intermediate" -> 2
+        "advanced" -> 3
+        else -> 0
+    }
+    val color = when (level) {
+        1 -> if (isDark) DifficultyBeginnerDark else DifficultyBeginnerLight
+        2 -> if (isDark) DifficultyIntermediateDark else DifficultyIntermediateLight
+        3 -> if (isDark) DifficultyAdvancedDark else DifficultyAdvancedLight
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val dots = (1..3).joinToString("") { if (it <= level) "\u25CF" else "\u25CB" }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = dots,
+            color = color,
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            text = difficulty.replaceFirstChar { it.uppercase() },
+            style = MaterialTheme.typography.bodySmall,
+            color = color
+        )
     }
 }

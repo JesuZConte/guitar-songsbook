@@ -15,6 +15,7 @@ lifecycleViewmodelCompose = "2.10.0"
 kotlinxCoroutinesTest = "1.10.2"
 mockitoCore = "5.23.0"
 navigationCompose = "2.9.7"
+coreSplashscreen = "1.0.1"
 
 [libraries]
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
@@ -49,6 +50,7 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockitoCore" }
 
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

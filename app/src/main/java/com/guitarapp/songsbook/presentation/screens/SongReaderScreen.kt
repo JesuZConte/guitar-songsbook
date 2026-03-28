@@ -3,6 +3,7 @@ package com.guitarapp.songsbook.presentation.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
-import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -60,6 +60,9 @@ import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import com.guitarapp.songsbook.ui.theme.ChordColorDark
+import com.guitarapp.songsbook.ui.theme.ChordColorLight
+import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.buildChordLine
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -319,6 +322,7 @@ private fun SongHeader(song: Song, fontSize: Int) {
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Text(
             text = song.title,
+            fontFamily = Merriweather,
             fontSize = (fontSize + 4).sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -394,6 +398,8 @@ private fun getSectionColor(type: String): Color {
 
 @Composable
 private fun LineContent(line: SongLine, fontSize: Int) {
+    val chordColor = if (isSystemInDarkTheme()) ChordColorDark else ChordColorLight
+
     Column(modifier = Modifier.padding(bottom = 2.dp)) {
         if (line.chords.isNotEmpty()) {
             Text(
@@ -401,7 +407,7 @@ private fun LineContent(line: SongLine, fontSize: Int) {
                 fontFamily = FontFamily.Monospace,
                 fontSize = fontSize.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = chordColor,
                 lineHeight = (fontSize + 4).sp
             )
         }
@@ -448,8 +454,7 @@ private fun ReaderBottomBar(
 
             IconButton(onClick = onToggleFullscreen) {
                 Icon(
-                    imageVector = if (false) Icons.Filled.FullscreenExit
-                    else Icons.Filled.Fullscreen,
+                    imageVector = Icons.Filled.Fullscreen,
                     contentDescription = "Toggle fullscreen"
                 )
             }

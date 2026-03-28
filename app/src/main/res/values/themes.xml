@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Theme.GuitarSongsbook" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/brand_background_light</item>
+        <item name="android:windowBackground">@color/brand_background_light</item>
+    </style>
 
-    <style name="Theme.GuitarSongsbook" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.GuitarSongsbook.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_background_light</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.GuitarSongsbook</item>
+    </style>
 </resources>
