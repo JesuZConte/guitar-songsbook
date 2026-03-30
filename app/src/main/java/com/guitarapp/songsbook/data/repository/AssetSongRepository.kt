@@ -45,6 +45,18 @@ class AssetSongRepository(
         songDao.toggleFavorite(songId)
     }
 
+    override suspend fun insertSong(song: Song) {
+        songDao.insert(SongEntity.fromDomain(song))
+    }
+
+    override suspend fun updateSong(song: Song) {
+        songDao.update(SongEntity.fromDomain(song))
+    }
+
+    override suspend fun deleteSong(songId: String) {
+        songDao.deleteById(songId)
+    }
+
     private suspend fun ensureSeeded() {
         if (songDao.count() == 0) {
             seedFromAssets()

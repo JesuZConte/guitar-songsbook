@@ -16,6 +16,7 @@ kotlinxCoroutinesTest = "1.10.2"
 mockitoCore = "5.23.0"
 navigationCompose = "2.9.7"
 coreSplashscreen = "1.0.1"
+playServicesAds = "23.6.0"
 
 [libraries]
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
@@ -51,6 +52,7 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

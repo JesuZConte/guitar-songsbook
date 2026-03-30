@@ -20,7 +20,8 @@ data class ReaderUiState(
     val isLoading: Boolean = true,
     val error: String? = null,
     val fontSize: Int = 14,
-    val isFullscreen: Boolean = false
+    val isFullscreen: Boolean = false,
+    val deleteSuccess: Boolean = false
 ) {
     companion object {
         const val MIN_FONT_SIZE = 10
@@ -101,6 +102,14 @@ class ReaderViewModel(
                     song = state.song?.copy(isFavorite = !state.song.isFavorite)
                 )
             }
+        }
+    }
+
+    fun deleteSong() {
+        val songId = _uiState.value.song?.id ?: return
+        viewModelScope.launch {
+            songRepository.deleteSong(songId)
+            _uiState.update { it.copy(deleteSuccess = true) }
         }
     }
 

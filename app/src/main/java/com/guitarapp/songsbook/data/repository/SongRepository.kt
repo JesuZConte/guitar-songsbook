@@ -10,4 +10,7 @@ interface SongRepository {
     suspend fun getDifficulties(): List<String>
     suspend fun getFavorites(): List<Song>
     suspend fun toggleFavorite(songId: String)
+    suspend fun insertSong(song: Song)
+    suspend fun updateSong(song: Song)
+    suspend fun deleteSong(songId: String)
 }

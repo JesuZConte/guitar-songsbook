@@ -20,6 +20,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
@@ -47,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -60,9 +63,11 @@ import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.ui.theme.ChordColorDark
 import com.guitarapp.songsbook.ui.theme.ChordColorLight
 import com.guitarapp.songsbook.ui.theme.Merriweather
+import com.guitarapp.songsbook.utils.NotationSystem
 import com.guitarapp.songsbook.utils.buildChordLine
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,11 +75,18 @@ import com.guitarapp.songsbook.utils.buildChordLine
 fun SongReaderScreen(
     viewModel: ReaderViewModel,
     playlistsViewModel: PlaylistsViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onEditClick: () -> Unit = {},
+    onDeleteSuccess: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playlistsState by playlistsViewModel.uiState.collectAsState()
     var showPlaylistPicker by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.deleteSuccess) {
+        if (uiState.deleteSuccess) onDeleteSuccess()
+    }
 
     Scaffold(
         topBar = {
@@ -109,6 +121,18 @@ fun SongReaderScreen(
                     },
                     actions = {
                         if (uiState.song != null) {
+                            IconButton(onClick = onEditClick) {
+                                Icon(
+                                    imageVector = Icons.Filled.Edit,
+                                    contentDescription = "Edit song"
+                                )
+                            }
+                            IconButton(onClick = { showDeleteConfirm = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Delete song"
+                                )
+                            }
                             IconButton(onClick = {
                                 playlistsViewModel.loadPlaylists()
                                 showPlaylistPicker = true
@@ -181,6 +205,27 @@ fun SongReaderScreen(
                     )
                 }
             }
+        }
+
+        if (showDeleteConfirm && uiState.song != null) {
+            AlertDialog(
+                onDismissRequest = { showDeleteConfirm = false },
+                title = { Text("Delete song") },
+                text = { Text("Delete \"${uiState.song!!.title}\"? This cannot be undone.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDeleteConfirm = false
+                        viewModel.deleteSong()
+                    }) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteConfirm = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
         }
 
         if (showPlaylistPicker && uiState.song != null) {
@@ -337,11 +382,13 @@ private fun SongHeader(song: Song, fontSize: Int) {
             modifier = Modifier.padding(top = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = "Key: ${song.key}",
-                fontSize = (fontSize - 2).sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
+            if (song.key.isNotBlank()) {
+                Text(
+                    text = "Key: ${song.key}",
+                    fontSize = (fontSize - 2).sp,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
             if (song.capo > 0) {
                 Text(
                     text = "Capo: ${song.capo}",
@@ -399,11 +446,12 @@ private fun getSectionColor(type: String): Color {
 @Composable
 private fun LineContent(line: SongLine, fontSize: Int) {
     val chordColor = if (isSystemInDarkTheme()) ChordColorDark else ChordColorLight
+    val notation = UserPreferences.getNotation(LocalContext.current)
 
     Column(modifier = Modifier.padding(bottom = 2.dp)) {
         if (line.chords.isNotEmpty()) {
             Text(
-                text = buildChordLine(line),
+                text = buildChordLine(line, notation),
                 fontFamily = FontFamily.Monospace,
                 fontSize = fontSize.sp,
                 fontWeight = FontWeight.Bold,
@@ -411,12 +459,14 @@ private fun LineContent(line: SongLine, fontSize: Int) {
                 lineHeight = (fontSize + 4).sp
             )
         }
-        Text(
-            text = line.text,
-            fontFamily = FontFamily.Monospace,
-            fontSize = fontSize.sp,
-            lineHeight = (fontSize + 6).sp
-        )
+        if (line.text.isNotBlank()) {
+            Text(
+                text = line.text,
+                fontFamily = FontFamily.Monospace,
+                fontSize = fontSize.sp,
+                lineHeight = (fontSize + 6).sp
+            )
+        }
     }
 }
 

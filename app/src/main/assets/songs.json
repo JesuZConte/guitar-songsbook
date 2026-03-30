@@ -1,173 +1,84 @@
 {
   "songbook": {
-    "version": "1.1",
-    "lastUpdated": "2026-03-24",
+    "version": "2.0",
+    "lastUpdated": "2026-03-29",
     "songs": [
       {
-        "id": "1",
-        "title": "Wish You Were Here",
-        "artist": "Pink Floyd",
-        "genre": "Rock",
-        "difficulty": "intermediate",
+        "id": "pd-001",
+        "title": "Amazing Grace",
+        "artist": "Traditional (John Newton, 1779)",
+        "genre": "Folk",
+        "difficulty": "beginner",
         "key": "G",
         "capo": 0,
-        "chords": ["Em", "G", "A", "Am"],
-        "tags": ["classic", "rock", "fingerpicking"],
-        "notes": "Iconic intro with two guitars",
-        "content": [
-          {
-            "type": "intro",
-            "number": 1,
-            "lines": [
-              {
-                "text": "(instrumental)",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "G", "position": 8 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "So, so you think you can tell",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "G", "position": 18 }
-                ]
-              },
-              {
-                "text": "Heaven from hell",
-                "chords": [
-                  { "chord": "A", "position": 0 }
-                ]
-              },
-              {
-                "text": "Blue skies from pain",
-                "chords": [
-                  { "chord": "A", "position": 0 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "How I wish, how I wish you were here",
-                "chords": [
-                  { "chord": "Am", "position": 0 },
-                  { "chord": "G", "position": 24 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "2",
-        "title": "Wonderwall",
-        "artist": "Oasis",
-        "genre": "Britpop",
-        "difficulty": "beginner",
-        "key": "Em",
-        "capo": 2,
-        "chords": ["Em", "G", "D", "A7sus4"],
-        "tags": ["popular", "campfire", "beginner"],
-        "notes": "Capo on fret 2. Classic strumming pattern.",
+        "chords": ["G", "C", "D"],
+        "tags": ["traditional", "folk", "hymn", "public-domain"],
+        "notes": "Public domain hymn. Simple 3-chord structure, great for beginners.",
         "content": [
           {
             "type": "verse",
             "number": 1,
             "lines": [
               {
-                "text": "Today is gonna be the day",
+                "text": "Amazing grace how sweet the sound",
                 "chords": [
-                  { "chord": "Em", "position": 0 }
+                  { "chord": "G", "position": 0 },
+                  { "chord": "C", "position": 15 }
                 ]
               },
               {
-                "text": "That they're gonna throw it back to you",
+                "text": "That saved a wretch like me",
                 "chords": [
                   { "chord": "G", "position": 0 },
                   { "chord": "D", "position": 20 }
                 ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
+              },
               {
-                "text": "Because maybe, you're gonna be the one that saves me",
+                "text": "I once was lost but now am found",
                 "chords": [
-                  { "chord": "A7sus4", "position": 0 },
-                  { "chord": "Em", "position": 30 }
+                  { "chord": "G", "position": 0 },
+                  { "chord": "C", "position": 18 }
                 ]
               },
               {
-                "text": "And after all, you're my wonderwall",
+                "text": "Was blind but now I see",
                 "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "Em", "position": 20 }
+                  { "chord": "D", "position": 0 },
+                  { "chord": "G", "position": 14 }
                 ]
               }
             ]
-          }
-        ]
-      },
-      {
-        "id": "3",
-        "title": "Hotel California",
-        "artist": "Eagles",
-        "genre": "Rock",
-        "difficulty": "advanced",
-        "key": "Bm",
-        "capo": 0,
-        "chords": ["Bm", "F#7", "A", "E", "G", "D", "Em"],
-        "tags": ["classic", "fingerpicking", "solo"],
-        "notes": "Famous arpeggiated intro. Barre chords required.",
-        "content": [
+          },
           {
             "type": "verse",
-            "number": 1,
+            "number": 2,
             "lines": [
               {
-                "text": "On a dark desert highway, cool wind in my hair",
-                "chords": [
-                  { "chord": "Bm", "position": 0 },
-                  { "chord": "F#7", "position": 28 }
-                ]
-              },
-              {
-                "text": "Warm smell of colitas, rising up through the air",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "E", "position": 26 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Welcome to the Hotel California",
+                "text": "Twas grace that taught my heart to fear",
                 "chords": [
                   { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
+                  { "chord": "C", "position": 24 }
                 ]
               },
               {
-                "text": "Such a lovely place",
+                "text": "And grace my fears relieved",
                 "chords": [
-                  { "chord": "Em", "position": 0 }
+                  { "chord": "G", "position": 0 },
+                  { "chord": "D", "position": 15 }
+                ]
+              },
+              {
+                "text": "How precious did that grace appear",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "C", "position": 20 }
+                ]
+              },
+              {
+                "text": "The hour I first believed",
+                "chords": [
+                  { "chord": "D", "position": 0 },
+                  { "chord": "G", "position": 14 }
                 ]
               }
             ]
@@ -175,98 +86,48 @@
         ]
       },
       {
-        "id": "4",
-        "title": "Nothing Else Matters",
-        "artist": "Metallica",
-        "genre": "Rock",
+        "id": "pd-002",
+        "title": "Greensleeves",
+        "artist": "Traditional (English, 16th century)",
+        "genre": "Folk",
         "difficulty": "intermediate",
-        "key": "Em",
+        "key": "Am",
         "capo": 0,
-        "chords": ["Em", "Am", "C", "D", "G", "B7"],
-        "tags": ["ballad", "fingerpicking", "classic"],
-        "notes": "Open string fingerpicking pattern throughout.",
+        "chords": ["Am", "G", "Em", "E"],
+        "tags": ["traditional", "folk", "english", "fingerpicking", "public-domain"],
+        "notes": "Public domain English folk song. Beautiful fingerpicking piece in Am.",
         "content": [
-          {
-            "type": "intro",
-            "number": 1,
-            "lines": [
-              {
-                "text": "(fingerpicking pattern)",
-                "chords": [
-                  { "chord": "Em", "position": 0 }
-                ]
-              }
-            ]
-          },
           {
             "type": "verse",
             "number": 1,
             "lines": [
               {
-                "text": "So close no matter how far",
-                "chords": [
-                  { "chord": "Em", "position": 0 }
-                ]
-              },
-              {
-                "text": "Couldn't be much more from the heart",
+                "text": "Alas my love you do me wrong",
                 "chords": [
                   { "chord": "Am", "position": 0 },
-                  { "chord": "C", "position": 22 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Never cared for what they do",
-                "chords": [
-                  { "chord": "D", "position": 0 },
-                  { "chord": "C", "position": 14 }
+                  { "chord": "G", "position": 14 }
                 ]
               },
               {
-                "text": "Nothing else matters",
+                "text": "To cast me off discourteously",
                 "chords": [
-                  { "chord": "Em", "position": 0 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "5",
-        "title": "Redemption Song",
-        "artist": "Bob Marley",
-        "genre": "Reggae",
-        "difficulty": "beginner",
-        "key": "G",
-        "capo": 0,
-        "chords": ["G", "Em", "C", "Am", "D"],
-        "tags": ["acoustic", "beginner", "classic"],
-        "notes": "Simple strumming. Great for beginners.",
-        "content": [
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Old pirates yes they rob I",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "Em", "position": 14 }
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "E", "position": 15 }
                 ]
               },
               {
-                "text": "Sold I to the merchant ships",
+                "text": "For I have loved you well and long",
                 "chords": [
-                  { "chord": "C", "position": 0 },
+                  { "chord": "Am", "position": 0 },
                   { "chord": "G", "position": 18 }
                 ]
+              },
+              {
+                "text": "Delighting in your company",
+                "chords": [
+                  { "chord": "Em", "position": 0 },
+                  { "chord": "Am", "position": 14 }
+                ]
               }
             ]
           },
@@ -275,18 +136,31 @@
             "number": 1,
             "lines": [
               {
-                "text": "Won't you help to sing these songs of freedom",
+                "text": "Greensleeves was all my joy",
                 "chords": [
-                  { "chord": "D", "position": 0 },
+                  { "chord": "G", "position": 0 },
+                  { "chord": "Em", "position": 16 }
+                ]
+              },
+              {
+                "text": "Greensleeves was my delight",
+                "chords": [
+                  { "chord": "G", "position": 0 },
+                  { "chord": "E", "position": 20 }
+                ]
+              },
+              {
+                "text": "Greensleeves was my heart of gold",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
                   { "chord": "G", "position": 20 }
                 ]
               },
               {
-                "text": "Cause all I ever have, redemption songs",
+                "text": "And who but my lady Greensleeves",
                 "chords": [
-                  { "chord": "C", "position": 0 },
-                  { "chord": "D", "position": 18 },
-                  { "chord": "G", "position": 32 }
+                  { "chord": "Em", "position": 0 },
+                  { "chord": "Am", "position": 16 }
                 ]
               }
             ]
@@ -294,316 +168,49 @@
         ]
       },
       {
-        "id": "6",
-        "title": "Stairway to Heaven",
-        "artist": "Led Zeppelin",
-        "genre": "Rock",
-        "difficulty": "advanced",
+        "id": "pd-003",
+        "title": "Scarborough Fair",
+        "artist": "Traditional (English ballad)",
+        "genre": "Folk",
+        "difficulty": "intermediate",
         "key": "Am",
         "capo": 0,
-        "chords": ["Am", "E", "C", "D", "G", "F"],
-        "tags": ["classic", "epic", "fingerpicking"],
-        "notes": "Multiple sections with increasing tempo.",
+        "chords": ["Am", "G", "C", "D"],
+        "tags": ["traditional", "folk", "english", "ballad", "public-domain"],
+        "notes": "Public domain medieval English ballad. The arrangement popularized in the 1960s.",
         "content": [
-          {
-            "type": "intro",
-            "number": 1,
-            "lines": [
-              {
-                "text": "(arpeggiated intro)",
-                "chords": [
-                  { "chord": "Am", "position": 0 },
-                  { "chord": "E", "position": 12 }
-                ]
-              }
-            ]
-          },
           {
             "type": "verse",
             "number": 1,
             "lines": [
               {
-                "text": "There's a lady who's sure all that glitters is gold",
+                "text": "Are you going to Scarborough Fair",
                 "chords": [
                   { "chord": "Am", "position": 0 },
-                  { "chord": "E", "position": 24 }
+                  { "chord": "G", "position": 20 }
                 ]
               },
               {
-                "text": "And she's buying a stairway to heaven",
+                "text": "Parsley sage rosemary and thyme",
                 "chords": [
-                  { "chord": "C", "position": 0 },
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "C", "position": 12 },
+                  { "chord": "Am", "position": 28 }
+                ]
+              },
+              {
+                "text": "Remember me to one who lives there",
+                "chords": [
+                  { "chord": "Am", "position": 0 },
                   { "chord": "D", "position": 18 }
                 ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "7",
-        "title": "La Bamba",
-        "artist": "Ritchie Valens",
-        "genre": "Latin Rock",
-        "difficulty": "beginner",
-        "key": "C",
-        "capo": 0,
-        "chords": ["C", "F", "G"],
-        "tags": ["latin", "fun", "beginner"],
-        "notes": "Only three chords! Great first song.",
-        "content": [
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Para bailar la bamba",
-                "chords": [
-                  { "chord": "C", "position": 0 },
-                  { "chord": "F", "position": 10 },
-                  { "chord": "G", "position": 18 }
-                ]
               },
               {
-                "text": "Se necesita una poca de gracia",
+                "text": "She once was a true love of mine",
                 "chords": [
-                  { "chord": "C", "position": 0 },
-                  { "chord": "F", "position": 14 },
-                  { "chord": "G", "position": 24 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Yo no soy marinero, soy capitan",
-                "chords": [
-                  { "chord": "C", "position": 0 },
-                  { "chord": "F", "position": 12 },
-                  { "chord": "G", "position": 24 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "8",
-        "title": "Knockin on Heavens Door",
-        "artist": "Bob Dylan",
-        "genre": "Folk Rock",
-        "difficulty": "beginner",
-        "key": "G",
-        "capo": 0,
-        "chords": ["G", "D", "Am", "C"],
-        "tags": ["classic", "beginner", "campfire"],
-        "notes": "Four simple chords. Many cover versions exist.",
-        "content": [
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Mama take this badge off of me",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              },
-              {
-                "text": "I can't use it anymore",
-                "chords": [
-                  { "chord": "Am", "position": 0 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Knock knock knockin on heavens door",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 },
-                  { "chord": "C", "position": 28 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "9",
-        "title": "Tears in Heaven",
-        "artist": "Eric Clapton",
-        "genre": "Ballad",
-        "difficulty": "intermediate",
-        "key": "A",
-        "capo": 0,
-        "chords": ["A", "E", "F#m", "D", "Bm7", "E7"],
-        "tags": ["emotional", "fingerpicking", "classic"],
-        "notes": "Gentle fingerpicking throughout. Emotional piece.",
-        "content": [
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Would you know my name",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "E", "position": 14 }
-                ]
-              },
-              {
-                "text": "If I saw you in heaven",
-                "chords": [
-                  { "chord": "F#m", "position": 0 },
-                  { "chord": "D", "position": 14 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "I must be strong and carry on",
-                "chords": [
-                  { "chord": "Bm7", "position": 0 },
-                  { "chord": "E7", "position": 16 }
-                ]
-              },
-              {
-                "text": "Cause I know I don't belong here in heaven",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "E", "position": 20 },
-                  { "chord": "A", "position": 36 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "10",
-        "title": "De Musica Ligera",
-        "artist": "Soda Stereo",
-        "genre": "Latin Rock",
-        "difficulty": "beginner",
-        "key": "A",
-        "capo": 0,
-        "chords": ["A", "D", "E", "F#m"],
-        "tags": ["latin", "rock", "spanish"],
-        "notes": "Argentine rock classic. Simple power chords.",
-        "content": [
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Ella durmio al calor de las masas",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              },
-              {
-                "text": "Y yo no pude mas, despertar",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "E", "position": 16 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "De musica ligera",
-                "chords": [
-                  { "chord": "F#m", "position": 0 },
-                  { "chord": "D", "position": 10 }
-                ]
-              },
-              {
-                "text": "Nada nos libera",
-                "chords": [
-                  { "chord": "A", "position": 0 },
-                  { "chord": "E", "position": 10 }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "11",
-        "title": "Zombie",
-        "artist": "The Cranberries",
-        "genre": "Alternative Rock",
-        "difficulty": "intermediate",
-        "key": "Em",
-        "capo": 0,
-        "chords": ["Em", "C", "G", "D"],
-        "tags": ["90s", "rock", "classic", "powerful"],
-        "notes": "Same four chords throughout. Powerful vocals.",
-        "content": [
-          {
-            "type": "intro",
-            "number": 1,
-            "lines": [
-              {
-                "text": "(clean guitar arpeggios)",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 16 }
-                ]
-              },
-              {
-                "text": "(continue pattern)",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "verse",
-            "number": 1,
-            "lines": [
-              {
-                "text": "Another head hangs lowly",
-                "chords": [
-                  { "chord": "Em", "position": 0 }
-                ]
-              },
-              {
-                "text": "Child is slowly taken",
-                "chords": [
-                  { "chord": "C", "position": 0 }
-                ]
-              },
-              {
-                "text": "And the violence caused such silence",
-                "chords": [
-                  { "chord": "G", "position": 0 }
-                ]
-              },
-              {
-                "text": "Who are we mistaken",
-                "chords": [
-                  { "chord": "D", "position": 0 }
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "G", "position": 12 },
+                  { "chord": "Am", "position": 26 }
                 ]
               }
             ]
@@ -613,180 +220,33 @@
             "number": 2,
             "lines": [
               {
-                "text": "But you see it's not me",
+                "text": "Tell her to make me a cambric shirt",
                 "chords": [
-                  { "chord": "Em", "position": 0 }
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "G", "position": 22 }
                 ]
               },
               {
-                "text": "It's not my family",
+                "text": "Parsley sage rosemary and thyme",
                 "chords": [
-                  { "chord": "C", "position": 0 }
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "C", "position": 12 },
+                  { "chord": "Am", "position": 28 }
                 ]
               },
               {
-                "text": "In your head, in your head",
+                "text": "Without no seams nor needlework",
                 "chords": [
-                  { "chord": "G", "position": 0 }
-                ]
-              },
-              {
-                "text": "They are fighting",
-                "chords": [
-                  { "chord": "D", "position": 0 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 1,
-            "lines": [
-              {
-                "text": "In your head, in your head",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 16 }
-                ]
-              },
-              {
-                "text": "Zombie, zombie, zombie-ie-ie",
-                "chords": [
-                  { "chord": "G", "position": 0 },
+                  { "chord": "Am", "position": 0 },
                   { "chord": "D", "position": 16 }
                 ]
               },
               {
-                "text": "What's in your head, in your head",
+                "text": "Then she will be a true love of mine",
                 "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 20 }
-                ]
-              },
-              {
-                "text": "Zombie, zombie, zombie-ie-ie-ie oh",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "verse",
-            "number": 3,
-            "lines": [
-              {
-                "text": "Another mother's breakin'",
-                "chords": [
-                  { "chord": "Em", "position": 0 }
-                ]
-              },
-              {
-                "text": "Heart is taking over",
-                "chords": [
-                  { "chord": "C", "position": 0 }
-                ]
-              },
-              {
-                "text": "When the violence causes silence",
-                "chords": [
-                  { "chord": "G", "position": 0 }
-                ]
-              },
-              {
-                "text": "We must be mistaken",
-                "chords": [
-                  { "chord": "D", "position": 0 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "verse",
-            "number": 4,
-            "lines": [
-              {
-                "text": "It's the same old theme since 1916",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 20 }
-                ]
-              },
-              {
-                "text": "In your head, in your head",
-                "chords": [
-                  { "chord": "G", "position": 0 }
-                ]
-              },
-              {
-                "text": "They're still fighting",
-                "chords": [
-                  { "chord": "D", "position": 0 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "chorus",
-            "number": 2,
-            "lines": [
-              {
-                "text": "In your head, in your head",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 16 }
-                ]
-              },
-              {
-                "text": "Zombie, zombie, zombie-ie-ie",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              },
-              {
-                "text": "What's in your head, in your head",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 20 }
-                ]
-              },
-              {
-                "text": "Zombie, zombie, zombie-ie-ie-ie oh",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 16 }
-                ]
-              },
-              {
-                "text": "Oh oh oh oh oh oh oh ie-ie oh",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 14 },
-                  { "chord": "G", "position": 22 },
-                  { "chord": "D", "position": 28 }
-                ]
-              }
-            ]
-          },
-          {
-            "type": "outro",
-            "number": 1,
-            "lines": [
-              {
-                "text": "(repeat intro pattern, fade out)",
-                "chords": [
-                  { "chord": "Em", "position": 0 },
-                  { "chord": "C", "position": 16 }
-                ]
-              },
-              {
-                "text": "(end on Em)",
-                "chords": [
-                  { "chord": "G", "position": 0 },
-                  { "chord": "D", "position": 10 },
-                  { "chord": "Em", "position": 16 }
+                  { "chord": "Am", "position": 0 },
+                  { "chord": "G", "position": 14 },
+                  { "chord": "Am", "position": 30 }
                 ]
               }
             ]

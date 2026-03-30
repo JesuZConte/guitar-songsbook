@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface SongDao {
@@ -37,6 +38,15 @@ interface SongDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(songs: List<SongEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(song: SongEntity)
+
+    @Update
+    suspend fun update(song: SongEntity)
+
+    @Query("DELETE FROM songs WHERE id = :songId")
+    suspend fun deleteById(songId: String)
 
     @Query("SELECT COUNT(*) FROM songs")
     suspend fun count(): Int

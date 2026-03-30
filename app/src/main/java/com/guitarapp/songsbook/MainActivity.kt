@@ -1,6 +1,7 @@
 package com.guitarapp.songsbook
 
 import android.os.Bundle
+import com.google.android.gms.ads.MobileAds
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -45,11 +46,15 @@ import com.guitarapp.songsbook.data.repository.PlaylistRepository
 import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.presentation.Routes
+import com.guitarapp.songsbook.presentation.screens.AddSongScreen
+import com.guitarapp.songsbook.presentation.screens.PreviewReaderScreen
 import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistDetailScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistsScreen
+import com.guitarapp.songsbook.presentation.screens.SettingsScreen
 import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
+import com.guitarapp.songsbook.presentation.viewmodel.AddSongViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
@@ -94,6 +99,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         enableEdgeToEdge()
         setContent {
             GuitarSongsbookTheme {
@@ -197,7 +203,9 @@ private fun GuitarNavHost(
             }
             HomeScreen(
                 viewModel = homeViewModel,
-                onSongClick = { songId -> navController.navigate(Routes.reader(songId)) }
+                onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
+                onAddSongClick = { navController.navigate(Routes.ADD_SONG) },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
             )
         }
         composable(Routes.FAVORITES) {
@@ -234,6 +242,67 @@ private fun GuitarNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+        composable(Routes.ADD_SONG) {
+            val addSongViewModel: AddSongViewModel = viewModel(
+                factory = AddSongViewModel.Factory(songRepository)
+            )
+            AddSongScreen(
+                viewModel = addSongViewModel,
+                onBackClick = { navController.popBackStack() },
+                onPreviewClick = {
+                    val preview = addSongViewModel.buildPreviewSong()
+                    if (preview != null) {
+                        AddSongViewModel.pendingPreview = preview
+                        navController.navigate(Routes.PREVIEW)
+                    }
+                },
+                onSaveSuccess = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(Routes.PREVIEW) {
+            val previewSong = AddSongViewModel.pendingPreview
+            if (previewSong != null) {
+                val pages = ReaderViewModel.paginateSections(previewSong.content)
+                PreviewReaderScreen(
+                    song = previewSong,
+                    pages = pages,
+                    onBackClick = {
+                        AddSongViewModel.pendingPreview = null
+                        navController.popBackStack()
+                    }
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.popBackStack()
+                }
+            }
+        }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBackClick = { navController.popBackStack() })
+        }
+        composable(
+            route = Routes.EDIT_SONG,
+            arguments = listOf(navArgument("songId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
+            val editSongViewModel: AddSongViewModel = viewModel(
+                factory = AddSongViewModel.Factory(songRepository, editSongId = songId)
+            )
+            AddSongScreen(
+                viewModel = editSongViewModel,
+                onBackClick = { navController.popBackStack() },
+                onPreviewClick = {
+                    val preview = editSongViewModel.buildPreviewSong()
+                    if (preview != null) {
+                        AddSongViewModel.pendingPreview = preview
+                        navController.navigate(Routes.PREVIEW)
+                    }
+                },
+                onSaveSuccess = { navController.popBackStack() }
+            )
+        }
         composable(
             route = Routes.READER,
             arguments = listOf(navArgument("songId") { type = NavType.StringType })
@@ -245,7 +314,9 @@ private fun GuitarNavHost(
             SongReaderScreen(
                 viewModel = readerViewModel,
                 playlistsViewModel = playlistsViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onEditClick = { navController.navigate(Routes.editSong(songId)) },
+                onDeleteSuccess = { navController.popBackStack() }
             )
         }
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.utils.BracketParser
+import com.guitarapp.songsbook.utils.BracketSerializer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,11 +30,33 @@ data class AddSongUiState(
 }
 
 class AddSongViewModel(
-    private val songRepository: SongRepository
+    private val songRepository: SongRepository,
+    private val editSongId: String? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddSongUiState())
     val uiState: StateFlow<AddSongUiState> = _uiState.asStateFlow()
+
+    val isEditMode: Boolean get() = editSongId != null
+
+    init {
+        if (editSongId != null) loadSongForEdit(editSongId)
+    }
+
+    private fun loadSongForEdit(songId: String) {
+        viewModelScope.launch {
+            val song = songRepository.getSongById(songId) ?: return@launch
+            _uiState.value = AddSongUiState(
+                title = song.title,
+                artist = song.artist,
+                key = song.key,
+                capo = song.capo.toString(),
+                genre = song.genre,
+                difficulty = song.difficulty,
+                rawText = BracketSerializer.serialize(song.content)
+            )
+        }
+    }
 
     fun onTitleChanged(value: String) {
         _uiState.value = _uiState.value.copy(title = value)
@@ -92,13 +115,21 @@ class AddSongViewModel(
 
     fun saveSong() {
         val song = buildPreviewSong() ?: return
-        val songWithId = song.copy(id = UUID.randomUUID().toString())
+        val songWithId = if (editSongId != null) {
+            song.copy(id = editSongId)
+        } else {
+            song.copy(id = UUID.randomUUID().toString())
+        }
 
         _uiState.value = _uiState.value.copy(isSaving = true, error = null)
 
         viewModelScope.launch {
             try {
-                songRepository.insertSong(songWithId)
+                if (editSongId != null) {
+                    songRepository.updateSong(songWithId)
+                } else {
+                    songRepository.insertSong(songWithId)
+                }
                 _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -113,10 +144,13 @@ class AddSongViewModel(
         var pendingPreview: Song? = null
     }
 
-    class Factory(private val songRepository: SongRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val songRepository: SongRepository,
+        private val editSongId: String? = null
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AddSongViewModel(songRepository) as T
+            return AddSongViewModel(songRepository, editSongId) as T
         }
     }
 }
