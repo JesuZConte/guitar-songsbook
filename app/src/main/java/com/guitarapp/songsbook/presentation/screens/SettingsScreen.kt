@@ -1,5 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,11 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.data.local.UserPreferences
+import com.guitarapp.songsbook.utils.AnalyticsHelper
 import com.guitarapp.songsbook.utils.NotationSystem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBackClick: () -> Unit) {
+fun SettingsScreen(onBackClick: () -> Unit, onAboutClick: () -> Unit = {}) {
     val context = LocalContext.current
     var notation by remember { mutableStateOf(UserPreferences.getNotation(context)) }
 
@@ -64,8 +67,12 @@ fun SettingsScreen(onBackClick: () -> Unit) {
                     val newNotation = if (useLatin) NotationSystem.LATIN else NotationSystem.AMERICAN
                     UserPreferences.setNotation(context, newNotation)
                     notation = newNotation
+                    AnalyticsHelper.logNotationChanged(newNotation.name)
                 }
             )
+            HorizontalDivider()
+            SettingsSectionHeader("App")
+            AboutRow(onAboutClick)
             HorizontalDivider()
         }
     }
@@ -79,6 +86,28 @@ private fun SettingsSectionHeader(title: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     )
+}
+
+@Composable
+private fun AboutRow(onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "About",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 @Composable

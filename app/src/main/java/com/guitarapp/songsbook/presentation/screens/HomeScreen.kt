@@ -23,6 +23,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +42,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -103,7 +109,7 @@ fun HomeScreen(
             when {
                 uiState.isLoading -> LoadingContent()
                 uiState.error != null -> ErrorContent(uiState.error!!)
-                else -> SearchableSongList(uiState, viewModel, onSongClick)
+                else -> SearchableSongList(uiState, viewModel, onSongClick, onAddSongClick)
             }
         }
     }
@@ -113,8 +119,13 @@ fun HomeScreen(
 private fun SearchableSongList(
     uiState: HomeUiState,
     viewModel: HomeViewModel,
-    onSongClick: (String) -> Unit
+    onSongClick: (String) -> Unit,
+    onAddSongClick: () -> Unit
 ) {
+    val hasActiveFilter = uiState.query.isNotBlank() ||
+            uiState.selectedGenre != null ||
+            uiState.selectedDifficulty != null
+
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBar(
             query = uiState.query,
@@ -132,7 +143,11 @@ private fun SearchableSongList(
         )
 
         if (uiState.songs.isEmpty()) {
-            EmptyContent()
+            if (hasActiveFilter) {
+                NoResultsContent()
+            } else {
+                EmptyLibraryContent(onAddSongClick)
+            }
         } else {
             SongListContent(uiState.songs, onSongClick, viewModel::toggleFavorite)
         }
@@ -249,13 +264,56 @@ private fun ErrorContent(message: String) {
 }
 
 @Composable
-private fun EmptyContent() {
+private fun EmptyLibraryContent(onAddSongClick: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.LibraryMusic,
+                contentDescription = null,
+                modifier = Modifier.size(72.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Your songbook is empty",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Add the songs you play and keep\nyour chords always at hand.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Button(onClick = onAddSongClick) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text("Add your first song")
+            }
+        }
+    }
+}
+
+@Composable
+private fun NoResultsContent() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "No songs found",
+            text = "No songs match your search",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

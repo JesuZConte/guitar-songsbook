@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.utils.AnalyticsHelper
 import com.guitarapp.songsbook.utils.BracketParser
 import com.guitarapp.songsbook.utils.BracketSerializer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -127,8 +128,10 @@ class AddSongViewModel(
             try {
                 if (editSongId != null) {
                     songRepository.updateSong(songWithId)
+                    AnalyticsHelper.logSongEdited()
                 } else {
                     songRepository.insertSong(songWithId)
+                    AnalyticsHelper.logSongAdded()
                 }
                 _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {

@@ -10,6 +10,7 @@ object Routes {
     const val PREVIEW = "preview"
     const val READER = "reader/{songId}"
     const val SETTINGS = "settings"
+    const val ABOUT = "about"
 
     fun reader(songId: String): String = "reader/$songId"
     fun editSong(songId: String): String = "edit_song/$songId"

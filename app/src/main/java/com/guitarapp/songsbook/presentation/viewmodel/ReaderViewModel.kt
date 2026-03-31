@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongSection
+import com.guitarapp.songsbook.utils.AnalyticsHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,6 +57,7 @@ class ReaderViewModel(
                             isLoading = false
                         )
                     }
+                    AnalyticsHelper.logSongOpened(song.id, song.title)
                 } else {
                     _uiState.update {
                         it.copy(isLoading = false, error = "Song not found")
@@ -109,6 +111,7 @@ class ReaderViewModel(
         val songId = _uiState.value.song?.id ?: return
         viewModelScope.launch {
             songRepository.deleteSong(songId)
+            AnalyticsHelper.logSongDeleted()
             _uiState.update { it.copy(deleteSuccess = true) }
         }
     }

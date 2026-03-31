@@ -46,6 +46,7 @@ import com.guitarapp.songsbook.data.repository.PlaylistRepository
 import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.presentation.Routes
+import com.guitarapp.songsbook.presentation.screens.AboutScreen
 import com.guitarapp.songsbook.presentation.screens.AddSongScreen
 import com.guitarapp.songsbook.presentation.screens.PreviewReaderScreen
 import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
@@ -280,7 +281,13 @@ private fun GuitarNavHost(
             }
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBackClick = { navController.popBackStack() })
+            SettingsScreen(
+                onBackClick = { navController.popBackStack() },
+                onAboutClick = { navController.navigate(Routes.ABOUT) }
+            )
+        }
+        composable(Routes.ABOUT) {
+            AboutScreen(onBackClick = { navController.popBackStack() })
         }
         composable(
             route = Routes.EDIT_SONG,
