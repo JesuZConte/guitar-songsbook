@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
     kotlin("android")
     //id("com.google.devtools.ksp")
 }
@@ -67,6 +68,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.play.services.ads)
+    implementation(libs.play.services.auth)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)

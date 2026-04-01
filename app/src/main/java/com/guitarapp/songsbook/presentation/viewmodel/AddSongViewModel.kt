@@ -3,6 +3,7 @@ package com.guitarapp.songsbook.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.utils.AnalyticsHelper
@@ -126,6 +127,7 @@ class AddSongViewModel(
 
         viewModelScope.launch {
             try {
+                FirebaseCrashlytics.getInstance().log("AddSongViewModel: saving song, editMode=$isEditMode")
                 if (editSongId != null) {
                     songRepository.updateSong(songWithId)
                     AnalyticsHelper.logSongEdited()
@@ -135,6 +137,7 @@ class AddSongViewModel(
                 }
                 _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Failed to save song"

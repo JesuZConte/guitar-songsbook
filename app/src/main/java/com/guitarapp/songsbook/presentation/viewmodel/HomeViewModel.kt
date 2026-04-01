@@ -3,6 +3,7 @@ package com.guitarapp.songsbook.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import kotlinx.coroutines.FlowPreview
@@ -42,6 +43,7 @@ class HomeViewModel(
     private fun loadInitialData() {
         viewModelScope.launch {
             try {
+                FirebaseCrashlytics.getInstance().log("HomeViewModel: loading initial data")
                 val songs = songRepository.getSongs()
                 val genres = songRepository.getGenres()
                 val difficulties = songRepository.getDifficulties()
@@ -54,6 +56,7 @@ class HomeViewModel(
                     )
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.update {
                     it.copy(isLoading = false, error = e.message ?: "Unknown error")
                 }
@@ -124,6 +127,7 @@ class HomeViewModel(
                     _uiState.value.selectedDifficulty
                 )
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.update { it.copy(error = e.message ?: "Refresh failed") }
             }
         }
@@ -143,6 +147,7 @@ class HomeViewModel(
 
             _uiState.update { it.copy(songs = filtered) }
         } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
             _uiState.update { it.copy(error = e.message ?: "Search failed") }
         }
     }

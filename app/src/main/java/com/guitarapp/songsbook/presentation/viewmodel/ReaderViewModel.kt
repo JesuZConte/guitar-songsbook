@@ -3,6 +3,7 @@ package com.guitarapp.songsbook.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongSection
@@ -46,6 +47,7 @@ class ReaderViewModel(
     private fun loadSong() {
         viewModelScope.launch {
             try {
+                FirebaseCrashlytics.getInstance().log("ReaderViewModel: loading song $songId")
                 val song = songRepository.getSongById(songId)
                 if (song != null) {
                     val pages = paginateSections(song.content)
@@ -64,6 +66,7 @@ class ReaderViewModel(
                     }
                 }
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.update {
                     it.copy(isLoading = false, error = e.message ?: "Unknown error")
                 }

@@ -1,6 +1,7 @@
 package com.guitarapp.songsbook.data.repository
 
 import android.content.res.AssetManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import com.guitarapp.songsbook.data.local.SongDao
 import com.guitarapp.songsbook.data.local.SongEntity
@@ -64,13 +65,19 @@ class AssetSongRepository(
     }
 
     private suspend fun seedFromAssets() {
-        val jsonString = assetManager
-            .open("songs.json")
-            .bufferedReader()
-            .use { it.readText() }
+        try {
+            FirebaseCrashlytics.getInstance().log("AssetSongRepository: seeding from assets")
+            val jsonString = assetManager
+                .open("songs.json")
+                .bufferedReader()
+                .use { it.readText() }
 
-        val response = Gson().fromJson(jsonString, SongbookResponse::class.java)
-        val entities = response.songbook.songs.map { SongEntity.fromDomain(it) }
-        songDao.insertAll(entities)
+            val response = Gson().fromJson(jsonString, SongbookResponse::class.java)
+            val entities = response.songbook.songs.map { SongEntity.fromDomain(it) }
+            songDao.insertAll(entities)
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            throw e
+        }
     }
 }
