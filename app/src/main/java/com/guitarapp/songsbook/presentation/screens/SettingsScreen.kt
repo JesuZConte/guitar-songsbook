@@ -161,7 +161,7 @@ private fun NotationToggleRow(isLatin: Boolean, onToggle: (Boolean) -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Latin notation",
+                text = if (isLatin) "Latin notation" else "American notation",
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(

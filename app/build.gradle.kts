@@ -1,3 +1,9 @@
+import java.util.Properties
+
+val props = Properties().also { p ->
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { p.load(it) }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -26,10 +32,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/luis_jesus/keystores/guitar-songbook.jks")
+            storePassword = props.getProperty("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = "guitar-songbook"
+            keyPassword = props.getProperty("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

@@ -33,7 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +54,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
+import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.utils.ChordNotation
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -95,7 +98,11 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddSongClick) {
+            LargeFloatingActionButton(
+                onClick = onAddSongClick,
+                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                contentColor = MaterialTheme.colorScheme.inverseOnSurface
+            ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add song")
             }
         },
@@ -336,7 +343,7 @@ private fun SongListContent(
         items(songs) { song ->
             SongCard(song, onSongClick, onFavoriteClick)
         }
-        item { Box(modifier = Modifier.padding(bottom = 8.dp)) }
+        item { Box(modifier = Modifier.padding(bottom = 72.dp)) }
     }
 }
 
@@ -415,10 +422,13 @@ private fun SongCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary
                 )
-                Text(
-                    text = "Key: ${song.key}",
-                    style = MaterialTheme.typography.bodySmall
-                )
+                if (song.key.isNotBlank()) {
+                    val notation = UserPreferences.getNotation(LocalContext.current)
+                    Text(
+                        text = "Key: ${ChordNotation.convert(song.key, notation)}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 DifficultyIndicator(song.difficulty)
             }
         }

@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -263,9 +264,9 @@ private fun GuitarNavHost(
             )
         }
         composable(Routes.PREVIEW) {
-            val previewSong = AddSongViewModel.pendingPreview
+            val previewSong = remember { AddSongViewModel.pendingPreview }
             if (previewSong != null) {
-                val pages = ReaderViewModel.paginateSections(previewSong.content)
+                val pages = ReaderViewModel.paginateContent(previewSong.content, 14, 550f)
                 PreviewReaderScreen(
                     song = previewSong,
                     pages = pages,

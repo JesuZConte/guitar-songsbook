@@ -8,8 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,6 +44,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,11 +52,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -67,6 +76,7 @@ import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.ui.theme.ChordColorDark
 import com.guitarapp.songsbook.ui.theme.ChordColorLight
 import com.guitarapp.songsbook.ui.theme.Merriweather
+import com.guitarapp.songsbook.utils.ChordNotation
 import com.guitarapp.songsbook.utils.NotationSystem
 import com.guitarapp.songsbook.utils.buildChordLine
 
@@ -86,6 +96,17 @@ fun SongReaderScreen(
 
     LaunchedEffect(uiState.deleteSuccess) {
         if (uiState.deleteSuccess) onDeleteSuccess()
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Scaffold(
@@ -177,11 +198,19 @@ fun SongReaderScreen(
             }
         }
     ) { paddingValues ->
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            val density = LocalDensity.current
+            val contentPadding = 24f // 12dp top + 12dp bottom in PageContent
+            val availableHeightDp = with(density) { constraints.maxHeight.toDp().value } - contentPadding
+
+            LaunchedEffect(availableHeightDp) {
+                viewModel.setAvailableHeight(availableHeightDp)
+            }
+
             when {
                 uiState.isLoading -> {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -301,6 +330,13 @@ private fun SongPager(
         }
     }
 
+    // Keep pager in sync when repagination adjusts currentPage
+    LaunchedEffect(currentPage, pages.size) {
+        if (pagerState.currentPage != currentPage && currentPage < pages.size) {
+            pagerState.scrollToPage(currentPage)
+        }
+    }
+
     HorizontalPager(
         state = pagerState,
         modifier = Modifier.fillMaxSize()
@@ -327,7 +363,7 @@ private fun PageContent(
     onTap: () -> Unit,
     song: Song?
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -337,7 +373,10 @@ private fun PageContent(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top
         ) {
             if (pageNumber == 1 && song != null) {
@@ -349,14 +388,15 @@ private fun PageContent(
             }
         }
 
-        if (isFullscreen) {
+        if (totalPages > 1) {
             Text(
                 text = "$pageNumber / $totalPages",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 8.dp)
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
             )
         }
     }
@@ -383,8 +423,9 @@ private fun SongHeader(song: Song, fontSize: Int) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             if (song.key.isNotBlank()) {
+                val displayKey = ChordNotation.convert(song.key, UserPreferences.getNotation(LocalContext.current))
                 Text(
-                    text = "Key: ${song.key}",
+                    text = "Key: $displayKey",
                     fontSize = (fontSize - 2).sp,
                     color = MaterialTheme.colorScheme.secondary
                 )

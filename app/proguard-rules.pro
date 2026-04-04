@@ -13,10 +13,14 @@
 -keep class * implements com.google.gson.TypeAdapterFactory
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
-# Keep domain model fields used by Gson
--keepclassmembers class com.guitarapp.songsbook.domain.model.** { *; }
--keepclassmembers class com.guitarapp.songsbook.data.local.** { *; }
--keepclassmembers class com.guitarapp.songsbook.data.repository.SongbookResponse { *; }
+# Keep all classes Gson touches via reflection
+-keep class com.guitarapp.songsbook.domain.model.** { <init>(...); *; }
+-keep class com.guitarapp.songsbook.data.local.SongEntity { <init>(...); *; }
+-keep class com.guitarapp.songsbook.data.local.Converters { <init>(...); *; }
+-keep class com.guitarapp.songsbook.data.repository.SongbookResponse { <init>(...); *; }
+-keep class com.guitarapp.songsbook.data.repository.SongbookData { <init>(...); *; }
+# Keep Gson TypeToken subclasses (used by Converters for generic type resolution)
+-keep class * extends com.google.gson.reflect.TypeToken { *; }
 
 # ---- Room ----
 -keep class * extends androidx.room.RoomDatabase

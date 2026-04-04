@@ -30,10 +30,10 @@ interface SongDao {
     @Query("UPDATE songs SET is_favorite = NOT is_favorite WHERE id = :songId")
     suspend fun toggleFavorite(songId: String)
 
-    @Query("SELECT DISTINCT genre FROM songs ORDER BY genre")
+    @Query("SELECT DISTINCT genre FROM songs WHERE genre != '' ORDER BY genre")
     suspend fun getAllGenres(): List<String>
 
-    @Query("SELECT DISTINCT difficulty FROM songs ORDER BY difficulty")
+    @Query("SELECT DISTINCT difficulty FROM songs WHERE difficulty != '' ORDER BY difficulty")
     suspend fun getAllDifficulties(): List<String>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

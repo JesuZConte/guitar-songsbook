@@ -17,6 +17,10 @@ object BracketSerializer {
         }
     }
 
+    fun serializeSectionContent(section: SongSection): String {
+        return section.lines.joinToString("\n") { serializeLine(it) }
+    }
+
     private fun serializeLine(line: SongLine): String {
         if (line.chords.isEmpty()) return line.text
 
