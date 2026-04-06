@@ -266,10 +266,8 @@ private fun GuitarNavHost(
         composable(Routes.PREVIEW) {
             val previewSong = remember { AddSongViewModel.pendingPreview }
             if (previewSong != null) {
-                val pages = ReaderViewModel.paginateContent(previewSong.content, 14, 550f)
                 PreviewReaderScreen(
                     song = previewSong,
-                    pages = pages,
                     onBackClick = {
                         AddSongViewModel.pendingPreview = null
                         navController.popBackStack()
