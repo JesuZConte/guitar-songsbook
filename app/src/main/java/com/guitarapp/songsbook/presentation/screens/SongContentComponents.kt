@@ -1,7 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,11 +16,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -42,6 +47,7 @@ import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.ChordNotation
 import com.guitarapp.songsbook.utils.buildChordLine
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * Pixels reserved at the bottom of every page for the "1 / 2" indicator.
@@ -158,6 +164,9 @@ internal fun VirtualPagedSong(
         val pagerPlaceable = subcompose(SongContentSlot.Pager) {
             LaunchedEffect(pageCount) { onPageCountMeasured(pageCount) }
 
+            val scope = rememberCoroutineScope()
+            var pagerWidthPx by remember { mutableIntStateOf(0) }
+
             val pagerState = rememberPagerState(
                 initialPage = currentPage.coerceIn(0, pageCount - 1),
                 pageCount = { pageCount }
@@ -178,10 +187,30 @@ internal fun VirtualPagedSong(
                 state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { onTap() }
+                    .onSizeChanged { pagerWidthPx = it.width }
+                    .pointerInput(pageCount) {
+                        detectTapGestures { offset ->
+                            when {
+                                offset.x < pagerWidthPx / 3f -> {
+                                    // Left third → previous page
+                                    if (pagerState.currentPage > 0) {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                        }
+                                    }
+                                }
+                                offset.x > pagerWidthPx * 2f / 3f -> {
+                                    // Right third → next page
+                                    if (pagerState.currentPage < pageCount - 1) {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                        }
+                                    }
+                                }
+                                else -> onTap() // Centre third → toggle fullscreen
+                            }
+                        }
+                    }
             ) { pageIndex ->
                 // Clip exactly to the distance between this page's start and the next,
                 // so no line is ever cut at the bottom. Any remaining space (last page or

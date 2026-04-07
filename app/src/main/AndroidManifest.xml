@@ -11,10 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GuitarSongsbook">
-        <!-- Test AdMob App ID — replace with real ID before release -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-8804586949821046~8761207364" />
         <!-- Resolve conflict between play-services-ads and firebase-measurement -->
         <property
             android:name="android.adservices.AD_SERVICES_CONFIG"
