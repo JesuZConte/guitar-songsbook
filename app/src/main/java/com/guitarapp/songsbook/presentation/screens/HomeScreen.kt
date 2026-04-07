@@ -81,7 +81,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Guitar Songbook") },
+                title = { Text("Cancionero") },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
