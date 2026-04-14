@@ -16,3 +16,4 @@ local.properties
 
 # Firebase credentials — use your own google-services.json from Firebase Console
 app/google-services.json
+.claude/
