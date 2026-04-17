@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -31,6 +35,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -38,6 +43,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -134,6 +140,8 @@ fun AddSongScreen(
     var inputMode by remember { mutableStateOf(InputMode.BUILDER) }
     var builderSections by remember { mutableStateOf(rawTextToBuilderSections(uiState.rawText)) }
     var builderInitialized by remember { mutableStateOf(!viewModel.isEditMode) }
+    var showFormatHelp by remember { mutableStateOf(false) }
+    val formatHelpSheetState = rememberModalBottomSheetState()
 
     // In edit mode the ViewModel loads the song asynchronously — reinitialize
     // builder sections once rawText arrives from the repository.
@@ -167,13 +175,15 @@ fun AddSongScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
-        }
+        },
+        contentWindowInsets = WindowInsets(0)
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
+                .imePadding()
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -198,13 +208,10 @@ fun AddSongScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(
-                    value = uiState.key,
-                    onValueChange = viewModel::onKeyChanged,
-                    label = { Text("Key") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    placeholder = { Text("Auto") }
+                KeyDropdown(
+                    selected = uiState.key,
+                    onSelected = viewModel::onKeyChanged,
+                    modifier = Modifier.weight(1f)
                 )
                 OutlinedTextField(
                     value = uiState.capo,
@@ -242,7 +249,8 @@ fun AddSongScreen(
                         builderSections = rawTextToBuilderSections(uiState.rawText)
                     }
                     inputMode = newMode
-                }
+                },
+                onHelpClick = { showFormatHelp = true }
             )
 
             // ---- Content area ----
@@ -264,7 +272,7 @@ fun AddSongScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 250.dp),
+                        .heightIn(min = 250.dp, max = 400.dp),
                     maxLines = Int.MAX_VALUE,
                     textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
                 )
@@ -304,12 +312,25 @@ fun AddSongScreen(
             }
         }
     }
+
+    if (showFormatHelp) {
+        ModalBottomSheet(
+            onDismissRequest = { showFormatHelp = false },
+            sheetState = formatHelpSheetState
+        ) {
+            FormatHelpContent()
+        }
+    }
 }
 
 // ---- Mode toggle ----
 
 @Composable
-private fun InputModeToggle(mode: InputMode, onModeChange: (InputMode) -> Unit) {
+private fun InputModeToggle(
+    mode: InputMode,
+    onModeChange: (InputMode) -> Unit,
+    onHelpClick: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -330,6 +351,78 @@ private fun InputModeToggle(mode: InputMode, onModeChange: (InputMode) -> Unit) 
             onClick = { onModeChange(InputMode.TEXT) },
             label = { Text("Text") }
         )
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = onHelpClick, modifier = Modifier.size(32.dp)) {
+            Icon(
+                Icons.Outlined.Info,
+                contentDescription = "Format help",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// ---- Format help bottom sheet ----
+
+@Composable
+private fun FormatHelpContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = "How to write chords",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "Place the chord name in square brackets right before the syllable where it's played.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Example",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "[Am]Hello [F]darkness, my [C]old [G]friend",
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = "Tips",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "• Use Builder mode and tap a chord chip to insert it at the cursor.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "• Use Text mode to paste a full song and edit it directly.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "• Section headers like [Verse 1] or [Chorus 1] are added automatically in Builder mode.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -401,7 +494,7 @@ private fun SectionCard(
                 onValueChange = { onContentChange(section.copy(content = it)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 120.dp),
+                    .heightIn(min = 120.dp, max = 300.dp),
                 label = { Text("Lyrics & chords") },
                 placeholder = {
                     Text(
@@ -479,6 +572,55 @@ private fun AddSectionBar(onAdd: (String) -> Unit) {
                     onClick = { onAdd(type) },
                     label = { Text(type.replaceFirstChar { it.uppercase() }) },
                     icon = { Icon(Icons.Filled.Add, contentDescription = null) }
+                )
+            }
+        }
+    }
+}
+
+// ---- Key dropdown ----
+
+private val MUSICAL_KEYS = listOf(
+    "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B",
+    "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "Abm", "Am", "Bbm", "Bm"
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun KeyDropdown(
+    selected: String,
+    onSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = selected.ifBlank { "Auto" },
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Key") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Auto") },
+                onClick = { onSelected(""); expanded = false }
+            )
+            MUSICAL_KEYS.forEach { key ->
+                DropdownMenuItem(
+                    text = { Text(key) },
+                    onClick = { onSelected(key); expanded = false }
                 )
             }
         }

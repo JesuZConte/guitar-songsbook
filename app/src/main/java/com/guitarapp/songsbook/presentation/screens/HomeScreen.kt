@@ -81,7 +81,19 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cancionero") },
+                title = {
+                    Column {
+                        Text(
+                            text = "Cancionero",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            text = "My personal songbook",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
@@ -294,7 +306,7 @@ private fun EmptyLibraryContent(onAddSongClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Add the songs you play and keep\nyour chords always at hand.",
+                text = "Add your own songs and arrangements.\nEverything is stored on your device,\nno account or internet needed.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center

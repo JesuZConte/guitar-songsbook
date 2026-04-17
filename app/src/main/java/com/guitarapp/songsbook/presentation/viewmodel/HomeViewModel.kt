@@ -121,6 +121,9 @@ class HomeViewModel(
     fun refreshSongs() {
         viewModelScope.launch {
             try {
+                val genres = songRepository.getGenres()
+                val difficulties = songRepository.getDifficulties()
+                _uiState.update { it.copy(genres = genres, difficulties = difficulties) }
                 performSearch(
                     _uiState.value.query,
                     _uiState.value.selectedGenre,
