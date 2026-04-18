@@ -1,7 +1,11 @@
 # ADR-015: Song Difficulty Field — Usefulness Review
 
 ## Status
-Deferred — field exists in the data model, no UI decision made yet
+Superseded by v1.2 múltiples versiones — ver ROADMAP_V1X.md
+
+El campo `difficulty` se eliminará de la UI en v1.2. El concepto de nivel queda
+implícito en el nombre de cada versión ("Versión fácil", "Original", etc.).
+El campo Mastery fue descartado — múltiples versiones resuelve el problema mejor.
 
 ## Context
 The `Song` data model includes a `difficulty` field. The intended use was to let users classify their songs (e.g. Beginner / Intermediate / Advanced) and potentially filter by difficulty on the Home screen.

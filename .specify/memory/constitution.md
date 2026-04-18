@@ -1,32 +1,19 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: (unversioned template) → 1.0.0
-Rationale: Initial population of all placeholders. MINOR bump (1.0.0) as this is
-the first complete, authoritative constitution for the Cancionero project.
+Version change: 1.0.0 → 1.1.0
+Rationale: New principle added (XI). MINOR bump per versioning policy.
 
-Principles added (10, all new):
-  I.   The Reader is Sacred
-  II.  Offline First, Always
-  III. Users Bring Their Music, We Provide the Tools
-  IV.  Chords Public, Lyrics Private
-  V.   Simplicity Now, Extensibility Later
-  VI.  Warm Vintage Identity — Brand in Chrome, Clarity in Content
-  VII. Respect Musician Workflows
-  VIII.Privacy by Default
-  IX.  Production Quality from Day One
-  X.   Free to Use, Unobtrusive to Monetize
+Principles added:
+  XI. Premium by Gratitude, Never by Frustration
 
-Sections added:
-  - Core Principles (10 principles)
-  - Version Boundaries
-  - Governance
+Principles modified: none.
+Sections modified: Version Boundaries (AI format conversion added to v2 list).
 
 Templates reviewed:
-  ✅ .specify/templates/plan-template.md — Constitution Check section is generic;
-     gates are derived at plan-time from this file. No structural update needed.
-  ✅ .specify/templates/spec-template.md — No principle-specific references; remains valid.
-  ✅ .specify/templates/tasks-template.md — No principle-specific references; remains valid.
+  ✅ .specify/templates/plan-template.md — no update needed.
+  ✅ .specify/templates/spec-template.md — no update needed.
+  ✅ .specify/templates/tasks-template.md — no update needed.
 
 Deferred TODOs: none.
 -->
@@ -139,6 +126,30 @@ Monetization constraints:
 Revenue MUST never compromise the reading experience. Any ad placement that
 affects Reader usability is a constitution violation.
 
+### XI. Premium by Gratitude, Never by Frustration
+
+The free version of Cancionero MUST be genuinely complete. A user who never
+pays MUST be able to use every core feature without feeling blocked, crippled,
+or nudged into paying.
+
+Premium features MUST earn their price independently — they exist because they
+deliver real extra value, not because core functionality was withheld to create
+pressure.
+
+The test for any premium feature:
+*Would a free user feel frustrated that this is locked, or would they feel that
+paying is a fair exchange for something genuinely useful?*
+
+If the answer is frustration, the feature MUST NOT be put behind a paywall.
+
+**Specific constraints:**
+- Core songbook features (add, edit, delete, read, search, export) MUST always
+  be free.
+- Premium MAY include: removing ads, AI-powered tools, cloud sync, community
+  features — things that cost money to operate or deliver exceptional convenience.
+- Showing locked features prominently to pressure free users into paying is
+  PROHIBITED. Premium features are discoverable but MUST NOT dominate the UI.
+
 ## Version Boundaries
 
 This section governs which features belong to which release. Shipping a v2
@@ -158,6 +169,7 @@ feature in v1 requires an ADR justifying the exception.
 - Community chord sharing (chord structure only; lyrics private).
 - "Remove Ads" in-app purchase.
 - Transposition (deferred from v1 per ADR-018).
+- AI-powered song format conversion (Claude API, unlocked by Remove Ads IAP).
 
 ## Governance
 
@@ -179,4 +191,4 @@ and prior conventions. Where conflict exists, this document wins.
   approved before work begins.
 - Architecture decisions are tracked in `docs/adr/`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-13
+**Version**: 1.1.0 | **Ratified**: 2026-04-13 | **Last Amended**: 2026-04-18
