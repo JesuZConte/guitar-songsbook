@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
@@ -40,12 +41,17 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -65,6 +71,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.data.local.UserPreferences
+import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
@@ -81,14 +88,37 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    playlists: List<Playlist> = emptyList(),
     onSongClick: (String) -> Unit,
     onEditClick: (String) -> Unit = {},
     onAddSongClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onAddToPlaylist: (songId: String, playlistId: Long) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    val handleDelete = { songId: String ->
+        val title = uiState.songs.find { it.id == songId }?.title ?: "Song"
+        viewModel.removeSongFromUi(songId)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = "\"$title\" deleted",
+                actionLabel = "Undo",
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoDelete(songId)
+            } else {
+                viewModel.confirmDelete(songId)
+            }
+        }
+        Unit
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -138,7 +168,16 @@ fun HomeScreen(
             when {
                 uiState.isLoading -> LoadingContent()
                 uiState.error != null -> ErrorContent(uiState.error!!)
-                else -> SearchableSongList(uiState, viewModel, onSongClick, onEditClick, onAddSongClick)
+                else -> SearchableSongList(
+                uiState = uiState,
+                viewModel = viewModel,
+                playlists = playlists,
+                onSongClick = onSongClick,
+                onEditClick = onEditClick,
+                onDeleteClick = handleDelete,
+                onAddSongClick = onAddSongClick,
+                onAddToPlaylist = onAddToPlaylist
+            )
             }
         }
     }
@@ -148,9 +187,12 @@ fun HomeScreen(
 private fun SearchableSongList(
     uiState: HomeUiState,
     viewModel: HomeViewModel,
+    playlists: List<Playlist>,
     onSongClick: (String) -> Unit,
     onEditClick: (String) -> Unit,
-    onAddSongClick: () -> Unit
+    onDeleteClick: (String) -> Unit,
+    onAddSongClick: () -> Unit,
+    onAddToPlaylist: (songId: String, playlistId: Long) -> Unit
 ) {
     val hasActiveFilter = uiState.query.isNotBlank() ||
             uiState.selectedGenre != null ||
@@ -181,10 +223,12 @@ private fun SearchableSongList(
         } else {
             SongListContent(
                 songs = uiState.songs,
+                playlists = playlists,
                 onSongClick = onSongClick,
                 onFavoriteClick = viewModel::toggleFavorite,
                 onEditClick = onEditClick,
-                onDeleteClick = viewModel::deleteSong
+                onDeleteClick = onDeleteClick,
+                onAddToPlaylist = onAddToPlaylist
             )
         }
     }
@@ -359,10 +403,12 @@ private fun NoResultsContent() {
 @Composable
 private fun SongListContent(
     songs: List<Song>,
+    playlists: List<Playlist>,
     onSongClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
     onEditClick: (String) -> Unit,
-    onDeleteClick: (String) -> Unit
+    onDeleteClick: (String) -> Unit,
+    onAddToPlaylist: (songId: String, playlistId: Long) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -372,7 +418,15 @@ private fun SongListContent(
     ) {
         item { Box(modifier = Modifier.padding(top = 4.dp)) }
         items(songs) { song ->
-            SongCard(song, onSongClick, onFavoriteClick, onEditClick, onDeleteClick)
+            SongCard(
+                song = song,
+                playlists = playlists,
+                onSongClick = onSongClick,
+                onFavoriteClick = onFavoriteClick,
+                onEditClick = onEditClick,
+                onDeleteClick = onDeleteClick,
+                onAddToPlaylist = onAddToPlaylist
+            )
         }
         item { Box(modifier = Modifier.padding(bottom = 72.dp)) }
     }
@@ -382,34 +436,24 @@ private fun SongListContent(
 @Composable
 private fun SongCard(
     song: Song,
+    playlists: List<Playlist>,
     onSongClick: (String) -> Unit,
     onFavoriteClick: (String) -> Unit,
     onEditClick: (String) -> Unit,
-    onDeleteClick: (String) -> Unit
+    onDeleteClick: (String) -> Unit,
+    onAddToPlaylist: (songId: String, playlistId: Long) -> Unit
 ) {
     var showMenu by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showPlaylistDialog by remember { mutableStateOf(false) }
 
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete song") },
-            text = { Text("\"${song.title}\" will be permanently deleted. This cannot be undone.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        onDeleteClick(song.id)
-                    }
-                ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
+    if (showPlaylistDialog) {
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onSelect = { playlistId ->
+                showPlaylistDialog = false
+                onAddToPlaylist(song.id, playlistId)
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            onDismiss = { showPlaylistDialog = false }
         )
     }
 
@@ -511,6 +555,15 @@ private fun SongCard(
                 }
             )
             DropdownMenuItem(
+                text = { Text("Add to playlist") },
+                leadingIcon = { Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = null) },
+                onClick = {
+                    showMenu = false
+                    showPlaylistDialog = true
+                }
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
                 text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
                 leadingIcon = {
                     Icon(
@@ -521,7 +574,7 @@ private fun SongCard(
                 },
                 onClick = {
                     showMenu = false
-                    showDeleteDialog = true
+                    onDeleteClick(song.id)
                 }
             )
         }
@@ -560,4 +613,52 @@ private fun DifficultyIndicator(difficulty: String) {
             color = color
         )
     }
+}
+
+@Composable
+private fun AddToPlaylistDialog(
+    playlists: List<Playlist>,
+    onSelect: (Long) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add to playlist") },
+        text = {
+            if (playlists.isEmpty()) {
+                Text(
+                    "You don't have any playlists yet. Create one from the Playlists tab.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                Column {
+                    playlists.forEach { playlist ->
+                        TextButton(
+                            onClick = { onSelect(playlist.id) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.QueueMusic,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.size(8.dp))
+                                Text(playlist.name)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }

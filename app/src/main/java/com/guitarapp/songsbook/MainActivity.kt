@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -201,6 +202,8 @@ private fun GuitarNavHost(
     onThemeModeChanged: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val playlistsUiState by playlistsViewModel.uiState.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = Routes.HOME,
@@ -224,10 +227,14 @@ private fun GuitarNavHost(
             }
             HomeScreen(
                 viewModel = homeViewModel,
+                playlists = playlistsUiState.playlists,
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
                 onEditClick = { songId -> navController.navigate(Routes.editSong(songId)) },
                 onAddSongClick = { navController.navigate(Routes.ADD_SONG) },
-                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
+                onAddToPlaylist = { songId, playlistId ->
+                    playlistsViewModel.addSongToPlaylist(playlistId, songId)
+                }
             )
         }
         composable(Routes.FAVORITES) {

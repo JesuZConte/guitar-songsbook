@@ -132,6 +132,27 @@ class HomeViewModel(
         }
     }
 
+    /** Removes the song from the UI list immediately without touching the DB (for snackbar-undo flow). */
+    fun removeSongFromUi(songId: String) {
+        _uiState.update { state -> state.copy(songs = state.songs.filter { it.id != songId }) }
+    }
+
+    /** Song is still in the DB — just reload the list to restore it in the UI. */
+    fun undoDelete(songId: String) {
+        refreshSongs()
+    }
+
+    /** Actually deletes from DB after the undo window has passed. */
+    fun confirmDelete(songId: String) {
+        viewModelScope.launch {
+            try {
+                songRepository.deleteSong(songId)
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+            }
+        }
+    }
+
     fun refreshSongs() {
         viewModelScope.launch {
             try {
