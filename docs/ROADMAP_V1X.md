@@ -93,7 +93,20 @@ de testers de la prueba cerrada alpha.
 
 ---
 
-## v1.5 — Setlist mode
+## v1.5 — Internacionalización (i18n)
+
+### Selector de idioma de la app
+- Soporte inicial: Inglés (por defecto) + Español
+- Implementación con el sistema nativo de Android (`strings.xml` por idioma)
+- Selector en Settings bajo una nueva sección "Language"
+- Todos los textos de la UI migrados a recursos de strings (trabajo sistemático
+  pero sin complejidad técnica — es revisión pantalla por pantalla)
+- El idioma se puede cambiar sin reiniciar la app usando `AppCompatDelegate`
+- Abrir a más idiomas en el futuro según la base de usuarios que se forme
+
+---
+
+## v1.6 — Setlist mode
 
 ### Setlist mode (Reader continuo)
 - Una Collection puede marcarse como Setlist

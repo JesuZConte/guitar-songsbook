@@ -118,6 +118,20 @@ class HomeViewModel(
         }
     }
 
+    fun deleteSong(songId: String) {
+        viewModelScope.launch {
+            try {
+                songRepository.deleteSong(songId)
+                _uiState.update { state ->
+                    state.copy(songs = state.songs.filter { it.id != songId })
+                }
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.update { it.copy(error = e.message ?: "Could not delete song") }
+            }
+        }
+    }
+
     fun refreshSongs() {
         viewModelScope.launch {
             try {

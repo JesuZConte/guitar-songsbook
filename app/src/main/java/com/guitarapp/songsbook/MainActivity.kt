@@ -9,8 +9,14 @@ import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.guitarapp.songsbook.data.local.ThemeMode
+import com.guitarapp.songsbook.data.local.UserPreferences
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -78,6 +84,8 @@ private val bottomNavItems = listOf(
 
 class MainActivity : ComponentActivity() {
 
+    var themeMode by mutableStateOf(ThemeMode.SYSTEM)
+
     private val database by lazy { SongDatabase.getInstance(this) }
     private val songRepository: SongRepository by lazy {
         AssetSongRepository(assets, database.songDao())
@@ -103,8 +111,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this)
         enableEdgeToEdge()
+        themeMode = UserPreferences.getThemeMode(this)
         setContent {
-            GuitarSongsbookTheme {
+            val darkTheme = when (themeMode) {
+                ThemeMode.DARK -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            GuitarSongsbookTheme(darkTheme = darkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -137,6 +151,10 @@ class MainActivity : ComponentActivity() {
                             homeViewModel = homeViewModel,
                             favoritesViewModel = favoritesViewModel,
                             playlistsViewModel = playlistsViewModel,
+                            onThemeModeChanged = { mode ->
+                                UserPreferences.setThemeMode(this@MainActivity, mode)
+                                themeMode = mode
+                            },
                             modifier = Modifier.padding(paddingValues)
                         )
                     }
@@ -180,6 +198,7 @@ private fun GuitarNavHost(
     homeViewModel: HomeViewModel,
     favoritesViewModel: FavoritesViewModel,
     playlistsViewModel: PlaylistsViewModel,
+    onThemeModeChanged: (ThemeMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -206,6 +225,7 @@ private fun GuitarNavHost(
             HomeScreen(
                 viewModel = homeViewModel,
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
+                onEditClick = { songId -> navController.navigate(Routes.editSong(songId)) },
                 onAddSongClick = { navController.navigate(Routes.ADD_SONG) },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS) }
             )
@@ -282,7 +302,8 @@ private fun GuitarNavHost(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 onBackClick = { navController.popBackStack() },
-                onAboutClick = { navController.navigate(Routes.ABOUT) }
+                onAboutClick = { navController.navigate(Routes.ABOUT) },
+                onThemeModeChanged = onThemeModeChanged
             )
         }
         composable(Routes.ABOUT) {

@@ -58,9 +58,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getTextBeforeSelection
 import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.presentation.viewmodel.AddSongViewModel
 import com.guitarapp.songsbook.utils.BracketParser
 import com.guitarapp.songsbook.utils.BracketSerializer
+import com.guitarapp.songsbook.utils.ChordNotation
 import java.util.UUID
 import androidx.compose.ui.text.TextRange
 
@@ -593,6 +595,10 @@ private fun KeyDropdown(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val notation = UserPreferences.getNotation(context)
+
+    fun keyLabel(americanKey: String) = ChordNotation.convert(americanKey, notation)
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -600,7 +606,7 @@ private fun KeyDropdown(
         modifier = modifier
     ) {
         OutlinedTextField(
-            value = selected.ifBlank { "Auto" },
+            value = if (selected.isBlank()) "Auto" else keyLabel(selected),
             onValueChange = {},
             readOnly = true,
             label = { Text("Key") },
@@ -619,7 +625,7 @@ private fun KeyDropdown(
             )
             MUSICAL_KEYS.forEach { key ->
                 DropdownMenuItem(
-                    text = { Text(key) },
+                    text = { Text(keyLabel(key)) },
                     onClick = { onSelected(key); expanded = false }
                 )
             }
