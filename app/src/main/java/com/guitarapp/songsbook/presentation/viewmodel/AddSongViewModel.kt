@@ -9,6 +9,7 @@ import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.utils.AnalyticsHelper
 import com.guitarapp.songsbook.utils.BracketParser
 import com.guitarapp.songsbook.utils.BracketSerializer
+import com.guitarapp.songsbook.utils.OverUnderConverter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,8 @@ data class AddSongUiState(
     val rawText: String = "",
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val formatNotDetected: Boolean = false
 ) {
     val isValid: Boolean
         get() = title.isNotBlank() && artist.isNotBlank() && rawText.isNotBlank()
@@ -85,7 +87,20 @@ class AddSongViewModel(
     }
 
     fun onRawTextChanged(value: String) {
-        _uiState.value = _uiState.value.copy(rawText = value)
+        _uiState.value = _uiState.value.copy(rawText = value, formatNotDetected = false)
+    }
+
+    fun detectAndConvertFormat() {
+        val converted = OverUnderConverter.convert(_uiState.value.rawText)
+        if (converted != null) {
+            _uiState.value = _uiState.value.copy(rawText = converted, formatNotDetected = false)
+        } else {
+            _uiState.value = _uiState.value.copy(formatNotDetected = true)
+        }
+    }
+
+    fun clearFormatNotDetected() {
+        _uiState.value = _uiState.value.copy(formatNotDetected = false)
     }
 
     fun buildPreviewSong(): Song? {

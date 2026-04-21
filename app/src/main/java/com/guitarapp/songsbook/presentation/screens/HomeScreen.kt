@@ -28,10 +28,16 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Intent
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -70,7 +76,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.gson.Gson
 import com.guitarapp.songsbook.data.local.UserPreferences
+import com.guitarapp.songsbook.utils.SongExporter
 import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
@@ -98,6 +106,27 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var showFabMenu by remember { mutableStateOf(false) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        try {
+            val json = context.contentResolver.openInputStream(uri)
+                ?.bufferedReader()
+                ?.use { it.readText() } ?: return@rememberLauncherForActivityResult
+            viewModel.importSongFromJson(json)
+        } catch (_: Exception) { }
+    }
+
+    androidx.compose.runtime.LaunchedEffect(uiState.importedSongTitle) {
+        uiState.importedSongTitle?.let { title ->
+            snackbarHostState.showSnackbar("\"$title\" imported successfully")
+            viewModel.clearImportResult()
+        }
+    }
 
     val handleDelete = { songId: String ->
         val title = uiState.songs.find { it.id == songId }?.title ?: "Song"
@@ -150,12 +179,35 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            LargeFloatingActionButton(
-                onClick = onAddSongClick,
-                containerColor = MaterialTheme.colorScheme.inverseSurface,
-                contentColor = MaterialTheme.colorScheme.inverseOnSurface
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add song")
+            Box {
+                LargeFloatingActionButton(
+                    onClick = { showFabMenu = !showFabMenu },
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add song")
+                }
+                DropdownMenu(
+                    expanded = showFabMenu,
+                    onDismissRequest = { showFabMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Add song") },
+                        leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                        onClick = {
+                            showFabMenu = false
+                            onAddSongClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Import from file") },
+                        leadingIcon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
+                        onClick = {
+                            showFabMenu = false
+                            importLauncher.launch("application/json")
+                        }
+                    )
+                }
             }
         },
         bottomBar = { BannerAd() }
@@ -443,8 +495,17 @@ private fun SongCard(
     onDeleteClick: (String) -> Unit,
     onAddToPlaylist: (songId: String, playlistId: Long) -> Unit
 ) {
+    val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
     var showPlaylistDialog by remember { mutableStateOf(false) }
+
+    val backupLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        val json = Gson().toJson(song)
+        context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+    }
 
     if (showPlaylistDialog) {
         AddToPlaylistDialog(
@@ -560,6 +621,27 @@ private fun SongCard(
                 onClick = {
                     showMenu = false
                     showPlaylistDialog = true
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Backup") },
+                leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
+                onClick = {
+                    showMenu = false
+                    backupLauncher.launch("${song.title}.json")
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Share chords") },
+                leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                onClick = {
+                    showMenu = false
+                    val text = SongExporter.buildChordShareText(song)
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, text)
+                    }
+                    context.startActivity(Intent.createChooser(intent, "Share chords"))
                 }
             )
             HorizontalDivider()

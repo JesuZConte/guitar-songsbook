@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.gson.Gson
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
 import kotlinx.coroutines.FlowPreview
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 data class HomeUiState(
     val songs: List<Song> = emptyList(),
@@ -23,7 +25,8 @@ data class HomeUiState(
     val selectedGenre: String? = null,
     val selectedDifficulty: String? = null,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val importedSongTitle: String? = null
 )
 
 class HomeViewModel(
@@ -151,6 +154,25 @@ class HomeViewModel(
                 FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
+    }
+
+    fun importSongFromJson(json: String) {
+        viewModelScope.launch {
+            try {
+                val song = Gson().fromJson(json, Song::class.java)
+                val imported = song.copy(id = UUID.randomUUID().toString(), isFavorite = false)
+                songRepository.insertSong(imported)
+                refreshSongs()
+                _uiState.update { it.copy(importedSongTitle = imported.title) }
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.update { it.copy(error = "Could not import song") }
+            }
+        }
+    }
+
+    fun clearImportResult() {
+        _uiState.update { it.copy(importedSongTitle = null) }
     }
 
     fun refreshSongs() {

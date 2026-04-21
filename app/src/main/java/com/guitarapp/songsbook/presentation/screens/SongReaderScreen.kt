@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.gson.Gson
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Add
@@ -22,7 +26,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.platform.LocalContext
+import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.utils.SongExporter
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -67,6 +78,18 @@ fun SongReaderScreen(
     val playlistsState by playlistsViewModel.uiState.collectAsState()
     var showPlaylistPicker by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showShareMenu by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    var songToBackup by remember { mutableStateOf<Song?>(null) }
+    val backupLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri ?: return@rememberLauncherForActivityResult
+        val song = songToBackup ?: return@rememberLauncherForActivityResult
+        val json = Gson().toJson(song)
+        context.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+    }
 
     LaunchedEffect(uiState.deleteSuccess) {
         if (uiState.deleteSuccess) onDeleteSuccess()
@@ -116,6 +139,38 @@ fun SongReaderScreen(
                     },
                     actions = {
                         if (uiState.song != null) {
+                            Box {
+                                IconButton(onClick = { showShareMenu = true }) {
+                                    Icon(Icons.Filled.Share, contentDescription = "Share")
+                                }
+                                DropdownMenu(
+                                    expanded = showShareMenu,
+                                    onDismissRequest = { showShareMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Backup") },
+                                        leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
+                                        onClick = {
+                                            showShareMenu = false
+                                            songToBackup = uiState.song
+                                            backupLauncher.launch("${uiState.song!!.title}.json")
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Share chords") },
+                                        leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                                        onClick = {
+                                            showShareMenu = false
+                                            val text = SongExporter.buildChordShareText(uiState.song!!)
+                                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(Intent.EXTRA_TEXT, text)
+                                            }
+                                            context.startActivity(Intent.createChooser(intent, "Share chords"))
+                                        }
+                                    )
+                                }
+                            }
                             IconButton(onClick = onEditClick) {
                                 Icon(Icons.Filled.Edit, contentDescription = "Edit song")
                             }
