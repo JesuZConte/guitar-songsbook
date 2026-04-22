@@ -23,6 +23,10 @@ de testers de la prueba cerrada alpha.
   Scarborough Fair — dominio público)
 - Renombrar "Playlists" → "Collections" en UI y navegación
 - Fondo tab de bottom nav: Home + Favorites (Playlists se integra en Home)
+- **[tester insight]** Desde el detalle de una colección, el usuario espera poder
+  agregar canciones directamente — ya sea crear una nueva o elegir una existente.
+  La ausencia de un botón "+" en esa pantalla genera confusión. Incluir FAB o
+  acción contextual en Collection detail.
 
 ---
 
