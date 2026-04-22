@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Share
@@ -211,8 +213,12 @@ fun SongReaderScreen(
                     currentPage = uiState.currentPage,
                     totalPages = uiState.totalPages,
                     fontSize = uiState.fontSize,
+                    transposeSteps = uiState.transposeSteps,
                     onIncreaseFontSize = viewModel::increaseFontSize,
                     onDecreaseFontSize = viewModel::decreaseFontSize,
+                    onTransposeUp = viewModel::transposeUp,
+                    onTransposeDown = viewModel::transposeDown,
+                    onResetTranspose = viewModel::resetTranspose,
                     onToggleFullscreen = viewModel::toggleFullscreen
                 )
             }
@@ -238,6 +244,7 @@ fun SongReaderScreen(
                     VirtualPagedSong(
                         song = uiState.song!!,
                         fontSize = uiState.fontSize,
+                        transposeSteps = uiState.transposeSteps,
                         currentPage = uiState.currentPage,
                         onPageChanged = viewModel::onPageChanged,
                         onPageCountMeasured = viewModel::onMeasuredPageCount,
@@ -322,8 +329,12 @@ private fun ReaderBottomBar(
     currentPage: Int,
     totalPages: Int,
     fontSize: Int,
+    transposeSteps: Int,
     onIncreaseFontSize: () -> Unit,
     onDecreaseFontSize: () -> Unit,
+    onTransposeUp: () -> Unit,
+    onTransposeDown: () -> Unit,
+    onResetTranspose: () -> Unit,
     onToggleFullscreen: () -> Unit
 ) {
     BottomAppBar {
@@ -332,6 +343,7 @@ private fun ReaderBottomBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Font size
             IconButton(onClick = onDecreaseFontSize) {
                 Icon(Icons.Filled.Remove, contentDescription = "Decrease font")
             }
@@ -339,6 +351,25 @@ private fun ReaderBottomBar(
             IconButton(onClick = onIncreaseFontSize) {
                 Icon(Icons.Filled.Add, contentDescription = "Increase font")
             }
+
+            // Transpose
+            IconButton(onClick = onTransposeDown) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Transpose down")
+            }
+            val transposeLabel = when {
+                transposeSteps > 0 -> "+$transposeSteps"
+                else -> "$transposeSteps"
+            }
+            Text(
+                text = "T:$transposeLabel",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = androidx.compose.ui.Modifier.clickable(onClick = onResetTranspose)
+            )
+            IconButton(onClick = onTransposeUp) {
+                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Transpose up")
+            }
+
+            // Page + fullscreen
             Text(
                 text = "${currentPage + 1} / $totalPages",
                 style = MaterialTheme.typography.bodyMedium,

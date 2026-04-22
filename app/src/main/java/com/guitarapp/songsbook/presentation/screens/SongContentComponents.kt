@@ -75,6 +75,7 @@ private enum class SongContentSlot { Pager }
 internal fun VirtualPagedSong(
     song: Song,
     fontSize: Int,
+    transposeSteps: Int = 0,
     currentPage: Int,
     onPageChanged: (Int) -> Unit,
     onPageCountMeasured: (Int) -> Unit,
@@ -102,7 +103,7 @@ internal fun VirtualPagedSong(
         // ── Pass 1: measure every item to find valid line-boundary break points ──
 
         val headerH = subcompose("h") {
-            SongHeader(song = song, fontSize = fontSize)
+            SongHeader(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
         }.first().measure(itemConstraints).height
 
         var cumH = topPaddingPx + headerH
@@ -125,7 +126,7 @@ internal fun VirtualPagedSong(
                 if (li > 0) lineBreaks.add(cumH)
 
                 val lineH = subcompose("l${si}_$li") {
-                    LineContent(line = line, fontSize = fontSize)
+                    LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
                 }.first().measure(itemConstraints).height
 
                 cumH += lineH
@@ -225,7 +226,7 @@ internal fun VirtualPagedSong(
                         contentOffsetPx = pageStarts[pageIndex],
                         contentHeightPx = contentHeightPx
                     ) {
-                        FullSongColumn(song = song, fontSize = fontSize)
+                        FullSongColumn(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
                     }
 
                     if (pageCount > 1) {
@@ -289,21 +290,21 @@ private fun PageSlice(
  * and rendered (clipped) inside each PageSlice.
  */
 @Composable
-internal fun FullSongColumn(song: Song, fontSize: Int) {
+internal fun FullSongColumn(song: Song, fontSize: Int, transposeSteps: Int = 0) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        SongHeader(song = song, fontSize = fontSize)
+        SongHeader(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
         song.content.forEach { section ->
-            SectionContent(section = section, fontSize = fontSize)
+            SectionContent(section = section, fontSize = fontSize, transposeSteps = transposeSteps)
         }
     }
 }
 
 @Composable
-internal fun SongHeader(song: Song, fontSize: Int) {
+internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Text(
             text = song.title,
@@ -324,7 +325,7 @@ internal fun SongHeader(song: Song, fontSize: Int) {
         ) {
             if (song.key.isNotBlank()) {
                 val displayKey = ChordNotation.convert(
-                    song.key,
+                    ChordNotation.transpose(song.key, transposeSteps),
                     UserPreferences.getNotation(LocalContext.current)
                 )
                 Text(
@@ -358,11 +359,11 @@ internal fun SongHeader(song: Song, fontSize: Int) {
 }
 
 @Composable
-internal fun SectionContent(section: SongSection, fontSize: Int) {
+internal fun SectionContent(section: SongSection, fontSize: Int, transposeSteps: Int = 0) {
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         SectionHeaderText(section = section, fontSize = fontSize)
         section.lines.forEach { line ->
-            LineContent(line = line, fontSize = fontSize)
+            LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
         }
     }
 }
@@ -380,14 +381,20 @@ private fun SectionHeaderText(section: SongSection, fontSize: Int) {
 }
 
 @Composable
-internal fun LineContent(line: SongLine, fontSize: Int) {
+internal fun LineContent(line: SongLine, fontSize: Int, transposeSteps: Int = 0) {
     val chordColor = if (isSystemInDarkTheme()) ChordColorDark else ChordColorLight
     val notation = UserPreferences.getNotation(LocalContext.current)
+
+    val displayLine = if (transposeSteps != 0) {
+        line.copy(chords = line.chords.map {
+            it.copy(chord = ChordNotation.transpose(it.chord, transposeSteps))
+        })
+    } else line
 
     Column(modifier = Modifier.padding(bottom = 2.dp)) {
         if (line.chords.isNotEmpty()) {
             Text(
-                text = buildChordLine(line, notation),
+                text = buildChordLine(displayLine, notation),
                 fontFamily = FontFamily.Monospace,
                 fontSize = fontSize.sp,
                 fontWeight = FontWeight.Bold,

@@ -21,7 +21,8 @@ data class ReaderUiState(
     val error: String? = null,
     val fontSize: Int = 14,
     val isFullscreen: Boolean = false,
-    val deleteSuccess: Boolean = false
+    val deleteSuccess: Boolean = false,
+    val transposeSteps: Int = 0
 ) {
     companion object {
         const val MIN_FONT_SIZE = 10
@@ -82,6 +83,18 @@ class ReaderViewModel(
         _uiState.update {
             if (it.fontSize > ReaderUiState.MIN_FONT_SIZE) it.copy(fontSize = it.fontSize - 2) else it
         }
+    }
+
+    fun transposeUp() {
+        _uiState.update { it.copy(transposeSteps = it.transposeSteps + 1) }
+    }
+
+    fun transposeDown() {
+        _uiState.update { it.copy(transposeSteps = it.transposeSteps - 1) }
+    }
+
+    fun resetTranspose() {
+        _uiState.update { it.copy(transposeSteps = 0) }
     }
 
     fun toggleFullscreen() {
