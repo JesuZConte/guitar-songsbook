@@ -222,9 +222,6 @@ private fun GuitarNavHost(
         }
     ) {
         composable(Routes.HOME) {
-            LaunchedEffect(Unit) {
-                homeViewModel.refreshSongs()
-            }
             HomeScreen(
                 viewModel = homeViewModel,
                 playlists = playlistsUiState.playlists,
