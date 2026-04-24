@@ -1,7 +1,7 @@
 package com.guitarapp.songsbook
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import com.google.android.gms.ads.MobileAds
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -89,7 +89,7 @@ private val bottomNavItems = listOf(
     BottomNavItem(Routes.PLAYLISTS, R.string.nav_playlists, Icons.AutoMirrored.Filled.QueueMusic, Icons.AutoMirrored.Outlined.QueueMusic)
 )
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     var themeMode by mutableStateOf(ThemeMode.SYSTEM)
 
