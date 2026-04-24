@@ -54,7 +54,9 @@ fun SettingsScreen(
     var themeMode by remember { mutableStateOf(UserPreferences.getThemeMode(context)) }
     var currentLanguage by remember {
         mutableStateOf(
-            AppCompatDelegate.getApplicationLocales()[0]?.language?.takeIf { it.isNotEmpty() } ?: "en"
+            UserPreferences.getLanguage(context)
+                ?: context.resources.configuration.locales[0].language.takeIf { it == "es" }
+                ?: "en"
         )
     }
 
@@ -95,6 +97,7 @@ fun SettingsScreen(
                 currentLanguage = currentLanguage,
                 onSelected = { code ->
                     currentLanguage = code
+                    UserPreferences.setLanguage(context, code)
                     AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
                 }
             )

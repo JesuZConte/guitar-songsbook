@@ -13,6 +13,7 @@ object UserPreferences {
     private const val KEY_THEME = "theme_mode"
     private const val KEY_FONT_SIZE = "reader_font_size"
     private const val DEFAULT_FONT_SIZE = 14
+    private const val KEY_LANGUAGE = "app_language"
 
     private fun prefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -49,5 +50,13 @@ object UserPreferences {
 
     fun setFontSize(context: Context, size: Int) {
         prefs(context).edit().putInt(KEY_FONT_SIZE, size).apply()
+    }
+
+    /** Returns the explicitly chosen language code ("en"/"es"), or null if never set by the user. */
+    fun getLanguage(context: Context): String? =
+        prefs(context).getString(KEY_LANGUAGE, null)
+
+    fun setLanguage(context: Context, code: String) {
+        prefs(context).edit().putString(KEY_LANGUAGE, code).apply()
     }
 }

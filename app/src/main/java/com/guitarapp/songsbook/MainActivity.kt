@@ -56,6 +56,8 @@ import com.guitarapp.songsbook.data.repository.PlaylistRepository
 import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.presentation.Routes
 import com.guitarapp.songsbook.presentation.screens.AboutScreen
@@ -117,6 +119,9 @@ class MainActivity : AppCompatActivity() {
         MobileAds.initialize(this)
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
+        UserPreferences.getLanguage(this)?.let { code ->
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+        }
         setContent {
             val darkTheme = when (themeMode) {
                 ThemeMode.DARK -> true
