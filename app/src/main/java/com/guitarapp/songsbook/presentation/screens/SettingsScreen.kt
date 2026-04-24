@@ -1,6 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
-import androidx.appcompat.app.AppCompatDelegate
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.ThemeMode
 import com.guitarapp.songsbook.data.local.UserPreferences
@@ -52,6 +51,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     var notation by remember { mutableStateOf(UserPreferences.getNotation(context)) }
     var themeMode by remember { mutableStateOf(UserPreferences.getThemeMode(context)) }
+    val activity = context as Activity
     var currentLanguage by remember {
         mutableStateOf(
             UserPreferences.getLanguage(context)
@@ -96,9 +96,8 @@ fun SettingsScreen(
             LanguageSelectorRow(
                 currentLanguage = currentLanguage,
                 onSelected = { code ->
-                    currentLanguage = code
                     UserPreferences.setLanguage(context, code)
-                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+                    activity.recreate()
                 }
             )
             HorizontalDivider()

@@ -1,7 +1,10 @@
 package com.guitarapp.songsbook
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import java.util.Locale
 import com.google.android.gms.ads.MobileAds
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -56,8 +59,6 @@ import com.guitarapp.songsbook.data.repository.PlaylistRepository
 import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.presentation.Routes
 import com.guitarapp.songsbook.presentation.screens.AboutScreen
@@ -113,15 +114,24 @@ class MainActivity : ComponentActivity() {
         PlaylistsViewModel.Factory(playlistRepository)
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val lang = UserPreferences.getLanguage(newBase)
+        val base = if (lang != null) {
+            val locale = Locale(lang)
+            Locale.setDefault(locale)
+            val config = Configuration(newBase.resources.configuration)
+            config.setLocale(locale)
+            newBase.createConfigurationContext(config)
+        } else newBase
+        super.attachBaseContext(base)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this)
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
-        UserPreferences.getLanguage(this)?.let { code ->
-            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
-        }
         setContent {
             val darkTheme = when (themeMode) {
                 ThemeMode.DARK -> true
