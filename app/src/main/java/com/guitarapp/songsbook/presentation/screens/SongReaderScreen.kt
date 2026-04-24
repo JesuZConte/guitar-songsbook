@@ -3,6 +3,8 @@ package com.guitarapp.songsbook.presentation.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +36,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.platform.LocalContext
+import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.utils.SongExporter
 import androidx.compose.material3.AlertDialog
@@ -84,6 +87,23 @@ fun SongReaderScreen(
 
     val context = LocalContext.current
     var songToBackup by remember { mutableStateOf<Song?>(null) }
+
+    var accumulatedScale by remember { mutableStateOf(1f) }
+    val pinchState = rememberTransformableState { zoomChange, _, _ ->
+        accumulatedScale *= zoomChange
+        val steps = (accumulatedScale - 1f) / 0.1f
+        if (steps >= 1f) {
+            viewModel.increaseFontSize()
+            accumulatedScale = 1f
+        } else if (steps <= -1f) {
+            viewModel.decreaseFontSize()
+            accumulatedScale = 1f
+        }
+    }
+
+    LaunchedEffect(uiState.fontSize) {
+        UserPreferences.setFontSize(context, uiState.fontSize)
+    }
     val backupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -228,6 +248,7 @@ fun SongReaderScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .transformable(state = pinchState)
         ) {
             when {
                 uiState.isLoading -> {

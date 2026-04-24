@@ -5,7 +5,18 @@ import com.guitarapp.songsbook.domain.model.SongLine
 fun buildChordLine(line: SongLine, notation: NotationSystem = NotationSystem.AMERICAN): String {
     if (line.chords.isEmpty()) return ""
 
-    val displayChords = line.chords.map { it.copy(chord = ChordNotation.convert(it.chord, notation)) }
+    val converted = line.chords
+        .map { it.copy(chord = ChordNotation.convert(it.chord, notation)) }
+        .sortedBy { it.position }
+
+    // Push each chord right if it would overlap the previous one,
+    // ensuring at least one space gap between adjacent chords.
+    var nextFree = 0
+    val displayChords = converted.map { cp ->
+        val start = maxOf(cp.position, nextFree)
+        nextFree = start + cp.chord.length + 1
+        cp.copy(position = start)
+    }
 
     val maxPosition = maxOf(
         line.text.length,

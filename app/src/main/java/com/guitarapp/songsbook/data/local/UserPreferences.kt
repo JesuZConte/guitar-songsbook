@@ -11,6 +11,8 @@ object UserPreferences {
     private const val PREFS_NAME = "guitar_songbook_prefs"
     private const val KEY_NOTATION = "chord_notation"
     private const val KEY_THEME = "theme_mode"
+    private const val KEY_FONT_SIZE = "reader_font_size"
+    private const val DEFAULT_FONT_SIZE = 14
 
     private fun prefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -40,5 +42,12 @@ object UserPreferences {
 
     fun setThemeMode(context: Context, mode: ThemeMode) {
         prefs(context).edit().putString(KEY_THEME, mode.name).apply()
+    }
+
+    fun getFontSize(context: Context): Int =
+        prefs(context).getInt(KEY_FONT_SIZE, DEFAULT_FONT_SIZE)
+
+    fun setFontSize(context: Context, size: Int) {
+        prefs(context).edit().putInt(KEY_FONT_SIZE, size).apply()
     }
 }

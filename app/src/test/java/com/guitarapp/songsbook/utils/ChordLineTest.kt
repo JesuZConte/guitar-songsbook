@@ -61,4 +61,38 @@ class ChordLineTest {
         val result = buildChordLine(line)
         assertEquals("G", result.trim())
     }
+
+    @Test
+    fun `chord-only line with overlapping positions renders without collision`() {
+        // [Dm7] [G] [Dm7] [G] parses to positions 0, 1, 2, 3 (one space each between brackets)
+        // Dm7 is 3 chars wide so positions 1 and 2 are inside it — they must be pushed right
+        val line = SongLine(
+            text = "   ",
+            chords = listOf(
+                ChordPosition("Dm7", 0),
+                ChordPosition("G",   1),
+                ChordPosition("Dm7", 2),
+                ChordPosition("G",   3)
+            )
+        )
+        val result = buildChordLine(line)
+        // All four chord names must appear exactly once, none merged
+        val parts = result.trim().split(Regex("\\s+"))
+        assertEquals(listOf("Dm7", "G", "Dm7", "G"), parts)
+    }
+
+    @Test
+    fun `adjacent chords with different lengths do not merge`() {
+        // Cmaj7 (5 chars) followed immediately by Am (2 chars) at position 1
+        val line = SongLine(
+            text = " ",
+            chords = listOf(
+                ChordPosition("Cmaj7", 0),
+                ChordPosition("Am",    1)
+            )
+        )
+        val result = buildChordLine(line)
+        val parts = result.trim().split(Regex("\\s+"))
+        assertEquals(listOf("Cmaj7", "Am"), parts)
+    }
 }

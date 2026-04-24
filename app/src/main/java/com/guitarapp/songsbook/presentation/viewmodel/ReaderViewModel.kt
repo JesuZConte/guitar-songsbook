@@ -27,15 +27,17 @@ data class ReaderUiState(
     companion object {
         const val MIN_FONT_SIZE = 10
         const val MAX_FONT_SIZE = 24
+        const val DEFAULT_FONT_SIZE = 14
     }
 }
 
 class ReaderViewModel(
     private val songRepository: SongRepository,
-    private val songId: String
+    private val songId: String,
+    initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ReaderUiState())
+    private val _uiState = MutableStateFlow(ReaderUiState(fontSize = initialFontSize))
     val uiState: StateFlow<ReaderUiState> = _uiState.asStateFlow()
 
     init {
@@ -85,6 +87,11 @@ class ReaderViewModel(
         }
     }
 
+    fun setFontSize(size: Int) {
+        val clamped = size.coerceIn(ReaderUiState.MIN_FONT_SIZE, ReaderUiState.MAX_FONT_SIZE)
+        _uiState.update { it.copy(fontSize = clamped) }
+    }
+
     fun transposeUp() {
         _uiState.update { it.copy(transposeSteps = it.transposeSteps + 1) }
     }
@@ -122,11 +129,12 @@ class ReaderViewModel(
 
     class Factory(
         private val songRepository: SongRepository,
-        private val songId: String
+        private val songId: String,
+        private val initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ReaderViewModel(songRepository, songId) as T
+            return ReaderViewModel(songRepository, songId, initialFontSize) as T
         }
     }
 }

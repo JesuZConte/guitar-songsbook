@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -340,7 +341,11 @@ private fun GuitarNavHost(
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
             val readerViewModel: ReaderViewModel = viewModel(
-                factory = ReaderViewModel.Factory(songRepository, songId)
+                factory = ReaderViewModel.Factory(
+                    songRepository,
+                    songId,
+                    UserPreferences.getFontSize(LocalContext.current)
+                )
             )
             SongReaderScreen(
                 viewModel = readerViewModel,
