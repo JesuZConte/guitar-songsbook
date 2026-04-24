@@ -1,5 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,7 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.ThemeMode
 import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.utils.AnalyticsHelper
@@ -48,14 +52,19 @@ fun SettingsScreen(
     val context = LocalContext.current
     var notation by remember { mutableStateOf(UserPreferences.getNotation(context)) }
     var themeMode by remember { mutableStateOf(UserPreferences.getThemeMode(context)) }
+    var currentLanguage by remember {
+        mutableStateOf(
+            AppCompatDelegate.getApplicationLocales()[0]?.language?.takeIf { it.isNotEmpty() } ?: "en"
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_cancel))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -71,7 +80,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            SettingsSectionHeader("Appearance")
+            SettingsSectionHeader(stringResource(R.string.settings_section_appearance))
             ThemeSelectorRow(
                 current = themeMode,
                 onSelected = { mode ->
@@ -81,7 +90,16 @@ fun SettingsScreen(
                 }
             )
             HorizontalDivider()
-            SettingsSectionHeader("Chords")
+            SettingsSectionHeader(stringResource(R.string.settings_section_language))
+            LanguageSelectorRow(
+                currentLanguage = currentLanguage,
+                onSelected = { code ->
+                    currentLanguage = code
+                    AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+                }
+            )
+            HorizontalDivider()
+            SettingsSectionHeader(stringResource(R.string.settings_section_chords))
             NotationToggleRow(
                 isLatin = notation == NotationSystem.LATIN,
                 onToggle = { useLatin ->
@@ -92,10 +110,10 @@ fun SettingsScreen(
                 }
             )
             HorizontalDivider()
-            SettingsSectionHeader("Account")
+            SettingsSectionHeader(stringResource(R.string.settings_section_account))
             SignInRow()
             HorizontalDivider()
-            SettingsSectionHeader("App")
+            SettingsSectionHeader(stringResource(R.string.settings_section_app))
             AboutRow(onAboutClick)
             HorizontalDivider()
         }
@@ -122,7 +140,7 @@ private fun AboutRow(onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "About",
+            text = stringResource(R.string.settings_about),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
@@ -144,12 +162,12 @@ private fun SignInRow() {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Sign in with Google",
+                text = stringResource(R.string.settings_sign_in),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
             )
             Text(
-                text = "Sync your songbook across devices",
+                text = stringResource(R.string.settings_sign_in_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
             )
@@ -160,7 +178,7 @@ private fun SignInRow() {
             shape = MaterialTheme.shapes.small
         ) {
             Text(
-                text = "Coming soon",
+                text = stringResource(R.string.settings_coming_soon),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -177,19 +195,41 @@ private fun ThemeSelectorRow(current: ThemeMode, onSelected: (ThemeMode) -> Unit
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(
-            text = "Theme",
+            text = stringResource(R.string.settings_theme),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(
-                ThemeMode.SYSTEM to "System",
-                ThemeMode.LIGHT to "Light",
-                ThemeMode.DARK to "Dark"
+                ThemeMode.SYSTEM to stringResource(R.string.settings_theme_system),
+                ThemeMode.LIGHT  to stringResource(R.string.settings_theme_light),
+                ThemeMode.DARK   to stringResource(R.string.settings_theme_dark)
             ).forEach { (mode, label) ->
                 FilterChip(
                     selected = current == mode,
                     onClick = { onSelected(mode) },
+                    label = { Text(label) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LanguageSelectorRow(currentLanguage: String, onSelected: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                "en" to stringResource(R.string.settings_lang_english),
+                "es" to stringResource(R.string.settings_lang_spanish)
+            ).forEach { (code, label) ->
+                FilterChip(
+                    selected = currentLanguage == code,
+                    onClick = { onSelected(code) },
                     label = { Text(label) }
                 )
             }
@@ -207,11 +247,13 @@ private fun NotationToggleRow(isLatin: Boolean, onToggle: (Boolean) -> Unit) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = if (isLatin) "Latin notation" else "American notation",
+                text = if (isLatin) stringResource(R.string.settings_notation_latin)
+                       else stringResource(R.string.settings_notation_american),
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = if (isLatin) "Do Re Mi Fa Sol La Si" else "C D E F G A B",
+                text = if (isLatin) stringResource(R.string.settings_notation_latin_notes)
+                       else stringResource(R.string.settings_notation_american_notes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

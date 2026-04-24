@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -37,12 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.ui.theme.ChordColorDark
 import com.guitarapp.songsbook.ui.theme.ChordColorLight
+import com.guitarapp.songsbook.ui.theme.NocturnoChord
 import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.ChordNotation
 import com.guitarapp.songsbook.utils.buildChordLine
@@ -54,6 +58,8 @@ import kotlinx.coroutines.launch
  * Must be large enough to contain bodySmall text (≈12sp) + line height + 8dp bottom padding.
  */
 private const val PAGE_INDICATOR_DP = 48f
+
+internal val LocalNocturnoMode = compositionLocalOf { false }
 
 /** The HorizontalPager slot in the SubcomposeLayout. */
 private enum class SongContentSlot { Pager }
@@ -329,14 +335,14 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
                     UserPreferences.getNotation(LocalContext.current)
                 )
                 Text(
-                    text = "Key: $displayKey",
+                    text = stringResource(R.string.reader_key_label, displayKey),
                     fontSize = (fontSize - 2).sp,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
             if (song.capo > 0) {
                 Text(
-                    text = "Capo: ${song.capo}",
+                    text = stringResource(R.string.reader_capo_label, song.capo),
                     fontSize = (fontSize - 2).sp,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -372,7 +378,7 @@ internal fun SectionContent(section: SongSection, fontSize: Int, transposeSteps:
 @Composable
 private fun SectionHeaderText(section: SongSection, fontSize: Int) {
     Text(
-        text = "${section.type.replaceFirstChar { it.uppercase() }} ${section.number}",
+        text = "${sectionTypeLabel(section.type)} ${section.number}",
         fontSize = (fontSize - 2).sp,
         fontWeight = FontWeight.Bold,
         color = sectionColor(section.type),
@@ -382,7 +388,11 @@ private fun SectionHeaderText(section: SongSection, fontSize: Int) {
 
 @Composable
 internal fun LineContent(line: SongLine, fontSize: Int, transposeSteps: Int = 0) {
-    val chordColor = if (isSystemInDarkTheme()) ChordColorDark else ChordColorLight
+    val chordColor = when {
+        LocalNocturnoMode.current -> NocturnoChord
+        isSystemInDarkTheme() -> ChordColorDark
+        else -> ChordColorLight
+    }
     val notation = UserPreferences.getNotation(LocalContext.current)
 
     val displayLine = if (transposeSteps != 0) {
@@ -411,6 +421,18 @@ internal fun LineContent(line: SongLine, fontSize: Int, transposeSteps: Int = 0)
             )
         }
     }
+}
+
+@Composable
+internal fun sectionTypeLabel(type: String): String = when (type.lowercase()) {
+    "verse" -> stringResource(R.string.section_verse)
+    "chorus" -> stringResource(R.string.section_chorus)
+    "bridge" -> stringResource(R.string.section_bridge)
+    "intro" -> stringResource(R.string.section_intro)
+    "outro" -> stringResource(R.string.section_outro)
+    "pre-chorus" -> stringResource(R.string.section_pre_chorus)
+    "solo" -> stringResource(R.string.section_solo)
+    else -> type.replaceFirstChar { it.uppercase() }
 }
 
 @Composable

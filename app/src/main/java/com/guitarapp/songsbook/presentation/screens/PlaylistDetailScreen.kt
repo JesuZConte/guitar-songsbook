@@ -30,8 +30,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 
@@ -47,10 +49,10 @@ fun PlaylistDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(detailState.playlist?.name ?: "Playlist") },
+                title = { Text(detailState.playlist?.name ?: stringResource(R.string.playlists_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -100,12 +102,12 @@ private fun EmptyPlaylistDetailContent() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "No songs in this playlist",
+                text = stringResource(R.string.playlist_detail_empty_title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Add songs from the reader screen",
+                text = stringResource(R.string.playlist_detail_empty_body),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -170,7 +172,7 @@ private fun PlaylistSongCard(
             IconButton(onClick = { onRemoveSong(playlistId, song.id) }) {
                 Icon(
                     imageVector = Icons.Filled.RemoveCircleOutline,
-                    contentDescription = "Remove from playlist",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
             }

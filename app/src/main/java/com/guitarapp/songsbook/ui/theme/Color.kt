@@ -85,3 +85,12 @@ val DifficultyAdvancedDark = Color(0xFFEF9A9A)       // Light red
 // ── Reader chord colors ──
 val ChordColorLight = Color(0xFFC47A2D)         // Amber — matches primary
 val ChordColorDark = Color(0xFFFFB74D)          // Golden — matches dark primary
+
+// ── Nocturno mode — stage/performance, near-zero ambient light ──
+val NocturnoBackground         = Color(0xFF000000)  // Pure black
+val NocturnoSurface            = Color(0xFF0A0800)  // Near-black warm tint
+val NocturnoOnSurface          = Color(0xFFFFCC80)  // Warm amber — lyrics
+val NocturnoPrimaryContainer   = Color(0xFF1A1200)  // Very dark amber — header bg
+val NocturnoOnPrimaryContainer = Color(0xFFFFB74D)  // Amber — header text/icons
+val NocturnoOnSurfaceVariant   = Color(0xFFCC9944)  // Muted amber — secondary text
+val NocturnoChord              = Color(0xFFFFE57F)  // Bright amber — chords stand out

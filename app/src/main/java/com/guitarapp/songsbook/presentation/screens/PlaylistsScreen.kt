@@ -38,8 +38,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 
@@ -55,7 +59,7 @@ fun PlaylistsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Playlists") },
+                title = { Text(stringResource(R.string.playlists_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -64,7 +68,7 @@ fun PlaylistsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "Create playlist")
+                Icon(Icons.Filled.Add, contentDescription = null)
             }
         }
     ) { paddingValues ->
@@ -123,12 +127,12 @@ private fun EmptyPlaylistsContent() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "No playlists yet",
+                text = stringResource(R.string.playlists_empty_title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Tap + to create your first playlist",
+                text = stringResource(R.string.playlists_empty_body),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -183,7 +187,11 @@ private fun PlaylistCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${playlist.songCount} song${if (playlist.songCount != 1) "s" else ""}",
+                    text = pluralStringResource(
+                        R.plurals.playlists_song_count,
+                        playlist.songCount,
+                        playlist.songCount
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -191,7 +199,7 @@ private fun PlaylistCard(
             IconButton(onClick = { onDeletePlaylist(playlist.id) }) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete playlist",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -208,12 +216,12 @@ private fun CreatePlaylistDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Playlist") },
+        title = { Text(stringResource(R.string.playlists_new_dialog_title)) },
         text = {
             OutlinedTextField(
                 value = playlistName,
                 onValueChange = { playlistName = it },
-                label = { Text("Playlist name") },
+                label = { Text(stringResource(R.string.playlists_name_label)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -223,12 +231,12 @@ private fun CreatePlaylistDialog(
                 onClick = { onCreate(playlistName) },
                 enabled = playlistName.isNotBlank()
             ) {
-                Text("Create")
+                Text(stringResource(R.string.common_create))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.common_cancel))
             }
         }
     )

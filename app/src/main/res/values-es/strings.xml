@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cancionero</string>
+
+    <!-- Navegación inferior -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_favorites">Favoritos</string>
+    <string name="nav_playlists">Listas</string>
+
+    <!-- Común -->
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_undo">Deshacer</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_preview">Vista previa</string>
+    <string name="common_create">Crear</string>
+    <string name="common_error">Error: %1$s</string>
+
+    <!-- Pantalla de inicio -->
+    <string name="home_title">Cancionero</string>
+    <string name="home_subtitle">Mi cancionero personal</string>
+    <string name="home_add_song">Agregar canción</string>
+    <string name="home_import_from_file">Importar desde archivo</string>
+    <string name="home_song_imported">"%1$s" importada correctamente</string>
+    <string name="home_song_deleted">"%1$s" eliminada</string>
+    <string name="home_empty_title">Tu cancionero está vacío</string>
+    <string name="home_empty_body">Agrega tus propias canciones y arreglos.\nTodo se guarda en tu dispositivo,\nsin cuenta ni internet.</string>
+    <string name="home_add_first_song">Agregar mi primera canción</string>
+    <string name="home_no_results">Ninguna canción coincide con la búsqueda</string>
+    <string name="home_search_placeholder">Buscar por título o artista…</string>
+    <string name="home_filter_difficulty">Dificultad</string>
+    <string name="home_filter_genre">Género</string>
+    <string name="home_key_label">Tonalidad: %1$s</string>
+    <string name="home_menu_edit">Editar</string>
+    <string name="home_menu_add_to_playlist">Agregar a lista</string>
+    <string name="home_menu_backup">Respaldo</string>
+    <string name="home_menu_share_chords">Compartir acordes</string>
+    <string name="home_menu_delete">Eliminar</string>
+    <string name="home_add_to_playlist_title">Agregar a lista</string>
+    <string name="home_no_playlists_hint">Aún no tienes listas. Crea una desde la pestaña Listas.</string>
+
+    <!-- Niveles de dificultad -->
+    <string name="difficulty_beginner">Principiante</string>
+    <string name="difficulty_intermediate">Intermedio</string>
+    <string name="difficulty_advanced">Avanzado</string>
+
+    <!-- Pantalla de favoritos -->
+    <string name="favorites_title">Favoritos</string>
+    <string name="favorites_empty_title">Aún no tienes favoritos</string>
+    <string name="favorites_empty_body">Toca el corazón en cualquier canción para agregarla aquí</string>
+
+    <!-- Pantalla de listas -->
+    <string name="playlists_title">Listas</string>
+    <string name="playlists_empty_title">Aún no tienes listas</string>
+    <string name="playlists_empty_body">Toca + para crear tu primera lista</string>
+    <string name="playlists_new_dialog_title">Nueva lista</string>
+    <string name="playlists_name_label">Nombre de la lista</string>
+    <plurals name="playlists_song_count">
+        <item quantity="one">%d canción</item>
+        <item quantity="other">%d canciones</item>
+    </plurals>
+
+    <!-- Detalle de lista -->
+    <string name="playlist_detail_empty_title">Esta lista no tiene canciones</string>
+    <string name="playlist_detail_empty_body">Agrega canciones desde la pantalla de lectura</string>
+
+    <!-- Lector -->
+    <string name="reader_loading">Cargando…</string>
+    <string name="reader_delete_title">Eliminar canción</string>
+    <string name="reader_delete_body">¿Eliminar \"%1$s\"? Esta acción no se puede deshacer.</string>
+    <string name="reader_add_to_playlist_title">Agregar a lista</string>
+    <string name="reader_no_playlists">Aún no tienes listas. Crea una desde la pestaña Listas.</string>
+    <string name="reader_backup">Respaldo</string>
+    <string name="reader_share_chords">Compartir acordes</string>
+    <string name="reader_key_label">Tonalidad: %1$s</string>
+    <string name="reader_capo_label">Cejilla: %1$d</string>
+
+    <!-- Ajustes -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_section_chords">Acordes</string>
+    <string name="settings_notation_latin">Notación latina</string>
+    <string name="settings_notation_american">Notación americana</string>
+    <string name="settings_notation_latin_notes">Do Re Mi Fa Sol La Si</string>
+    <string name="settings_notation_american_notes">C D E F G A B</string>
+    <string name="settings_section_account">Cuenta</string>
+    <string name="settings_sign_in">Iniciar sesión con Google</string>
+    <string name="settings_sign_in_subtitle">Sincroniza tu cancionero entre dispositivos</string>
+    <string name="settings_coming_soon">Próximamente</string>
+    <string name="settings_section_app">Aplicación</string>
+    <string name="settings_about">Acerca de</string>
+    <string name="settings_section_language">Idioma</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_spanish">Español</string>
+
+    <!-- Acerca de -->
+    <string name="about_title">Acerca de</string>
+    <string name="about_description">Tu cuaderno personal de canciones y acordes de guitarra. Agrega tus propias canciones, organízalas en listas y toca con confianza.</string>
+    <string name="about_license_label">Licencia</string>
+    <string name="about_license_text">GNU General Public License v3.0\nEsta app es de código abierto. Las versiones derivadas también deben publicarse bajo GPL v3.</string>
+    <string name="about_version">Versión %1$s</string>
+
+    <!-- Agregar / editar canción -->
+    <string name="add_song_title">Agregar canción</string>
+    <string name="edit_song_title">Editar canción</string>
+    <string name="add_song_field_title">Título *</string>
+    <string name="add_song_field_artist">Artista *</string>
+    <string name="add_song_field_capo">Cejilla</string>
+    <string name="add_song_field_genre">Género</string>
+    <string name="add_song_field_key">Tonalidad</string>
+    <string name="add_song_field_key_auto">Auto</string>
+    <string name="add_song_field_difficulty">Dificultad</string>
+    <string name="add_song_input_mode">Modo de entrada:</string>
+    <string name="add_song_mode_builder">Constructor</string>
+    <string name="add_song_mode_text">Texto</string>
+    <string name="add_song_detect_format">Detectar formato</string>
+    <string name="add_song_no_format_detected">No se detectó formato sobre/bajo</string>
+    <string name="add_song_song_field">Canción (formato bracket) *</string>
+    <string name="add_song_lyrics_chords">Letra y acordes</string>
+    <string name="add_song_other_chord">Otro</string>
+    <string name="add_song_add_section">Agregar sección:</string>
+    <string name="add_song_insert_chord">Insertar acorde:</string>
+    <string name="add_song_how_to_write">Cómo escribir acordes</string>
+    <string name="add_song_chord_explanation">Coloca el nombre del acorde entre corchetes justo antes de la sílaba donde se toca.</string>
+    <string name="add_song_example_label">Ejemplo</string>
+    <string name="add_song_tips_label">Consejos</string>
+    <string name="add_song_tip_1">• Usa el modo Constructor y toca un acorde para insertarlo en el cursor.</string>
+    <string name="add_song_tip_2">• Usa el modo Texto para pegar una canción completa y editarla directamente.</string>
+    <string name="add_song_tip_3">• Los encabezados de sección como [Verse 1] o [Chorus 1] se agregan automáticamente en el modo Constructor.</string>
+
+    <!-- Tipos de sección -->
+    <string name="section_verse">Verso</string>
+    <string name="section_chorus">Coro</string>
+    <string name="section_bridge">Puente</string>
+    <string name="section_intro">Intro</string>
+    <string name="section_outro">Outro</string>
+    <string name="section_pre_chorus">Pre-coro</string>
+    <string name="section_solo">Solo</string>
+</resources>

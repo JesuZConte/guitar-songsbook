@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -51,6 +52,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -66,9 +68,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import com.guitarapp.songsbook.ui.theme.NocturnoColorScheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,6 +133,7 @@ fun SongReaderScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val screenContent: @Composable () -> Unit = {
     Scaffold(
         topBar = {
             AnimatedVisibility(
@@ -139,7 +145,7 @@ fun SongReaderScreen(
                     title = {
                         Column {
                             Text(
-                                text = uiState.song?.title ?: "Loading...",
+                                text = uiState.song?.title ?: stringResource(R.string.reader_loading),
                                 style = MaterialTheme.typography.titleMedium
                             )
                             if (uiState.song != null) {
@@ -170,7 +176,7 @@ fun SongReaderScreen(
                                     onDismissRequest = { showShareMenu = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("Backup") },
+                                        text = { Text(stringResource(R.string.reader_backup)) },
                                         leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
                                         onClick = {
                                             showShareMenu = false
@@ -179,16 +185,17 @@ fun SongReaderScreen(
                                         }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text("Share chords") },
+                                        text = { Text(stringResource(R.string.reader_share_chords)) },
                                         leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
                                         onClick = {
                                             showShareMenu = false
                                             val text = SongExporter.buildChordShareText(uiState.song!!)
+                                            val shareChords = context.getString(R.string.reader_share_chords)
                                             val intent = Intent(Intent.ACTION_SEND).apply {
                                                 type = "text/plain"
                                                 putExtra(Intent.EXTRA_TEXT, text)
                                             }
-                                            context.startActivity(Intent.createChooser(intent, "Share chords"))
+                                            context.startActivity(Intent.createChooser(intent, shareChords))
                                         }
                                     )
                                 }
@@ -204,6 +211,14 @@ fun SongReaderScreen(
                                 showPlaylistPicker = true
                             }) {
                                 Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = "Add to playlist")
+                            }
+                            IconButton(onClick = { viewModel.toggleNocturno() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Bedtime,
+                                    contentDescription = "Toggle nocturno mode",
+                                    tint = if (uiState.isNocturno) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onPrimaryContainer
+                                )
                             }
                             IconButton(onClick = { viewModel.toggleFavorite() }) {
                                 Icon(
@@ -279,18 +294,18 @@ fun SongReaderScreen(
         if (showDeleteConfirm && uiState.song != null) {
             AlertDialog(
                 onDismissRequest = { showDeleteConfirm = false },
-                title = { Text("Delete song") },
-                text = { Text("Delete \"${uiState.song!!.title}\"? This cannot be undone.") },
+                title = { Text(stringResource(R.string.reader_delete_title)) },
+                text = { Text(stringResource(R.string.reader_delete_body, uiState.song!!.title)) },
                 confirmButton = {
                     TextButton(onClick = {
                         showDeleteConfirm = false
                         viewModel.deleteSong()
                     }) {
-                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+                    TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.common_cancel)) }
                 }
             )
         }
@@ -306,6 +321,17 @@ fun SongReaderScreen(
             )
         }
     }
+    } // end screenContent lambda
+
+    if (uiState.isNocturno) {
+        MaterialTheme(colorScheme = NocturnoColorScheme) {
+            CompositionLocalProvider(LocalNocturnoMode provides true) {
+                screenContent()
+            }
+        }
+    } else {
+        screenContent()
+    }
 }
 
 @Composable
@@ -316,11 +342,11 @@ private fun PlaylistPickerDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add to Playlist") },
+        title = { Text(stringResource(R.string.reader_add_to_playlist_title)) },
         text = {
             if (playlists.isEmpty()) {
                 Text(
-                    text = "No playlists yet. Create one from the Playlists tab.",
+                    text = stringResource(R.string.reader_no_playlists),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
@@ -340,7 +366,7 @@ private fun PlaylistPickerDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         }
     )
 }

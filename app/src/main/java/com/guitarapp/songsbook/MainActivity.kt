@@ -1,8 +1,8 @@
 package com.guitarapp.songsbook
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.MobileAds
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
@@ -54,6 +55,8 @@ import com.guitarapp.songsbook.data.repository.AssetSongRepository
 import com.guitarapp.songsbook.data.repository.PlaylistRepository
 import com.guitarapp.songsbook.data.repository.RoomPlaylistRepository
 import com.guitarapp.songsbook.data.repository.SongRepository
+import androidx.annotation.StringRes
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.presentation.Routes
 import com.guitarapp.songsbook.presentation.screens.AboutScreen
 import com.guitarapp.songsbook.presentation.screens.AddSongScreen
@@ -73,18 +76,18 @@ import com.guitarapp.songsbook.ui.theme.GuitarSongsbookTheme
 
 data class BottomNavItem(
     val route: String,
-    val label: String,
+    @StringRes val labelRes: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 )
 
 private val bottomNavItems = listOf(
-    BottomNavItem(Routes.HOME, "Home", Icons.Filled.Home, Icons.Outlined.Home),
-    BottomNavItem(Routes.FAVORITES, "Favorites", Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
-    BottomNavItem(Routes.PLAYLISTS, "Playlists", Icons.AutoMirrored.Filled.QueueMusic, Icons.AutoMirrored.Outlined.QueueMusic)
+    BottomNavItem(Routes.HOME, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
+    BottomNavItem(Routes.FAVORITES, R.string.nav_favorites, Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
+    BottomNavItem(Routes.PLAYLISTS, R.string.nav_playlists, Icons.AutoMirrored.Filled.QueueMusic, Icons.AutoMirrored.Outlined.QueueMusic)
 )
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     var themeMode by mutableStateOf(ThemeMode.SYSTEM)
 
@@ -183,10 +186,10 @@ private fun GuitarBottomBar(
                 icon = {
                     Icon(
                         imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                        contentDescription = item.label
+                        contentDescription = stringResource(item.labelRes)
                     )
                 },
-                label = { Text(item.label) }
+                label = { Text(stringResource(item.labelRes)) }
             )
         }
     }

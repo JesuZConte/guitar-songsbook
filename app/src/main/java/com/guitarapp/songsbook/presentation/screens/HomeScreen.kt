@@ -81,6 +81,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
+import androidx.compose.ui.res.stringResource
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.utils.SongExporter
 import com.guitarapp.songsbook.domain.model.Playlist
@@ -138,18 +140,18 @@ fun HomeScreen(
 
     androidx.compose.runtime.LaunchedEffect(uiState.importedSongTitle) {
         uiState.importedSongTitle?.let { title ->
-            snackbarHostState.showSnackbar("\"$title\" imported successfully")
+            snackbarHostState.showSnackbar(context.getString(R.string.home_song_imported, title))
             viewModel.clearImportResult()
         }
     }
 
     val handleDelete = { songId: String ->
-        val title = uiState.songs.find { it.id == songId }?.title ?: "Song"
+        val title = uiState.songs.find { it.id == songId }?.title ?: ""
         viewModel.removeSongFromUi(songId)
         scope.launch {
             val result = snackbarHostState.showSnackbar(
-                message = "\"$title\" deleted",
-                actionLabel = "Undo",
+                message = context.getString(R.string.home_song_deleted, title),
+                actionLabel = context.getString(R.string.common_undo),
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
@@ -168,11 +170,11 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text(
-                            text = "Cancionero",
+                            text = stringResource(R.string.home_title),
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
-                            text = "My personal songbook",
+                            text = stringResource(R.string.home_subtitle),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                         )
@@ -207,7 +209,7 @@ fun HomeScreen(
                     onDismissRequest = { showFabMenu = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Add song") },
+                        text = { Text(stringResource(R.string.home_add_song)) },
                         leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null) },
                         onClick = {
                             showFabMenu = false
@@ -215,7 +217,7 @@ fun HomeScreen(
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Import from file") },
+                        text = { Text(stringResource(R.string.home_import_from_file)) },
                         leadingIcon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
                         onClick = {
                             showFabMenu = false
@@ -313,7 +315,7 @@ private fun SearchBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        placeholder = { Text("Search by title or artist...") },
+        placeholder = { Text(stringResource(R.string.home_search_placeholder)) },
         leadingIcon = {
             Icon(Icons.Filled.Search, contentDescription = "Search")
         },
@@ -343,7 +345,7 @@ private fun FilterSection(
     ) {
         if (difficulties.isNotEmpty()) {
             Text(
-                text = "Difficulty",
+                text = stringResource(R.string.home_filter_difficulty),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -365,7 +367,7 @@ private fun FilterSection(
 
         if (genres.isNotEmpty()) {
             Text(
-                text = "Genre",
+                text = stringResource(R.string.home_filter_genre),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -429,12 +431,12 @@ private fun EmptyLibraryContent(onAddSongClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Your songbook is empty",
+                text = stringResource(R.string.home_empty_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Add your own songs and arrangements.\nEverything is stored on your device,\nno account or internet needed.",
+                text = stringResource(R.string.home_empty_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -447,7 +449,7 @@ private fun EmptyLibraryContent(onAddSongClick: () -> Unit) {
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.size(8.dp))
-                Text("Add your first song")
+                Text(stringResource(R.string.home_add_first_song))
             }
         }
     }
@@ -460,7 +462,7 @@ private fun NoResultsContent() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "No songs match your search",
+            text = stringResource(R.string.home_no_results),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -609,7 +611,7 @@ private fun SongCard(
                 if (song.key.isNotBlank()) {
                     val notation = UserPreferences.getNotation(LocalContext.current)
                     Text(
-                        text = "Key: ${ChordNotation.convert(song.key, notation)}",
+                        text = stringResource(R.string.home_key_label, ChordNotation.convert(song.key, notation)),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -623,7 +625,7 @@ private fun SongCard(
             onDismissRequest = { showMenu = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Edit") },
+                text = { Text(stringResource(R.string.home_menu_edit)) },
                 leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
                 onClick = {
                     showMenu = false
@@ -631,7 +633,7 @@ private fun SongCard(
                 }
             )
             DropdownMenuItem(
-                text = { Text("Add to playlist") },
+                text = { Text(stringResource(R.string.home_menu_add_to_playlist)) },
                 leadingIcon = { Icon(Icons.AutoMirrored.Filled.QueueMusic, contentDescription = null) },
                 onClick = {
                     showMenu = false
@@ -639,7 +641,7 @@ private fun SongCard(
                 }
             )
             DropdownMenuItem(
-                text = { Text("Backup") },
+                text = { Text(stringResource(R.string.home_menu_backup)) },
                 leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
                 onClick = {
                     showMenu = false
@@ -647,7 +649,7 @@ private fun SongCard(
                 }
             )
             DropdownMenuItem(
-                text = { Text("Share chords") },
+                text = { Text(stringResource(R.string.home_menu_share_chords)) },
                 leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
                 onClick = {
                     showMenu = false
@@ -656,12 +658,12 @@ private fun SongCard(
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, text)
                     }
-                    context.startActivity(Intent.createChooser(intent, "Share chords"))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.home_menu_share_chords)))
                 }
             )
             HorizontalDivider()
             DropdownMenuItem(
-                text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                text = { Text(stringResource(R.string.home_menu_delete), color = MaterialTheme.colorScheme.error) },
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Delete,
@@ -705,7 +707,12 @@ private fun DifficultyIndicator(difficulty: String) {
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = difficulty.replaceFirstChar { it.uppercase() },
+            text = when (difficulty.lowercase()) {
+                "beginner" -> stringResource(R.string.difficulty_beginner)
+                "intermediate" -> stringResource(R.string.difficulty_intermediate)
+                "advanced" -> stringResource(R.string.difficulty_advanced)
+                else -> difficulty.replaceFirstChar { it.uppercase() }
+            },
             style = MaterialTheme.typography.bodySmall,
             color = color
         )
@@ -720,11 +727,11 @@ private fun AddToPlaylistDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add to playlist") },
+        title = { Text(stringResource(R.string.home_add_to_playlist_title)) },
         text = {
             if (playlists.isEmpty()) {
                 Text(
-                    "You don't have any playlists yet. Create one from the Playlists tab.",
+                    stringResource(R.string.home_no_playlists_hint),
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
@@ -755,7 +762,7 @@ private fun AddToPlaylistDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         }
     )
 }

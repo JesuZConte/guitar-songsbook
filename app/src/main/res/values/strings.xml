@@ -1,3 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cancionero</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_playlists">Playlists</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_undo">Undo</string>
+    <string name="common_save">Save</string>
+    <string name="common_preview">Preview</string>
+    <string name="common_create">Create</string>
+    <string name="common_error">Error: %1$s</string>
+
+    <!-- Home screen -->
+    <string name="home_title">Cancionero</string>
+    <string name="home_subtitle">My personal songbook</string>
+    <string name="home_add_song">Add song</string>
+    <string name="home_import_from_file">Import from file</string>
+    <string name="home_song_imported">"%1$s" imported successfully</string>
+    <string name="home_song_deleted">"%1$s" deleted</string>
+    <string name="home_empty_title">Your songbook is empty</string>
+    <string name="home_empty_body">Add your own songs and arrangements.\nEverything is stored on your device,\nno account or internet needed.</string>
+    <string name="home_add_first_song">Add your first song</string>
+    <string name="home_no_results">No songs match your search</string>
+    <string name="home_search_placeholder">Search by title or artist…</string>
+    <string name="home_filter_difficulty">Difficulty</string>
+    <string name="home_filter_genre">Genre</string>
+    <string name="home_key_label">Key: %1$s</string>
+    <string name="home_menu_edit">Edit</string>
+    <string name="home_menu_add_to_playlist">Add to playlist</string>
+    <string name="home_menu_backup">Backup</string>
+    <string name="home_menu_share_chords">Share chords</string>
+    <string name="home_menu_delete">Delete</string>
+    <string name="home_add_to_playlist_title">Add to playlist</string>
+    <string name="home_no_playlists_hint">You don\'t have any playlists yet. Create one from the Playlists tab.</string>
+
+    <!-- Difficulty levels -->
+    <string name="difficulty_beginner">Beginner</string>
+    <string name="difficulty_intermediate">Intermediate</string>
+    <string name="difficulty_advanced">Advanced</string>
+
+    <!-- Favorites screen -->
+    <string name="favorites_title">Favorites</string>
+    <string name="favorites_empty_title">No favorites yet</string>
+    <string name="favorites_empty_body">Tap the heart on any song to add it here</string>
+
+    <!-- Playlists screen -->
+    <string name="playlists_title">Playlists</string>
+    <string name="playlists_empty_title">No playlists yet</string>
+    <string name="playlists_empty_body">Tap + to create your first playlist</string>
+    <string name="playlists_new_dialog_title">New Playlist</string>
+    <string name="playlists_name_label">Playlist name</string>
+    <plurals name="playlists_song_count">
+        <item quantity="one">%d song</item>
+        <item quantity="other">%d songs</item>
+    </plurals>
+
+    <!-- Playlist detail screen -->
+    <string name="playlist_detail_empty_title">No songs in this playlist</string>
+    <string name="playlist_detail_empty_body">Add songs from the reader screen</string>
+
+    <!-- Song reader screen -->
+    <string name="reader_loading">Loading…</string>
+    <string name="reader_delete_title">Delete song</string>
+    <string name="reader_delete_body">Delete \"%1$s\"? This cannot be undone.</string>
+    <string name="reader_add_to_playlist_title">Add to Playlist</string>
+    <string name="reader_no_playlists">No playlists yet. Create one from the Playlists tab.</string>
+    <string name="reader_backup">Backup</string>
+    <string name="reader_share_chords">Share chords</string>
+    <string name="reader_key_label">Key: %1$s</string>
+    <string name="reader_capo_label">Capo: %1$d</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_section_chords">Chords</string>
+    <string name="settings_notation_latin">Latin notation</string>
+    <string name="settings_notation_american">American notation</string>
+    <string name="settings_notation_latin_notes">Do Re Mi Fa Sol La Si</string>
+    <string name="settings_notation_american_notes">C D E F G A B</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_sign_in">Sign in with Google</string>
+    <string name="settings_sign_in_subtitle">Sync your songbook across devices</string>
+    <string name="settings_coming_soon">Coming soon</string>
+    <string name="settings_section_app">App</string>
+    <string name="settings_about">About</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_lang_english">English</string>
+    <string name="settings_lang_spanish">Español</string>
+
+    <!-- About screen -->
+    <string name="about_title">About</string>
+    <string name="about_description">Your personal notebook for guitar songs and chords. Add your own songs, organize them in playlists, and play with confidence.</string>
+    <string name="about_license_label">License</string>
+    <string name="about_license_text">GNU General Public License v3.0\nThis app is open source. Derivatives must also be released under GPL v3.</string>
+    <string name="about_version">Version %1$s</string>
+
+    <!-- Add / Edit song screen -->
+    <string name="add_song_title">Add Song</string>
+    <string name="edit_song_title">Edit Song</string>
+    <string name="add_song_field_title">Title *</string>
+    <string name="add_song_field_artist">Artist *</string>
+    <string name="add_song_field_capo">Capo</string>
+    <string name="add_song_field_genre">Genre</string>
+    <string name="add_song_field_key">Key</string>
+    <string name="add_song_field_key_auto">Auto</string>
+    <string name="add_song_field_difficulty">Difficulty</string>
+    <string name="add_song_input_mode">Input mode:</string>
+    <string name="add_song_mode_builder">Builder</string>
+    <string name="add_song_mode_text">Text</string>
+    <string name="add_song_detect_format">Detect format</string>
+    <string name="add_song_no_format_detected">No over/under format detected</string>
+    <string name="add_song_song_field">Song (bracket format) *</string>
+    <string name="add_song_lyrics_chords">Lyrics &amp; chords</string>
+    <string name="add_song_other_chord">Other</string>
+    <string name="add_song_add_section">Add section:</string>
+    <string name="add_song_insert_chord">Insert chord:</string>
+    <string name="add_song_how_to_write">How to write chords</string>
+    <string name="add_song_chord_explanation">Place the chord name in square brackets right before the syllable where it\'s played.</string>
+    <string name="add_song_example_label">Example</string>
+    <string name="add_song_tips_label">Tips</string>
+    <string name="add_song_tip_1">• Use Builder mode and tap a chord chip to insert it at the cursor.</string>
+    <string name="add_song_tip_2">• Use Text mode to paste a full song and edit it directly.</string>
+    <string name="add_song_tip_3">• Section headers like [Verse 1] or [Chorus 1] are added automatically in Builder mode.</string>
+
+    <!-- Section types -->
+    <string name="section_verse">Verse</string>
+    <string name="section_chorus">Chorus</string>
+    <string name="section_bridge">Bridge</string>
+    <string name="section_intro">Intro</string>
+    <string name="section_outro">Outro</string>
+    <string name="section_pre_chorus">Pre-chorus</string>
+    <string name="section_solo">Solo</string>
 </resources>

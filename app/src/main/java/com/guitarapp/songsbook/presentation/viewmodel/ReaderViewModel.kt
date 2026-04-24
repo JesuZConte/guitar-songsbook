@@ -21,6 +21,7 @@ data class ReaderUiState(
     val error: String? = null,
     val fontSize: Int = 14,
     val isFullscreen: Boolean = false,
+    val isNocturno: Boolean = false,
     val deleteSuccess: Boolean = false,
     val transposeSteps: Int = 0
 ) {
@@ -106,6 +107,10 @@ class ReaderViewModel(
 
     fun toggleFullscreen() {
         _uiState.update { it.copy(isFullscreen = !it.isFullscreen) }
+    }
+
+    fun toggleNocturno() {
+        _uiState.update { it.copy(isNocturno = !it.isNocturno) }
     }
 
     fun toggleFavorite() {

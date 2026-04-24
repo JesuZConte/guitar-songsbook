@@ -64,7 +64,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getTextBeforeSelection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.presentation.viewmodel.AddSongViewModel
 import com.guitarapp.songsbook.utils.BracketParser
@@ -153,11 +155,12 @@ fun AddSongScreen(
     var builderInitialized by remember { mutableStateOf(!viewModel.isEditMode) }
     var showFormatHelp by remember { mutableStateOf(false) }
     val formatHelpSheetState = rememberModalBottomSheetState()
+    val noFormatDetectedMsg = stringResource(R.string.add_song_no_format_detected)
 
     LaunchedEffect(uiState.formatNotDetected) {
         if (uiState.formatNotDetected) {
             scope.launch {
-                snackbarHostState.showSnackbar("No over/under format detected")
+                snackbarHostState.showSnackbar(noFormatDetectedMsg)
                 viewModel.clearFormatNotDetected()
             }
         }
@@ -184,7 +187,7 @@ fun AddSongScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.isEditMode) "Edit Song" else "Add Song") },
+                title = { Text(if (viewModel.isEditMode) stringResource(R.string.edit_song_title) else stringResource(R.string.add_song_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -212,7 +215,7 @@ fun AddSongScreen(
             OutlinedTextField(
                 value = uiState.title,
                 onValueChange = viewModel::onTitleChanged,
-                label = { Text("Title *") },
+                label = { Text(stringResource(R.string.add_song_field_title)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
@@ -220,7 +223,7 @@ fun AddSongScreen(
             OutlinedTextField(
                 value = uiState.artist,
                 onValueChange = viewModel::onArtistChanged,
-                label = { Text("Artist *") },
+                label = { Text(stringResource(R.string.add_song_field_artist)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
@@ -237,7 +240,7 @@ fun AddSongScreen(
                 OutlinedTextField(
                     value = uiState.capo,
                     onValueChange = viewModel::onCapoChanged,
-                    label = { Text("Capo") },
+                    label = { Text(stringResource(R.string.add_song_field_capo)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -250,7 +253,7 @@ fun AddSongScreen(
                 OutlinedTextField(
                     value = uiState.genre,
                     onValueChange = viewModel::onGenreChanged,
-                    label = { Text("Genre") },
+                    label = { Text(stringResource(R.string.add_song_field_genre)) },
                     modifier = Modifier.weight(1f),
                     singleLine = true
                 )
@@ -295,13 +298,13 @@ fun AddSongScreen(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.size(6.dp))
-                        Text("Detect format")
+                        Text(stringResource(R.string.add_song_detect_format))
                     }
                 }
                 OutlinedTextField(
                     value = uiState.rawText,
                     onValueChange = viewModel::onRawTextChanged,
-                    label = { Text("Song (bracket format) *") },
+                    label = { Text(stringResource(R.string.add_song_song_field)) },
                     placeholder = {
                         Text(
                             "[Verse 1]\n[Am]Hello [F]darkness\nmy [C]old [G]friend",
@@ -333,7 +336,7 @@ fun AddSongScreen(
                     onClick = onPreviewClick,
                     enabled = uiState.isValid && !uiState.isSaving,
                     modifier = Modifier.weight(1f)
-                ) { Text("Preview") }
+                ) { Text(stringResource(R.string.common_preview)) }
                 Button(
                     onClick = viewModel::saveSong,
                     enabled = uiState.isValid && !uiState.isSaving,
@@ -345,7 +348,7 @@ fun AddSongScreen(
                             strokeWidth = 2.dp
                         )
                     }
-                    Text("Save")
+                    Text(stringResource(R.string.common_save))
                 }
             }
         }
@@ -375,19 +378,19 @@ private fun InputModeToggle(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Input mode:",
+            text = stringResource(R.string.add_song_input_mode),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         FilterChip(
             selected = mode == InputMode.BUILDER,
             onClick = { onModeChange(InputMode.BUILDER) },
-            label = { Text("Builder") }
+            label = { Text(stringResource(R.string.add_song_mode_builder)) }
         )
         FilterChip(
             selected = mode == InputMode.TEXT,
             onClick = { onModeChange(InputMode.TEXT) },
-            label = { Text("Text") }
+            label = { Text(stringResource(R.string.add_song_mode_text)) }
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onHelpClick, modifier = Modifier.size(32.dp)) {
@@ -413,12 +416,12 @@ private fun FormatHelpContent() {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "How to write chords",
+            text = stringResource(R.string.add_song_how_to_write),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Place the chord name in square brackets right before the syllable where it's played.",
+            text = stringResource(R.string.add_song_chord_explanation),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -428,7 +431,7 @@ private fun FormatHelpContent() {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Example",
+                    text = stringResource(R.string.add_song_example_label),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -441,22 +444,22 @@ private fun FormatHelpContent() {
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
-                text = "Tips",
+                text = stringResource(R.string.add_song_tips_label),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "• Use Builder mode and tap a chord chip to insert it at the cursor.",
+                text = stringResource(R.string.add_song_tip_1),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "• Use Text mode to paste a full song and edit it directly.",
+                text = stringResource(R.string.add_song_tip_2),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "• Section headers like [Verse 1] or [Chorus 1] are added automatically in Builder mode.",
+                text = stringResource(R.string.add_song_tip_3),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -512,7 +515,7 @@ private fun SectionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${section.type.replaceFirstChar { it.uppercase() }} ${section.number}",
+                    text = "${sectionTypeLabel(section.type)} ${section.number}",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f)
@@ -533,7 +536,7 @@ private fun SectionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 120.dp, max = 300.dp),
-                label = { Text("Lyrics & chords") },
+                label = { Text(stringResource(R.string.add_song_lyrics_chords)) },
                 placeholder = {
                     Text(
                         "[Am]Hello [F]darkness\nmy [C]old [G]friend",
@@ -546,7 +549,7 @@ private fun SectionCard(
 
             // Chord quick-insert bar
             Text(
-                text = "Insert chord:",
+                text = stringResource(R.string.add_song_insert_chord),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -569,7 +572,7 @@ private fun SectionCard(
                     onValueChange = { customChord = it.take(6) },
                     modifier = Modifier.width(80.dp),
                     singleLine = true,
-                    label = { Text("Other") },
+                    label = { Text(stringResource(R.string.add_song_other_chord)) },
                     textStyle = MaterialTheme.typography.bodySmall,
                     trailingIcon = {
                         if (customChord.isNotBlank()) {
@@ -595,7 +598,7 @@ private fun SectionCard(
 private fun AddSectionBar(onAdd: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
-            text = "Add section:",
+            text = stringResource(R.string.add_song_add_section),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -608,7 +611,7 @@ private fun AddSectionBar(onAdd: (String) -> Unit) {
             SECTION_TYPES.forEach { type ->
                 SuggestionChip(
                     onClick = { onAdd(type) },
-                    label = { Text(type.replaceFirstChar { it.uppercase() }) },
+                    label = { Text(sectionTypeLabel(type)) },
                     icon = { Icon(Icons.Filled.Add, contentDescription = null) }
                 )
             }
@@ -641,11 +644,12 @@ private fun KeyDropdown(
         onExpandedChange = { expanded = it },
         modifier = modifier
     ) {
+        val autoLabel = stringResource(R.string.add_song_field_key_auto)
         OutlinedTextField(
-            value = if (selected.isBlank()) "Auto" else keyLabel(selected),
+            value = if (selected.isBlank()) autoLabel else keyLabel(selected),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Key") },
+            label = { Text(stringResource(R.string.add_song_field_key)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -656,7 +660,7 @@ private fun KeyDropdown(
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Auto") },
+                text = { Text(autoLabel) },
                 onClick = { onSelected(""); expanded = false }
             )
             MUSICAL_KEYS.forEach { key ->
@@ -678,7 +682,6 @@ private fun DifficultyDropdown(
     onSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val options = listOf("beginner", "intermediate", "advanced")
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -686,11 +689,17 @@ private fun DifficultyDropdown(
         onExpandedChange = { expanded = it },
         modifier = modifier
     ) {
+        val difficultyLabel = when (selected.lowercase()) {
+            "beginner" -> stringResource(R.string.difficulty_beginner)
+            "intermediate" -> stringResource(R.string.difficulty_intermediate)
+            "advanced" -> stringResource(R.string.difficulty_advanced)
+            else -> selected.replaceFirstChar { it.uppercase() }
+        }
         OutlinedTextField(
-            value = selected.replaceFirstChar { it.uppercase() },
+            value = difficultyLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Difficulty") },
+            label = { Text(stringResource(R.string.add_song_field_difficulty)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -700,15 +709,18 @@ private fun DifficultyDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.replaceFirstChar { it.uppercase() }) },
-                    onClick = {
-                        onSelected(option)
-                        expanded = false
-                    }
-                )
-            }
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.difficulty_beginner)) },
+                onClick = { onSelected("beginner"); expanded = false }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.difficulty_intermediate)) },
+                onClick = { onSelected("intermediate"); expanded = false }
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.difficulty_advanced)) },
+                onClick = { onSelected("advanced"); expanded = false }
+            )
         }
     }
 }

@@ -29,8 +29,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 
@@ -45,7 +47,7 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text(stringResource(R.string.favorites_title)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -94,12 +96,12 @@ private fun EmptyFavoritesContent() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "No favorites yet",
+                text = stringResource(R.string.favorites_empty_title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "Tap the heart on any song to add it here",
+                text = stringResource(R.string.favorites_empty_body),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline
             )
@@ -163,7 +165,7 @@ private fun FavoriteSongCard(
                 IconButton(onClick = { onRemoveFavorite(song.id) }) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Remove favorite",
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -180,7 +182,7 @@ private fun FavoriteSongCard(
                     color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
-                    text = "Key: ${song.key}",
+                    text = stringResource(R.string.reader_key_label, song.key),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(

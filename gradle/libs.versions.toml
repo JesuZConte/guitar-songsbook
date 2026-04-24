@@ -16,6 +16,7 @@ kotlinxCoroutinesTest = "1.10.2"
 mockitoCore = "5.23.0"
 navigationCompose = "2.9.7"
 coreSplashscreen = "1.2.0"
+appcompat = "1.7.0"
 playServicesAds = "25.1.0"
 firebaseBom = "34.11.0"
 googleServices = "4.4.4"
@@ -55,6 +56,7 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
