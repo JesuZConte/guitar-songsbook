@@ -77,21 +77,21 @@ import androidx.compose.ui.text.TextRange
 
 // ---- Local UI models ----
 
-private enum class InputMode { BUILDER, TEXT }
+internal enum class InputMode { BUILDER, TEXT }
 
-private data class BuilderSection(
+internal data class BuilderSection(
     val id: String = UUID.randomUUID().toString(),
     val type: String,
     val number: Int,
     val content: TextFieldValue = TextFieldValue()
 )
 
-private val SECTION_TYPES = listOf("verse", "chorus", "bridge", "intro", "outro", "pre-chorus", "solo")
-private val QUICK_CHORDS = listOf("Am", "C", "G", "F", "Em", "D", "E", "A", "Dm", "Bm", "G7", "D7")
+internal val SECTION_TYPES = listOf("verse", "chorus", "bridge", "intro", "outro", "pre-chorus", "solo")
+internal val QUICK_CHORDS = listOf("Am", "C", "G", "F", "Em", "D", "E", "A", "Dm", "Bm", "G7", "D7")
 
 // ---- Conversion helpers ----
 
-private fun rawTextToBuilderSections(rawText: String): List<BuilderSection> {
+internal fun rawTextToBuilderSections(rawText: String): List<BuilderSection> {
     if (rawText.isBlank()) return listOf(BuilderSection(type = "verse", number = 1))
     val parsed = BracketParser.parse(rawText)
     if (parsed.isEmpty()) return listOf(BuilderSection(type = "verse", number = 1))
@@ -104,7 +104,7 @@ private fun rawTextToBuilderSections(rawText: String): List<BuilderSection> {
     }
 }
 
-private fun builderSectionsToRawText(sections: List<BuilderSection>): String {
+internal fun builderSectionsToRawText(sections: List<BuilderSection>): String {
     return sections.joinToString("\n\n") { section ->
         val header = "[${section.type.replaceFirstChar { it.uppercase() }} ${section.number}]"
         "$header\n${section.content.text}"
@@ -367,7 +367,7 @@ fun AddSongScreen(
 // ---- Mode toggle ----
 
 @Composable
-private fun InputModeToggle(
+internal fun InputModeToggle(
     mode: InputMode,
     onModeChange: (InputMode) -> Unit,
     onHelpClick: () -> Unit
@@ -470,7 +470,7 @@ private fun FormatHelpContent() {
 // ---- Builder content ----
 
 @Composable
-private fun BuilderContent(
+internal fun BuilderContent(
     sections: List<BuilderSection>,
     onSectionsChanged: (List<BuilderSection>) -> Unit
 ) {
@@ -621,14 +621,14 @@ private fun AddSectionBar(onAdd: (String) -> Unit) {
 
 // ---- Key dropdown ----
 
-private val MUSICAL_KEYS = listOf(
+internal val MUSICAL_KEYS = listOf(
     "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B",
     "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "Abm", "Am", "Bbm", "Bm"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun KeyDropdown(
+internal fun KeyDropdown(
     selected: String,
     onSelected: (String) -> Unit,
     modifier: Modifier = Modifier

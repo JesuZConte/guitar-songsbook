@@ -48,4 +48,18 @@ class RoomPlaylistRepository(
     override suspend fun isSongInPlaylist(playlistId: Long, songId: String): Boolean {
         return playlistDao.isSongInPlaylist(playlistId, songId)
     }
+
+    override suspend fun ensureDefaultCollections() {
+        if (playlistDao.getByName(TRADITIONAL_SONGS_NAME) == null) {
+            val id = playlistDao.insert(PlaylistEntity(name = TRADITIONAL_SONGS_NAME))
+            TRADITIONAL_SONG_IDS.forEach { songId ->
+                playlistDao.addSong(PlaylistSongCrossRef(id, songId))
+            }
+        }
+    }
+
+    companion object {
+        private const val TRADITIONAL_SONGS_NAME = "Traditional Songs"
+        private val TRADITIONAL_SONG_IDS = listOf("pd-001", "pd-002", "pd-003")
+    }
 }

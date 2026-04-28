@@ -1,9 +1,5 @@
 package com.guitarapp.songsbook.domain.model
 
-/**
- * Domain model representing a song in the songbook.
- * Pure Kotlin — no Android or framework dependencies.
- */
 data class Song(
     val id: String,
     val title: String,
@@ -16,7 +12,19 @@ data class Song(
     val tags: List<String>,
     val notes: String,
     val content: List<SongSection>,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val versions: List<SongVersion> = emptyList()
+)
+
+data class SongVersion(
+    val id: Long = 0,
+    val songId: String,
+    val name: String,
+    val key: String = "",
+    val capo: Int = 0,
+    val chords: List<String> = emptyList(),
+    val notes: String = "",
+    val content: List<SongSection> = emptyList()
 )
 
 data class SongSection(

@@ -9,14 +9,15 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [SongEntity::class, PlaylistEntity::class, PlaylistSongCrossRef::class],
-    version = 3
+    entities = [SongEntity::class, PlaylistEntity::class, PlaylistSongCrossRef::class, SongVersionEntity::class],
+    version = 4
 )
 @TypeConverters(Converters::class)
 abstract class SongDatabase : RoomDatabase() {
 
     abstract fun songDao(): SongDao
     abstract fun playlistDao(): PlaylistDao
+    abstract fun songVersionDao(): SongVersionDao
 
     companion object {
         @Volatile
@@ -57,6 +58,35 @@ abstract class SongDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS song_versions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        song_id TEXT NOT NULL,
+                        name TEXT NOT NULL DEFAULT 'Default',
+                        key TEXT NOT NULL DEFAULT '',
+                        capo INTEGER NOT NULL DEFAULT 0,
+                        chords TEXT NOT NULL DEFAULT '[]',
+                        notes TEXT NOT NULL DEFAULT '',
+                        content TEXT NOT NULL DEFAULT '[]',
+                        FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_song_versions_song_id ON song_versions(song_id)"
+                )
+                db.execSQL(
+                    """
+                    INSERT INTO song_versions (song_id, name, key, capo, chords, notes, content)
+                    SELECT id, 'Default', key, capo, chords, notes, content FROM songs
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun getInstance(context: Context): SongDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -64,7 +94,7 @@ abstract class SongDatabase : RoomDatabase() {
                     SongDatabase::class.java,
                     "songbook.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { INSTANCE = it }
             }

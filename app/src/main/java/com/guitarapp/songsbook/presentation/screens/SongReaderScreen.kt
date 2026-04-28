@@ -6,6 +6,12 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -34,16 +41,17 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.ui.platform.LocalContext
-import com.guitarapp.songsbook.data.local.UserPreferences
-import com.guitarapp.songsbook.domain.model.Song
-import com.guitarapp.songsbook.utils.SongExporter
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.platform.LocalContext
+import com.guitarapp.songsbook.data.local.UserPreferences
+import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.domain.model.SongVersion
+import com.guitarapp.songsbook.utils.SongExporter
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -75,17 +83,34 @@ import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
 import com.guitarapp.songsbook.ui.theme.NocturnoColorScheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun SongReaderScreen(
     viewModel: ReaderViewModel,
     playlistsViewModel: PlaylistsViewModel,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit = {},
-    onDeleteSuccess: () -> Unit = {}
+    onDeleteSuccess: () -> Unit = {},
+    onAddVersionClick: (songId: String, sourceVersionId: Long) -> Unit = { _, _ -> },
+    onEditVersionClick: (versionId: Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val playlistsState by playlistsViewModel.uiState.collectAsState()
+
+    val effectiveSong = uiState.song?.let { song ->
+        val version = song.versions.getOrNull(uiState.selectedVersionIndex)
+            ?: song.versions.firstOrNull()
+        if (version != null) {
+            song.copy(
+                key = version.key,
+                capo = version.capo,
+                chords = version.chords,
+                notes = version.notes,
+                content = version.content
+            )
+        } else song
+    }
+
     var showPlaylistPicker by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showShareMenu by remember { mutableStateOf(false) }
@@ -259,34 +284,55 @@ fun SongReaderScreen(
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .transformable(state = pinchState)
         ) {
-            when {
-                uiState.isLoading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                uiState.error != null -> {
-                    Text(
-                        text = "Error: ${uiState.error}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                uiState.song != null -> {
-                    VirtualPagedSong(
-                        song = uiState.song!!,
-                        fontSize = uiState.fontSize,
-                        transposeSteps = uiState.transposeSteps,
-                        currentPage = uiState.currentPage,
-                        onPageChanged = viewModel::onPageChanged,
-                        onPageCountMeasured = viewModel::onMeasuredPageCount,
-                        onTap = viewModel::toggleFullscreen,
-                        modifier = Modifier.fillMaxSize()
-                    )
+            val song = uiState.song
+            if (song != null && song.versions.isNotEmpty() && !uiState.isFullscreen) {
+                VersionSelectorRow(
+                    versions = song.versions,
+                    selectedIndex = uiState.selectedVersionIndex,
+                    onSelected = viewModel::selectVersion,
+                    onAddVersion = {
+                        val currentVersion = song.versions.getOrNull(uiState.selectedVersionIndex)
+                            ?: song.versions.first()
+                        onAddVersionClick(song.id, currentVersion.id)
+                    },
+                    onEditVersion = onEditVersionClick,
+                    onDeleteVersion = viewModel::deleteVersion
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .transformable(state = pinchState)
+            ) {
+                when {
+                    uiState.isLoading -> {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                    uiState.error != null -> {
+                        Text(
+                            text = "Error: ${uiState.error}",
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                    effectiveSong != null -> {
+                        VirtualPagedSong(
+                            song = effectiveSong,
+                            fontSize = uiState.fontSize,
+                            transposeSteps = uiState.transposeSteps,
+                            currentPage = uiState.currentPage,
+                            onPageChanged = viewModel::onPageChanged,
+                            onPageCountMeasured = viewModel::onMeasuredPageCount,
+                            onTap = viewModel::toggleFullscreen,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
@@ -331,6 +377,113 @@ fun SongReaderScreen(
         }
     } else {
         screenContent()
+    }
+}
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+private fun VersionSelectorRow(
+    versions: List<SongVersion>,
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit,
+    onAddVersion: () -> Unit,
+    onEditVersion: (Long) -> Unit,
+    onDeleteVersion: (Long) -> Unit
+) {
+    var menuVersionIndex by remember { mutableStateOf<Int?>(null) }
+    var deleteTarget by remember { mutableStateOf<SongVersion?>(null) }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        versions.forEachIndexed { index, version ->
+            Box {
+                VersionChip(
+                    name = version.name,
+                    selected = index == selectedIndex,
+                    onClick = { onSelected(index) },
+                    onLongClick = { menuVersionIndex = index }
+                )
+                DropdownMenu(
+                    expanded = menuVersionIndex == index,
+                    onDismissRequest = { menuVersionIndex = null }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.version_menu_edit)) },
+                        leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                        onClick = {
+                            menuVersionIndex = null
+                            onEditVersion(version.id)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.version_menu_delete)) },
+                        leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+                        enabled = versions.size > 1,
+                        onClick = {
+                            menuVersionIndex = null
+                            deleteTarget = version
+                        }
+                    )
+                }
+            }
+        }
+        IconButton(onClick = onAddVersion) {
+            Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_version))
+        }
+    }
+
+    if (deleteTarget != null) {
+        AlertDialog(
+            onDismissRequest = { deleteTarget = null },
+            title = { Text(stringResource(R.string.version_delete_title)) },
+            text = { Text(stringResource(R.string.version_delete_body, deleteTarget!!.name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteVersion(deleteTarget!!.id)
+                    deleteTarget = null
+                }) {
+                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteTarget = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+}
+
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+private fun VersionChip(
+    name: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    val containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer
+                         else MaterialTheme.colorScheme.surface
+    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
+                       else MaterialTheme.colorScheme.onSurfaceVariant
+    val borderColor = if (selected) MaterialTheme.colorScheme.secondaryContainer
+                      else MaterialTheme.colorScheme.outline
+
+    Box(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(containerColor)
+            .border(width = 1.dp, color = borderColor, shape = CircleShape)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(text = name, color = contentColor, style = MaterialTheme.typography.labelLarge)
     }
 }
 

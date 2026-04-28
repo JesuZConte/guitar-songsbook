@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import java.util.Locale
 import com.google.android.gms.ads.MobileAds
 import androidx.activity.compose.setContent
@@ -23,8 +25,6 @@ import com.guitarapp.songsbook.data.local.UserPreferences
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
-import androidx.compose.material.icons.automirrored.outlined.QueueMusic
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
@@ -63,6 +63,7 @@ import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.presentation.Routes
 import com.guitarapp.songsbook.presentation.screens.AboutScreen
 import com.guitarapp.songsbook.presentation.screens.AddSongScreen
+import com.guitarapp.songsbook.presentation.screens.CollectionsLandingScreen
 import com.guitarapp.songsbook.presentation.screens.PreviewReaderScreen
 import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
@@ -70,6 +71,8 @@ import com.guitarapp.songsbook.presentation.screens.PlaylistDetailScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistsScreen
 import com.guitarapp.songsbook.presentation.screens.SettingsScreen
 import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
+import com.guitarapp.songsbook.presentation.screens.VersionEditorScreen
+import com.guitarapp.songsbook.presentation.viewmodel.VersionEditorViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.AddSongViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
@@ -86,8 +89,7 @@ data class BottomNavItem(
 
 private val bottomNavItems = listOf(
     BottomNavItem(Routes.HOME, R.string.nav_home, Icons.Filled.Home, Icons.Outlined.Home),
-    BottomNavItem(Routes.FAVORITES, R.string.nav_favorites, Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
-    BottomNavItem(Routes.PLAYLISTS, R.string.nav_playlists, Icons.AutoMirrored.Filled.QueueMusic, Icons.AutoMirrored.Outlined.QueueMusic)
+    BottomNavItem(Routes.FAVORITES, R.string.nav_favorites, Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder)
 )
 
 class MainActivity : ComponentActivity() {
@@ -96,7 +98,7 @@ class MainActivity : ComponentActivity() {
 
     private val database by lazy { SongDatabase.getInstance(this) }
     private val songRepository: SongRepository by lazy {
-        AssetSongRepository(assets, database.songDao())
+        AssetSongRepository(assets, database.songDao(), database.songVersionDao())
     }
     private val playlistRepository: PlaylistRepository by lazy {
         RoomPlaylistRepository(database.playlistDao())
@@ -130,6 +132,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this)
+        lifecycleScope.launch {
+            songRepository.getSongs() // ensures songs are seeded before playlist cross-refs
+            playlistRepository.ensureDefaultCollections()
+        }
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
         setContent {
@@ -241,13 +247,27 @@ private fun GuitarNavHost(
         }
     ) {
         composable(Routes.HOME) {
+            LaunchedEffect(Unit) {
+                playlistsViewModel.loadPlaylists()
+            }
+            CollectionsLandingScreen(
+                playlistsViewModel = playlistsViewModel,
+                onAllSongsClick = { navController.navigate(Routes.ALL_SONGS) },
+                onCollectionClick = { playlistId ->
+                    navController.navigate(Routes.playlistDetail(playlistId))
+                },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) }
+            )
+        }
+        composable(Routes.ALL_SONGS) {
             HomeScreen(
                 viewModel = homeViewModel,
                 playlists = playlistsUiState.playlists,
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
                 onEditClick = { songId -> navController.navigate(Routes.editSong(songId)) },
                 onAddSongClick = { navController.navigate(Routes.ADD_SONG) },
-                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
+                showSettings = false,
+                onBackClick = { navController.popBackStack() },
                 onAddToPlaylist = { songId, playlistId ->
                     playlistsViewModel.addSongToPlaylist(playlistId, songId)
                 }
@@ -333,6 +353,38 @@ private fun GuitarNavHost(
             AboutScreen(onBackClick = { navController.popBackStack() })
         }
         composable(
+            route = Routes.ADD_VERSION,
+            arguments = listOf(
+                navArgument("songId") { type = NavType.StringType },
+                navArgument("sourceVersionId") { type = NavType.LongType }
+            )
+        ) { backStackEntry ->
+            val vSongId = backStackEntry.arguments?.getString("songId") ?: return@composable
+            val sourceVersionId = backStackEntry.arguments?.getLong("sourceVersionId") ?: return@composable
+            val vm: VersionEditorViewModel = viewModel(
+                factory = VersionEditorViewModel.Factory(songRepository, vSongId, null, sourceVersionId)
+            )
+            VersionEditorScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Routes.EDIT_VERSION,
+            arguments = listOf(navArgument("versionId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val versionId = backStackEntry.arguments?.getLong("versionId") ?: return@composable
+            val vm: VersionEditorViewModel = viewModel(
+                factory = VersionEditorViewModel.Factory(songRepository, "", versionId, 0L)
+            )
+            VersionEditorScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
+            )
+        }
+        composable(
             route = Routes.EDIT_SONG,
             arguments = listOf(navArgument("songId") { type = NavType.StringType })
         ) { backStackEntry ->
@@ -370,7 +422,13 @@ private fun GuitarNavHost(
                 playlistsViewModel = playlistsViewModel,
                 onBackClick = { navController.popBackStack() },
                 onEditClick = { navController.navigate(Routes.editSong(songId)) },
-                onDeleteSuccess = { navController.popBackStack() }
+                onDeleteSuccess = { navController.popBackStack() },
+                onAddVersionClick = { sid, sourceVersionId ->
+                    navController.navigate(Routes.addVersion(sid, sourceVersionId))
+                },
+                onEditVersionClick = { versionId ->
+                    navController.navigate(Routes.editVersion(versionId))
+                }
             )
         }
     }

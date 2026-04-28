@@ -41,4 +41,7 @@ interface PlaylistDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM playlist_songs WHERE playlist_id = :playlistId AND song_id = :songId)")
     suspend fun isSongInPlaylist(playlistId: Long, songId: String): Boolean
+
+    @Query("SELECT * FROM playlists WHERE name = :name LIMIT 1")
+    suspend fun getByName(name: String): PlaylistEntity?
 }

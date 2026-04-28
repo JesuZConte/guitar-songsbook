@@ -23,7 +23,8 @@ data class ReaderUiState(
     val isFullscreen: Boolean = false,
     val isNocturno: Boolean = false,
     val deleteSuccess: Boolean = false,
-    val transposeSteps: Int = 0
+    val transposeSteps: Int = 0,
+    val selectedVersionIndex: Int = 0
 ) {
     companion object {
         const val MIN_FONT_SIZE = 10
@@ -105,6 +106,10 @@ class ReaderViewModel(
         _uiState.update { it.copy(transposeSteps = 0) }
     }
 
+    fun selectVersion(index: Int) {
+        _uiState.update { it.copy(selectedVersionIndex = index, currentPage = 0) }
+    }
+
     fun toggleFullscreen() {
         _uiState.update { it.copy(isFullscreen = !it.isFullscreen) }
     }
@@ -129,6 +134,20 @@ class ReaderViewModel(
             songRepository.deleteSong(songId)
             AnalyticsHelper.logSongDeleted()
             _uiState.update { it.copy(deleteSuccess = true) }
+        }
+    }
+
+    fun deleteVersion(versionId: Long) {
+        viewModelScope.launch {
+            songRepository.deleteVersion(versionId)
+            _uiState.update { state ->
+                val song = state.song ?: return@update state
+                val newVersions = song.versions.filterNot { it.id == versionId }
+                val newIndex = state.selectedVersionIndex.coerceAtMost(
+                    (newVersions.size - 1).coerceAtLeast(0)
+                )
+                state.copy(song = song.copy(versions = newVersions), selectedVersionIndex = newIndex, currentPage = 0)
+            }
         }
     }
 

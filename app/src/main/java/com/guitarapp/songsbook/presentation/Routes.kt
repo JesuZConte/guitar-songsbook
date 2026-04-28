@@ -12,7 +12,14 @@ object Routes {
     const val SETTINGS = "settings"
     const val ABOUT = "about"
 
+    const val ALL_SONGS = "all_songs"
+
+    const val ADD_VERSION = "add_version/{songId}/{sourceVersionId}"
+    const val EDIT_VERSION = "edit_version/{versionId}"
+
     fun reader(songId: String): String = "reader/$songId"
     fun editSong(songId: String): String = "edit_song/$songId"
     fun playlistDetail(playlistId: Long): String = "playlist/$playlistId"
+    fun addVersion(songId: String, sourceVersionId: Long): String = "add_version/$songId/$sourceVersionId"
+    fun editVersion(versionId: Long): String = "edit_version/$versionId"
 }

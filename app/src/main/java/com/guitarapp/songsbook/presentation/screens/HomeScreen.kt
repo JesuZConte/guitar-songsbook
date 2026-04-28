@@ -6,7 +6,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.SaveAlt
+import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -89,12 +90,6 @@ import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
-import com.guitarapp.songsbook.ui.theme.DifficultyAdvancedDark
-import com.guitarapp.songsbook.ui.theme.DifficultyAdvancedLight
-import com.guitarapp.songsbook.ui.theme.DifficultyBeginnerDark
-import com.guitarapp.songsbook.ui.theme.DifficultyBeginnerLight
-import com.guitarapp.songsbook.ui.theme.DifficultyIntermediateDark
-import com.guitarapp.songsbook.ui.theme.DifficultyIntermediateLight
 import com.guitarapp.songsbook.utils.ChordNotation
 import kotlinx.coroutines.launch
 
@@ -107,6 +102,8 @@ fun HomeScreen(
     onEditClick: (String) -> Unit = {},
     onAddSongClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    showSettings: Boolean = true,
+    onBackClick: (() -> Unit)? = null,
     onAddToPlaylist: (songId: String, playlistId: Long) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -114,6 +111,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showFabMenu by remember { mutableStateOf(false) }
+    var showHelp by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -167,6 +165,17 @@ fun HomeScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    if (onBackClick != null) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                },
                 title = {
                     Column {
                         Text(
@@ -181,12 +190,23 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                    if (onBackClick != null) {
+                        IconButton(onClick = { showHelp = true }) {
+                            Icon(
+                                Icons.Filled.HelpOutline,
+                                contentDescription = "Help",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                    if (showSettings) {
+                        IconButton(onClick = onSettingsClick) {
+                            Icon(
+                                Icons.Filled.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -249,6 +269,51 @@ fun HomeScreen(
             )
             }
         }
+    }
+
+    if (showHelp) {
+        AddSongsHelpDialog(onDismiss = { showHelp = false })
+    }
+}
+
+@Composable
+private fun AddSongsHelpDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.help_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                HelpSection(
+                    title = stringResource(R.string.help_add_manual_title),
+                    body = stringResource(R.string.help_add_manual_body)
+                )
+                HelpSection(
+                    title = stringResource(R.string.help_import_title),
+                    body = stringResource(R.string.help_import_body)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.help_got_it))
+            }
+        }
+    )
+}
+
+@Composable
+private fun HelpSection(title: String, body: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -615,7 +680,6 @@ private fun SongCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                DifficultyIndicator(song.difficulty)
             }
         }
         }
@@ -677,45 +741,6 @@ private fun SongCard(
                 }
             )
         }
-    }
-}
-
-@Composable
-private fun DifficultyIndicator(difficulty: String) {
-    val isDark = isSystemInDarkTheme()
-    val level = when (difficulty.lowercase()) {
-        "beginner" -> 1
-        "intermediate" -> 2
-        "advanced" -> 3
-        else -> 0
-    }
-    val color = when (level) {
-        1 -> if (isDark) DifficultyBeginnerDark else DifficultyBeginnerLight
-        2 -> if (isDark) DifficultyIntermediateDark else DifficultyIntermediateLight
-        3 -> if (isDark) DifficultyAdvancedDark else DifficultyAdvancedLight
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val dots = (1..3).joinToString("") { if (it <= level) "\u25CF" else "\u25CB" }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = dots,
-            color = color,
-            style = MaterialTheme.typography.bodySmall
-        )
-        Text(
-            text = when (difficulty.lowercase()) {
-                "beginner" -> stringResource(R.string.difficulty_beginner)
-                "intermediate" -> stringResource(R.string.difficulty_intermediate)
-                "advanced" -> stringResource(R.string.difficulty_advanced)
-                else -> difficulty.replaceFirstChar { it.uppercase() }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = color
-        )
     }
 }
 

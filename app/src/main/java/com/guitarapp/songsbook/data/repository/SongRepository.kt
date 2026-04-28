@@ -1,6 +1,7 @@
 package com.guitarapp.songsbook.data.repository
 
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.domain.model.SongVersion
 
 interface SongRepository {
     suspend fun getSongs(): List<Song>
@@ -13,4 +14,9 @@ interface SongRepository {
     suspend fun insertSong(song: Song)
     suspend fun updateSong(song: Song)
     suspend fun deleteSong(songId: String)
+    suspend fun getVersionsForSong(songId: String): List<SongVersion>
+    suspend fun getVersionById(versionId: Long): SongVersion?
+    suspend fun insertVersion(version: SongVersion): Long
+    suspend fun updateVersion(version: SongVersion)
+    suspend fun deleteVersion(versionId: Long)
 }

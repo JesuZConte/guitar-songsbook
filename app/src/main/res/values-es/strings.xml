@@ -7,6 +7,11 @@
     <string name="nav_favorites">Favoritos</string>
     <string name="nav_playlists">Listas</string>
 
+    <!-- Pantalla de colecciones -->
+    <string name="collections_all_songs">Todas las canciones</string>
+    <string name="collections_all_songs_subtitle">Tu biblioteca completa</string>
+    <string name="collections_my_collections">Mis colecciones</string>
+
     <!-- Común -->
     <string name="common_cancel">Cancelar</string>
     <string name="common_delete">Eliminar</string>
@@ -15,6 +20,14 @@
     <string name="common_preview">Vista previa</string>
     <string name="common_create">Crear</string>
     <string name="common_error">Error: %1$s</string>
+
+    <!-- Diálogo de ayuda (Todas las canciones) -->
+    <string name="help_title">Cómo agregar canciones</string>
+    <string name="help_add_manual_title">Escribir una canción manualmente</string>
+    <string name="help_add_manual_body">Toca el botón + en la esquina inferior derecha y elige "Agregar canción". Completa el título, artista, tonalidad y añade tus acordes y letra con el editor o en texto libre.</string>
+    <string name="help_import_title">Importar desde un archivo de respaldo</string>
+    <string name="help_import_body">Toca el botón + y elige "Importar desde archivo". Selecciona un archivo .json exportado previamente desde Cancionero (usa la opción "Respaldo" en el menú de pulsación larga de cualquier canción).</string>
+    <string name="help_got_it">Entendido</string>
 
     <!-- Pantalla de inicio -->
     <string name="home_title">Cancionero</string>
@@ -32,12 +45,12 @@
     <string name="home_filter_genre">Género</string>
     <string name="home_key_label">Tonalidad: %1$s</string>
     <string name="home_menu_edit">Editar</string>
-    <string name="home_menu_add_to_playlist">Agregar a lista</string>
+    <string name="home_menu_add_to_playlist">Agregar a colección</string>
     <string name="home_menu_backup">Respaldo</string>
     <string name="home_menu_share_chords">Compartir acordes</string>
     <string name="home_menu_delete">Eliminar</string>
-    <string name="home_add_to_playlist_title">Agregar a lista</string>
-    <string name="home_no_playlists_hint">Aún no tienes listas. Crea una desde la pestaña Listas.</string>
+    <string name="home_add_to_playlist_title">Agregar a colección</string>
+    <string name="home_no_playlists_hint">Aún no tienes colecciones. Toca + en la pantalla de inicio para crear una.</string>
 
     <!-- Niveles de dificultad -->
     <string name="difficulty_beginner">Principiante</string>
@@ -49,12 +62,12 @@
     <string name="favorites_empty_title">Aún no tienes favoritos</string>
     <string name="favorites_empty_body">Toca el corazón en cualquier canción para agregarla aquí</string>
 
-    <!-- Pantalla de listas -->
-    <string name="playlists_title">Listas</string>
-    <string name="playlists_empty_title">Aún no tienes listas</string>
-    <string name="playlists_empty_body">Toca + para crear tu primera lista</string>
-    <string name="playlists_new_dialog_title">Nueva lista</string>
-    <string name="playlists_name_label">Nombre de la lista</string>
+    <!-- Pantalla de colecciones (antes "listas") -->
+    <string name="playlists_title">Colecciones</string>
+    <string name="playlists_empty_title">Aún no tienes colecciones</string>
+    <string name="playlists_empty_body">Toca + para crear tu primera colección</string>
+    <string name="playlists_new_dialog_title">Nueva colección</string>
+    <string name="playlists_name_label">Nombre de la colección</string>
     <plurals name="playlists_song_count">
         <item quantity="one">%d canción</item>
         <item quantity="other">%d canciones</item>
@@ -68,8 +81,8 @@
     <string name="reader_loading">Cargando…</string>
     <string name="reader_delete_title">Eliminar canción</string>
     <string name="reader_delete_body">¿Eliminar \"%1$s\"? Esta acción no se puede deshacer.</string>
-    <string name="reader_add_to_playlist_title">Agregar a lista</string>
-    <string name="reader_no_playlists">Aún no tienes listas. Crea una desde la pestaña Listas.</string>
+    <string name="reader_add_to_playlist_title">Agregar a colección</string>
+    <string name="reader_no_playlists">Aún no tienes colecciones. Toca + en la pantalla de inicio para crear una.</string>
     <string name="reader_backup">Respaldo</string>
     <string name="reader_share_chords">Compartir acordes</string>
     <string name="reader_key_label">Tonalidad: %1$s</string>
@@ -140,4 +153,15 @@
     <string name="section_outro">Outro</string>
     <string name="section_pre_chorus">Pre-coro</string>
     <string name="section_solo">Solo</string>
+
+    <!-- Versiones de canción -->
+    <string name="version_default">Predeterminada</string>
+    <string name="reader_version_label">Versión</string>
+    <string name="add_version">Agregar versión</string>
+    <string name="edit_version_title">Editar versión</string>
+    <string name="version_name_label">Nombre de versión</string>
+    <string name="version_delete_title">Eliminar versión</string>
+    <string name="version_delete_body">¿Eliminar la versión \"%1$s\"? Esta acción no se puede deshacer.</string>
+    <string name="version_menu_edit">Editar versión</string>
+    <string name="version_menu_delete">Eliminar versión</string>
 </resources>

@@ -7,6 +7,11 @@
     <string name="nav_favorites">Favorites</string>
     <string name="nav_playlists">Playlists</string>
 
+    <!-- Collections landing -->
+    <string name="collections_all_songs">All Songs</string>
+    <string name="collections_all_songs_subtitle">Your complete library</string>
+    <string name="collections_my_collections">My Collections</string>
+
     <!-- Common -->
     <string name="common_cancel">Cancel</string>
     <string name="common_delete">Delete</string>
@@ -15,6 +20,14 @@
     <string name="common_preview">Preview</string>
     <string name="common_create">Create</string>
     <string name="common_error">Error: %1$s</string>
+
+    <!-- All Songs help dialog -->
+    <string name="help_title">How to add songs</string>
+    <string name="help_add_manual_title">Write a song manually</string>
+    <string name="help_add_manual_body">Tap the + button at the bottom right and choose "Add song". Fill in the title, artist, key, and add your chords and lyrics using the builder or plain text.</string>
+    <string name="help_import_title">Import from a backup file</string>
+    <string name="help_import_body">Tap the + button and choose "Import from file". Select a .json file previously exported from Cancionero (use the "Backup" option in any song\'s long-press menu to create one).</string>
+    <string name="help_got_it">Got it</string>
 
     <!-- Home screen -->
     <string name="home_title">Cancionero</string>
@@ -32,12 +45,12 @@
     <string name="home_filter_genre">Genre</string>
     <string name="home_key_label">Key: %1$s</string>
     <string name="home_menu_edit">Edit</string>
-    <string name="home_menu_add_to_playlist">Add to playlist</string>
+    <string name="home_menu_add_to_playlist">Add to collection</string>
     <string name="home_menu_backup">Backup</string>
     <string name="home_menu_share_chords">Share chords</string>
     <string name="home_menu_delete">Delete</string>
-    <string name="home_add_to_playlist_title">Add to playlist</string>
-    <string name="home_no_playlists_hint">You don\'t have any playlists yet. Create one from the Playlists tab.</string>
+    <string name="home_add_to_playlist_title">Add to collection</string>
+    <string name="home_no_playlists_hint">You don\'t have any collections yet. Tap + on the Home screen to create one.</string>
 
     <!-- Difficulty levels -->
     <string name="difficulty_beginner">Beginner</string>
@@ -49,12 +62,12 @@
     <string name="favorites_empty_title">No favorites yet</string>
     <string name="favorites_empty_body">Tap the heart on any song to add it here</string>
 
-    <!-- Playlists screen -->
-    <string name="playlists_title">Playlists</string>
-    <string name="playlists_empty_title">No playlists yet</string>
-    <string name="playlists_empty_body">Tap + to create your first playlist</string>
-    <string name="playlists_new_dialog_title">New Playlist</string>
-    <string name="playlists_name_label">Playlist name</string>
+    <!-- Collections screen (formerly Playlists) -->
+    <string name="playlists_title">Collections</string>
+    <string name="playlists_empty_title">No collections yet</string>
+    <string name="playlists_empty_body">Tap + to create your first collection</string>
+    <string name="playlists_new_dialog_title">New Collection</string>
+    <string name="playlists_name_label">Collection name</string>
     <plurals name="playlists_song_count">
         <item quantity="one">%d song</item>
         <item quantity="other">%d songs</item>
@@ -68,8 +81,8 @@
     <string name="reader_loading">Loading…</string>
     <string name="reader_delete_title">Delete song</string>
     <string name="reader_delete_body">Delete \"%1$s\"? This cannot be undone.</string>
-    <string name="reader_add_to_playlist_title">Add to Playlist</string>
-    <string name="reader_no_playlists">No playlists yet. Create one from the Playlists tab.</string>
+    <string name="reader_add_to_playlist_title">Add to Collection</string>
+    <string name="reader_no_playlists">No collections yet. Tap + on the Home screen to create one.</string>
     <string name="reader_backup">Backup</string>
     <string name="reader_share_chords">Share chords</string>
     <string name="reader_key_label">Key: %1$s</string>
@@ -140,4 +153,15 @@
     <string name="section_outro">Outro</string>
     <string name="section_pre_chorus">Pre-chorus</string>
     <string name="section_solo">Solo</string>
+
+    <!-- Song versions -->
+    <string name="version_default">Default</string>
+    <string name="reader_version_label">Version</string>
+    <string name="add_version">Add version</string>
+    <string name="edit_version_title">Edit version</string>
+    <string name="version_name_label">Version name</string>
+    <string name="version_delete_title">Delete version</string>
+    <string name="version_delete_body">Delete version \"%1$s\"? This cannot be undone.</string>
+    <string name="version_menu_edit">Edit version</string>
+    <string name="version_menu_delete">Delete version</string>
 </resources>
