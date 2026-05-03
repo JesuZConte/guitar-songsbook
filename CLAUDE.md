@@ -22,6 +22,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Instrumented tests (requires connected device/emulator)
 ./gradlew connectedAndroidTest
+
+# Run a single instrumented test class (--tests does NOT work for connectedAndroidTest)
+./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.guitarapp.songsbook.ui.ReaderToolbarTest
 ```
 
 ## Architecture

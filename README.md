@@ -76,6 +76,8 @@ Dependency wiring is manual (no Hilt/Dagger). `MainActivity.onCreate()` construc
 - `ReaderViewModelStateTest` — font size bounds, transposition, version selection, page tracking, fullscreen/nocturno toggles
 - `SongExporterTest` — chord share text format, key/capo lines, section headers, no-lyrics guarantee
 - `MigrationTest` — full migration chain v1→v4, per-step assertions, data integrity
+- `ReaderToolbarTest` — toolbar renders font size / transpose / page values; size and transpose buttons fire correct callbacks independently
+- `SongContentTest` — song header renders title, artist, key/capo labels (locale-aware), notes; absent fields do not appear
 
 ## Database Migrations
 
