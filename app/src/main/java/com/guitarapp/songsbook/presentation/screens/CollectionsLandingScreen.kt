@@ -1,6 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,10 +20,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.ui.draw.clip
+import com.guitarapp.songsbook.ui.components.BrassFAB
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,9 +32,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.AlertDialog
+import com.guitarapp.songsbook.ui.components.LeatherHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,46 +63,25 @@ fun CollectionsLandingScreen(
     var showCreateDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.home_title),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Text(
-                            text = stringResource(R.string.home_subtitle),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showCreateDialog = true }) {
-                Icon(Icons.Filled.Add, contentDescription = null)
+            val c = LocalLeatherColors.current
+            BrassFAB(modifier = Modifier.clickable { showCreateDialog = true }) {
+                Icon(Icons.Filled.Add, contentDescription = null, tint = c.navyDeep)
             }
         }
     ) { paddingValues ->
+        Column(Modifier.fillMaxSize()) {
+            LeatherHeader(
+                title = stringResource(R.string.home_title),
+                subtitle = stringResource(R.string.home_subtitle),
+                trailingIcon = Icons.Filled.Settings,
+                onTrailingClick = onSettingsClick,
+                modifier = Modifier.statusBarsPadding(),
+            )
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -116,7 +96,7 @@ fun CollectionsLandingScreen(
                     Text(
                         text = stringResource(R.string.collections_my_collections),
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = LocalLeatherColors.current.inkSoft,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -141,46 +121,40 @@ fun CollectionsLandingScreen(
                 }
             )
         }
+        } // Column
     }
 }
 
 @Composable
 private fun AllSongsCard(onClick: () -> Unit) {
-    Card(
+    val c = LocalLeatherColors.current
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.LibraryMusic,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(32.dp)
+        Icon(
+            imageVector = Icons.Filled.LibraryMusic,
+            contentDescription = null,
+            tint = c.section,
+            modifier = Modifier.size(32.dp)
+        )
+        Column {
+            Text(
+                text = stringResource(R.string.collections_all_songs),
+                style = MaterialTheme.typography.titleSmall,
+                color = c.ink
             )
-            Column {
-                Text(
-                    text = stringResource(R.string.collections_all_songs),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Text(
-                    text = stringResource(R.string.collections_all_songs_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                )
-            }
+            Text(
+                text = stringResource(R.string.collections_all_songs_subtitle),
+                style = MaterialTheme.typography.bodySmall,
+                color = c.inkSoft
+            )
         }
     }
 }
@@ -191,55 +165,51 @@ private fun CollectionCard(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    Card(
+    val c = LocalLeatherColors.current
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.weight(1f)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.QueueMusic,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.QueueMusic,
+                contentDescription = null,
+                tint = c.section,
+                modifier = Modifier.size(24.dp)
+            )
+            Column {
+                Text(
+                    text = playlist.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = c.ink
                 )
-                Column {
-                    Text(
-                        text = playlist.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = pluralStringResource(
-                            R.plurals.playlists_song_count,
-                            playlist.songCount,
-                            playlist.songCount
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
+                Text(
+                    text = pluralStringResource(
+                        R.plurals.playlists_song_count,
+                        playlist.songCount,
+                        playlist.songCount
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = c.inkSoft
                 )
             }
+        }
+        IconButton(onClick = onDelete) {
+            Icon(
+                imageVector = Icons.Filled.Delete,
+                contentDescription = null,
+                tint = c.accent
+            )
         }
     }
 }

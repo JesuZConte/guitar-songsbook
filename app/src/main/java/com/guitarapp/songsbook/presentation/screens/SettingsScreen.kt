@@ -23,8 +23,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.guitarapp.songsbook.ui.components.LeatherHeader
+import com.guitarapp.songsbook.ui.components.StitchedDivider
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,28 +62,22 @@ fun SettingsScreen(
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.settings_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_cancel))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
         ) {
+            LeatherHeader(
+                title = stringResource(R.string.settings_title),
+                onBack = onBackClick,
+                leadingEmblem = false,
+                modifier = Modifier.statusBarsPadding(),
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
+            ) {
             SettingsSectionHeader(stringResource(R.string.settings_section_appearance))
             ThemeSelectorRow(
                 current = themeMode,
@@ -118,17 +114,23 @@ fun SettingsScreen(
             SettingsSectionHeader(stringResource(R.string.settings_section_app))
             AboutRow(onAboutClick)
             HorizontalDivider()
-        }
-    }
-}
+            } // inner Column
+        } // outer Column
+    } // Scaffold
+} // SettingsScreen
 
 @Composable
 private fun SettingsSectionHeader(title: String) {
+    val c = LocalLeatherColors.current
     Text(
         text = title,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        style = MaterialTheme.typography.titleMedium,
+        color = c.section,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+    )
+    StitchedDivider(
+        color = c.rule,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp)
     )
 }
 
@@ -144,12 +146,13 @@ private fun AboutRow(onClick: () -> Unit) {
         Text(
             text = stringResource(R.string.settings_about),
             style = MaterialTheme.typography.bodyLarge,
+            color = LocalLeatherColors.current.ink,
             modifier = Modifier.weight(1f)
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = LocalLeatherColors.current.inkSoft
         )
     }
 }

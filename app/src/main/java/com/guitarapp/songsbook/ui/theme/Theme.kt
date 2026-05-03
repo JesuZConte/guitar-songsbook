@@ -2,99 +2,40 @@ package com.guitarapp.songsbook.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
 
-private val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = LightOnPrimary,
-    primaryContainer = LightPrimaryContainer,
-    onPrimaryContainer = LightOnPrimaryContainer,
-    secondary = LightSecondary,
-    onSecondary = LightOnSecondary,
-    secondaryContainer = LightSecondaryContainer,
-    onSecondaryContainer = LightOnSecondaryContainer,
-    tertiary = LightTertiary,
-    onTertiary = LightOnTertiary,
-    tertiaryContainer = LightTertiaryContainer,
-    onTertiaryContainer = LightOnTertiaryContainer,
-    background = LightBackground,
-    onBackground = LightOnBackground,
-    surface = LightSurface,
-    onSurface = LightOnSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onSurfaceVariant = LightOnSurfaceVariant,
-    surfaceContainerLowest = LightSurfaceContainerLowest,
-    surfaceContainerLow = LightSurfaceContainerLow,
-    surfaceContainer = LightSurfaceContainer,
-    surfaceContainerHigh = LightSurfaceContainerHigh,
-    surfaceContainerHighest = LightSurfaceContainerHighest,
-    outline = LightOutline,
-    outlineVariant = LightOutlineVariant,
-    error = LightError,
-    onError = LightOnError,
-    errorContainer = LightErrorContainer,
-    onErrorContainer = LightOnErrorContainer
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    onPrimary = DarkOnPrimary,
-    primaryContainer = DarkPrimaryContainer,
-    onPrimaryContainer = DarkOnPrimaryContainer,
-    secondary = DarkSecondary,
-    onSecondary = DarkOnSecondary,
-    secondaryContainer = DarkSecondaryContainer,
-    onSecondaryContainer = DarkOnSecondaryContainer,
-    tertiary = DarkTertiary,
-    onTertiary = DarkOnTertiary,
-    tertiaryContainer = DarkTertiaryContainer,
-    onTertiaryContainer = DarkOnTertiaryContainer,
-    background = DarkBackground,
-    onBackground = DarkOnBackground,
-    surface = DarkSurface,
-    onSurface = DarkOnSurface,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = DarkOnSurfaceVariant,
-    surfaceContainerLowest = DarkSurfaceContainerLowest,
-    surfaceContainerLow = DarkSurfaceContainerLow,
-    surfaceContainer = DarkSurfaceContainer,
-    surfaceContainerHigh = DarkSurfaceContainerHigh,
-    surfaceContainerHighest = DarkSurfaceContainerHighest,
-    outline = DarkOutline,
-    outlineVariant = DarkOutlineVariant,
-    error = DarkError,
-    onError = DarkOnError,
-    errorContainer = DarkErrorContainer,
-    onErrorContainer = DarkOnErrorContainer
-)
-
-val NocturnoColorScheme = darkColorScheme(
-    background              = NocturnoBackground,
-    surface                 = NocturnoSurface,
-    onBackground            = NocturnoOnSurface,
-    onSurface               = NocturnoOnSurface,
-    onSurfaceVariant        = NocturnoOnSurfaceVariant,
-    primaryContainer        = NocturnoPrimaryContainer,
-    onPrimaryContainer      = NocturnoOnPrimaryContainer,
-    surfaceContainer        = NocturnoSurface,
-    surfaceContainerHigh    = NocturnoSurface,
-    surfaceContainerHighest = NocturnoSurface,
-    outlineVariant          = Color(0xFF2A2000)
-)
+// =============================================================================
+// CancioneroTheme — single entry point. Wrap your top-level `setContent { ... }`
+// in this and Material 3 + the extended LeatherColors will be available
+// everywhere.
+//
+// Usage:
+//   setContent {
+//     CancioneroTheme {
+//       CancioneroNavGraph()
+//     }
+//   }
+//
+// Inside any composable:
+//   val c = LocalLeatherColors.current   // for cognac/brass/stitch tokens
+//   MaterialTheme.colorScheme.primary    // for stock M3 roles
+// =============================================================================
 
 @Composable
-fun GuitarSongsbookTheme(
+fun CancioneroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colors  = if (darkTheme) DarkColors  else LightColors
+    val leather = if (darkTheme) DarkLeather else LightLeather
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalLeatherColors provides leather) {
+        MaterialTheme(
+            colorScheme = colors,
+            typography  = CancioneroTypography,
+            shapes      = CancioneroShapes,
+            content     = content,
+        )
+    }
 }

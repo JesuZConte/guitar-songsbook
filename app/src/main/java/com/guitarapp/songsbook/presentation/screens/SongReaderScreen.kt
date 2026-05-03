@@ -6,12 +6,10 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,15 +32,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Bedtime
-import androidx.compose.material.icons.filled.Fullscreen
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,8 +51,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.guitarapp.songsbook.ui.components.BrassPill
+import com.guitarapp.songsbook.ui.components.LeatherHeader
+import com.guitarapp.songsbook.ui.components.ReaderToolbar
+import com.guitarapp.songsbook.ui.theme.PillShape
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -74,13 +70,13 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.NocturnoColorScheme
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
@@ -116,6 +112,7 @@ fun SongReaderScreen(
     var showShareMenu by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    val shareChordsTxt = stringResource(R.string.reader_share_chords)
     var songToBackup by remember { mutableStateOf<Song?>(null) }
 
     var accumulatedScale by remember { mutableStateOf(1f) }
@@ -166,100 +163,74 @@ fun SongReaderScreen(
                 enter = slideInVertically(),
                 exit = slideOutVertically()
             ) {
-                TopAppBar(
-                    title = {
-                        Column {
-                            Text(
-                                text = uiState.song?.title ?: stringResource(R.string.reader_loading),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            if (uiState.song != null) {
-                                Text(
-                                    text = uiState.song!!.artist,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                LeatherHeader(
+                    title = uiState.song?.title ?: stringResource(R.string.reader_loading),
+                    subtitle = uiState.song?.artist,
+                    onBack = onBackClick,
+                    leadingEmblem = false,
+                    modifier = Modifier.statusBarsPadding(),
+                    actionRow = if (uiState.song != null) ({
+                        Box {
+                            IconButton(onClick = { showShareMenu = true }) {
+                                Icon(Icons.Filled.Share, contentDescription = "Share", tint = LocalLeatherColors.current.cream)
+                            }
+                            DropdownMenu(
+                                expanded = showShareMenu,
+                                onDismissRequest = { showShareMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.reader_backup)) },
+                                    leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
+                                    onClick = {
+                                        showShareMenu = false
+                                        songToBackup = uiState.song
+                                        backupLauncher.launch("${uiState.song!!.title}.json")
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.reader_share_chords)) },
+                                    leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
+                                    onClick = {
+                                        showShareMenu = false
+                                        val text = SongExporter.buildChordShareText(uiState.song!!)
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, text)
+                                        }
+                                        context.startActivity(Intent.createChooser(intent, shareChordsTxt))
+                                    }
                                 )
                             }
                         }
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
+                        IconButton(onClick = onEditClick) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit song", tint = LocalLeatherColors.current.cream)
+                        }
+                        IconButton(onClick = { showDeleteConfirm = true }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete song", tint = LocalLeatherColors.current.accent)
+                        }
+                        IconButton(onClick = {
+                            playlistsViewModel.loadPlaylists()
+                            showPlaylistPicker = true
+                        }) {
+                            Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = "Add to playlist", tint = LocalLeatherColors.current.cream)
+                        }
+                        IconButton(onClick = { viewModel.toggleNocturno() }) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back"
+                                imageVector = Icons.Filled.Bedtime,
+                                contentDescription = "Toggle nocturno mode",
+                                tint = LocalLeatherColors.current.cream,
                             )
                         }
-                    },
-                    actions = {
-                        if (uiState.song != null) {
-                            Box {
-                                IconButton(onClick = { showShareMenu = true }) {
-                                    Icon(Icons.Filled.Share, contentDescription = "Share")
-                                }
-                                DropdownMenu(
-                                    expanded = showShareMenu,
-                                    onDismissRequest = { showShareMenu = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.reader_backup)) },
-                                        leadingIcon = { Icon(Icons.Filled.SaveAlt, contentDescription = null) },
-                                        onClick = {
-                                            showShareMenu = false
-                                            songToBackup = uiState.song
-                                            backupLauncher.launch("${uiState.song!!.title}.json")
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.reader_share_chords)) },
-                                        leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null) },
-                                        onClick = {
-                                            showShareMenu = false
-                                            val text = SongExporter.buildChordShareText(uiState.song!!)
-                                            val shareChords = context.getString(R.string.reader_share_chords)
-                                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                                type = "text/plain"
-                                                putExtra(Intent.EXTRA_TEXT, text)
-                                            }
-                                            context.startActivity(Intent.createChooser(intent, shareChords))
-                                        }
-                                    )
-                                }
-                            }
-                            IconButton(onClick = onEditClick) {
-                                Icon(Icons.Filled.Edit, contentDescription = "Edit song")
-                            }
-                            IconButton(onClick = { showDeleteConfirm = true }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete song")
-                            }
-                            IconButton(onClick = {
-                                playlistsViewModel.loadPlaylists()
-                                showPlaylistPicker = true
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.PlaylistAdd, contentDescription = "Add to playlist")
-                            }
-                            IconButton(onClick = { viewModel.toggleNocturno() }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Bedtime,
-                                    contentDescription = "Toggle nocturno mode",
-                                    tint = if (uiState.isNocturno) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                            IconButton(onClick = { viewModel.toggleFavorite() }) {
-                                Icon(
-                                    imageVector = if (uiState.song!!.isFavorite) Icons.Filled.Favorite
-                                    else Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Toggle favorite",
-                                    tint = if (uiState.song!!.isFavorite) MaterialTheme.colorScheme.error
-                                    else MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
+                        IconButton(onClick = { viewModel.toggleFavorite() }) {
+                            Icon(
+                                imageVector = if (uiState.song!!.isFavorite) Icons.Filled.Favorite
+                                else Icons.Outlined.FavoriteBorder,
+                                contentDescription = "Toggle favorite",
+                                tint = if (uiState.song!!.isFavorite) LocalLeatherColors.current.accent
+                                       else LocalLeatherColors.current.cream,
+                            )
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    }) else null,
                 )
             }
         },
@@ -269,17 +240,17 @@ fun SongReaderScreen(
                 enter = slideInVertically { it },
                 exit = slideOutVertically { it }
             ) {
-                ReaderBottomBar(
-                    currentPage = uiState.currentPage,
-                    totalPages = uiState.totalPages,
-                    fontSize = uiState.fontSize,
-                    transposeSteps = uiState.transposeSteps,
-                    onIncreaseFontSize = viewModel::increaseFontSize,
-                    onDecreaseFontSize = viewModel::decreaseFontSize,
-                    onTransposeUp = viewModel::transposeUp,
-                    onTransposeDown = viewModel::transposeDown,
-                    onResetTranspose = viewModel::resetTranspose,
-                    onToggleFullscreen = viewModel::toggleFullscreen
+                ReaderToolbar(
+                    fontSizeSp = uiState.fontSize,
+                    transposeSemitones = uiState.transposeSteps,
+                    page = uiState.currentPage + 1,
+                    totalPages = uiState.totalPages.coerceAtLeast(1),
+                    onSizeDelta = { delta ->
+                        if (delta > 0) viewModel.increaseFontSize() else viewModel.decreaseFontSize()
+                    },
+                    onTransposeDelta = { delta ->
+                        if (delta > 0) viewModel.transposeUp() else viewModel.transposeDown()
+                    }
                 )
             }
         }
@@ -468,22 +439,21 @@ private fun VersionChip(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    val containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer
-                         else MaterialTheme.colorScheme.surface
-    val contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer
-                       else MaterialTheme.colorScheme.onSurfaceVariant
-    val borderColor = if (selected) MaterialTheme.colorScheme.secondaryContainer
-                      else MaterialTheme.colorScheme.outline
-
-    Box(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(containerColor)
-            .border(width = 1.dp, color = borderColor, shape = CircleShape)
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(text = name, color = contentColor, style = MaterialTheme.typography.labelLarge)
+    val c = LocalLeatherColors.current
+    if (selected) {
+        BrassPill(modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)) {
+            Text(text = name, color = c.navyDeep, style = MaterialTheme.typography.labelLarge)
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .clip(PillShape)
+                .border(1.5.dp, c.rule, PillShape)
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+        ) {
+            Text(text = name, color = c.ink, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 
@@ -524,60 +494,3 @@ private fun PlaylistPickerDialog(
     )
 }
 
-@Composable
-private fun ReaderBottomBar(
-    currentPage: Int,
-    totalPages: Int,
-    fontSize: Int,
-    transposeSteps: Int,
-    onIncreaseFontSize: () -> Unit,
-    onDecreaseFontSize: () -> Unit,
-    onTransposeUp: () -> Unit,
-    onTransposeDown: () -> Unit,
-    onResetTranspose: () -> Unit,
-    onToggleFullscreen: () -> Unit
-) {
-    BottomAppBar {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Font size
-            IconButton(onClick = onDecreaseFontSize) {
-                Icon(Icons.Filled.Remove, contentDescription = "Decrease font")
-            }
-            Text(text = "${fontSize}sp", style = MaterialTheme.typography.bodyMedium)
-            IconButton(onClick = onIncreaseFontSize) {
-                Icon(Icons.Filled.Add, contentDescription = "Increase font")
-            }
-
-            // Transpose
-            IconButton(onClick = onTransposeDown) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Transpose down")
-            }
-            val transposeLabel = when {
-                transposeSteps > 0 -> "+$transposeSteps"
-                else -> "$transposeSteps"
-            }
-            Text(
-                text = "T:$transposeLabel",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = androidx.compose.ui.Modifier.clickable(onClick = onResetTranspose)
-            )
-            IconButton(onClick = onTransposeUp) {
-                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Transpose up")
-            }
-
-            // Page + fullscreen
-            Text(
-                text = "${currentPage + 1} / $totalPages",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = onToggleFullscreen) {
-                Icon(Icons.Filled.Fullscreen, contentDescription = "Toggle fullscreen")
-            }
-        }
-    }
-}

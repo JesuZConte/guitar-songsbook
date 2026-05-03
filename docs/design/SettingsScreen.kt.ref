@@ -1,0 +1,96 @@
+package com.yourapp.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.yourapp.ui.components.LeatherHeader
+import com.yourapp.ui.components.StitchedDivider
+import com.yourapp.ui.theme.LocalLeatherColors
+
+// =============================================================================
+// SettingsScreen — list of preferences grouped by section.
+// Sections separated by a stitched divider + a small-caps Fraunces label.
+// =============================================================================
+
+data class SettingsSection(val title: String, val items: List<SettingsItem>)
+sealed interface SettingsItem {
+    val label: String
+    data class Toggle(override val label: String, val checked: Boolean, val onChange: (Boolean) -> Unit) : SettingsItem
+    data class Nav(override val label: String, val value: String? = null, val onClick: () -> Unit) : SettingsItem
+}
+
+@Composable
+fun SettingsScreen(
+    sections: List<SettingsSection>,
+    onBack: () -> Unit,
+) {
+    val c = LocalLeatherColors.current
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        LeatherHeader(title = "Settings", onBack = onBack, leadingEmblem = false)
+
+        LazyColumn(
+            contentPadding = PaddingValues(vertical = 8.dp),
+            modifier = Modifier.weight(1f),
+        ) {
+            sections.forEachIndexed { idx, section ->
+                item {
+                    if (idx > 0) Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = section.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = c.section,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
+                    StitchedDivider(
+                        color = c.rule,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                }
+                items(section.items.size) { i ->
+                    Row(section.items[i])
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Row(item: SettingsItem) {
+    val c = LocalLeatherColors.current
+    androidx.compose.foundation.layout.Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .let { if (item is SettingsItem.Nav) it.clickable(onClick = item.onClick) else it }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = item.label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = c.ink,
+            modifier = Modifier.weight(1f),
+        )
+        when (item) {
+            is SettingsItem.Toggle -> Switch(checked = item.checked, onCheckedChange = item.onChange)
+            is SettingsItem.Nav    -> item.value?.let {
+                Text(it, style = MaterialTheme.typography.bodyMedium, color = c.inkSoft)
+            }
+        }
+    }
+}
+
+// items() shim
+private inline fun androidx.compose.foundation.lazy.LazyListScope.items(
+    count: Int,
+    crossinline itemContent: @Composable (Int) -> Unit,
+) {
+    items(count) { i -> itemContent(i) }
+}

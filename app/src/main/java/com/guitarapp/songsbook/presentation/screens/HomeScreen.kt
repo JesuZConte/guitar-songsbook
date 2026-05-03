@@ -3,8 +3,10 @@ package com.guitarapp.songsbook.presentation.screens
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,7 +53,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -61,8 +62,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.guitarapp.songsbook.ui.components.LeatherHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -92,6 +93,10 @@ import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import com.guitarapp.songsbook.utils.ChordNotation
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.guitarapp.songsbook.ui.components.BrassFAB
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,93 +141,46 @@ fun HomeScreen(
         } catch (_: Exception) { }
     }
 
+    val importedMsg = uiState.importedSongTitle?.let { stringResource(R.string.home_song_imported, it) }
     androidx.compose.runtime.LaunchedEffect(uiState.importedSongTitle) {
-        uiState.importedSongTitle?.let { title ->
-            snackbarHostState.showSnackbar(context.getString(R.string.home_song_imported, title))
+        importedMsg?.let {
+            snackbarHostState.showSnackbar(it)
             viewModel.clearImportResult()
         }
+    }
+
+    var pendingDelete by remember { mutableStateOf<Pair<String, String>?>(null) }
+    val undoLabel = stringResource(R.string.common_undo)
+    val deletedMsg = pendingDelete?.let { (_, title) -> stringResource(R.string.home_song_deleted, title) }
+    androidx.compose.runtime.LaunchedEffect(pendingDelete) {
+        val (songId, _) = pendingDelete ?: return@LaunchedEffect
+        val msg = deletedMsg ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = msg,
+            actionLabel = undoLabel,
+            duration = SnackbarDuration.Short
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            viewModel.undoDelete(songId)
+        } else {
+            viewModel.confirmDelete(songId)
+        }
+        pendingDelete = null
     }
 
     val handleDelete = { songId: String ->
         val title = uiState.songs.find { it.id == songId }?.title ?: ""
         viewModel.removeSongFromUi(songId)
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = context.getString(R.string.home_song_deleted, title),
-                actionLabel = context.getString(R.string.common_undo),
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                viewModel.undoDelete(songId)
-            } else {
-                viewModel.confirmDelete(songId)
-            }
-        }
-        Unit
+        pendingDelete = songId to title
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    if (onBackClick != null) {
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
-                },
-                title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.home_title),
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Text(
-                            text = stringResource(R.string.home_subtitle),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
-                    }
-                },
-                actions = {
-                    if (onBackClick != null) {
-                        IconButton(onClick = { showHelp = true }) {
-                            Icon(
-                                Icons.Filled.HelpOutline,
-                                contentDescription = "Help",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
-                    if (showSettings) {
-                        IconButton(onClick = onSettingsClick) {
-                            Icon(
-                                Icons.Filled.Settings,
-                                contentDescription = "Settings",
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        },
         floatingActionButton = {
             Box {
-                LargeFloatingActionButton(
-                    onClick = { showFabMenu = !showFabMenu },
-                    containerColor = MaterialTheme.colorScheme.inverseSurface,
-                    contentColor = MaterialTheme.colorScheme.inverseOnSurface
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add song")
+                val fabC = LocalLeatherColors.current
+                BrassFAB(modifier = Modifier.clickable { showFabMenu = !showFabMenu }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add song", tint = fabC.navyDeep)
                 }
                 DropdownMenu(
                     expanded = showFabMenu,
@@ -249,24 +207,42 @@ fun HomeScreen(
         },
         bottomBar = { BannerAd() }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                uiState.isLoading -> LoadingContent()
-                uiState.error != null -> ErrorContent(uiState.error!!)
-                else -> SearchableSongList(
-                uiState = uiState,
-                viewModel = viewModel,
-                playlists = playlists,
-                onSongClick = onSongClick,
-                onEditClick = onEditClick,
-                onDeleteClick = handleDelete,
-                onAddSongClick = onAddSongClick,
-                onAddToPlaylist = onAddToPlaylist
+        Column(Modifier.fillMaxSize()) {
+            LeatherHeader(
+                title = stringResource(R.string.home_title),
+                subtitle = stringResource(R.string.home_subtitle),
+                onBack = onBackClick,
+                trailingIcon = when {
+                    onBackClick != null -> Icons.Filled.HelpOutline
+                    showSettings -> Icons.Filled.Settings
+                    else -> null
+                },
+                onTrailingClick = when {
+                    onBackClick != null -> { { showHelp = true } }
+                    showSettings -> onSettingsClick
+                    else -> null
+                },
+                modifier = Modifier.statusBarsPadding(),
             )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
+            ) {
+                when {
+                    uiState.isLoading -> LoadingContent()
+                    uiState.error != null -> ErrorContent(uiState.error!!)
+                    else -> SearchableSongList(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    playlists = playlists,
+                    onSongClick = onSongClick,
+                    onEditClick = onEditClick,
+                    onDeleteClick = handleDelete,
+                    onAddSongClick = onAddSongClick,
+                    onAddToPlaylist = onAddToPlaylist
+                )
+                }
             }
         }
     }
@@ -578,6 +554,7 @@ private fun SongCard(
     onAddToPlaylist: (songId: String, playlistId: Long) -> Unit
 ) {
     val context = LocalContext.current
+    val shareChordsTxt = stringResource(R.string.home_menu_share_chords)
     var showMenu by remember { mutableStateOf(false) }
     var showPlaylistDialog by remember { mutableStateOf(false) }
 
@@ -600,16 +577,17 @@ private fun SongCard(
         )
     }
 
+    val c = LocalLeatherColors.current
     Box {
-        Card(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .combinedClickable(
                     onClick = { onSongClick(song.id) },
                     onLongClick = { showMenu = true }
-                ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+                )
         ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -628,7 +606,7 @@ private fun SongCard(
                     Text(
                         text = song.artist,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = c.inkSoft
                     )
                 }
                 val bounceScale = remember { Animatable(1f) }
@@ -656,8 +634,7 @@ private fun SongCard(
                         imageVector = if (song.isFavorite) Icons.Filled.Favorite
                         else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Toggle favorite",
-                        tint = if (song.isFavorite) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (song.isFavorite) c.accent else c.inkFaint,
                         modifier = Modifier.scale(bounceScale.value)
                     )
                 }
@@ -671,7 +648,7 @@ private fun SongCard(
                 Text(
                     text = song.genre,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = c.inkSoft
                 )
                 if (song.key.isNotBlank()) {
                     val notation = UserPreferences.getNotation(LocalContext.current)
@@ -722,7 +699,7 @@ private fun SongCard(
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, text)
                     }
-                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.home_menu_share_chords)))
+                    context.startActivity(Intent.createChooser(intent, shareChordsTxt))
                 }
             )
             HorizontalDivider()

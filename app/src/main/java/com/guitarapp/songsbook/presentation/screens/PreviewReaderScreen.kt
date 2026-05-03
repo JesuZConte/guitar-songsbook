@@ -3,6 +3,8 @@ package com.guitarapp.songsbook.presentation.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,10 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.guitarapp.songsbook.domain.model.Song
 
@@ -27,8 +25,6 @@ fun PreviewReaderScreen(
     song: Song,
     onBackClick: () -> Unit
 ) {
-    var currentPage by remember { mutableIntStateOf(0) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,16 +56,13 @@ fun PreviewReaderScreen(
             )
         }
     ) { paddingValues ->
-        VirtualPagedSong(
-            song = song,
-            fontSize = 14,
-            currentPage = currentPage,
-            onPageChanged = { currentPage = it },
-            onPageCountMeasured = {},
-            onTap = {},
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        )
+                .verticalScroll(rememberScrollState())
+        ) {
+            FullSongColumn(song = song, fontSize = 14)
+        }
     }
 }

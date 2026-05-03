@@ -1,0 +1,177 @@
+package com.yourapp.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.yourapp.ui.components.*
+import com.yourapp.ui.theme.LocalLeatherColors
+
+// =============================================================================
+// SongDetailsScreen — the canonical reading view.
+// Anatomy:
+//   1. LeatherHeader (back + emblem + title + italic subtitle, + action row)
+//   2. VersionChips
+//   3. Reader body (title block + chord/lyric grid) on cream
+//   4. ReaderToolbar (Size / Transpose / Page indicator)
+//
+// State:
+//   • fontSize: 12..18 sp, default 14
+//   • transpose: -11..+11 semitones, default 0
+//   • page: 1..totalPages
+//   • favorite: persisted per-song
+//
+// Tapping the body toggles "clean reader" mode (chrome hidden). Wire this in
+// your container; this composable accepts a `chromeVisible` flag.
+// =============================================================================
+
+data class SongDetailsState(
+    val title: String,
+    val subtitle: String,
+    val versions: List<String>,
+    val activeVersion: Int,
+    val page: Int,
+    val totalPages: Int,
+    val fontSize: Int,
+    val transpose: Int,
+    val favorite: Boolean,
+)
+
+@Composable
+fun SongDetailsScreen(
+    state: SongDetailsState,
+    chromeVisible: Boolean,
+    onBack: () -> Unit,
+    onShare: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    onAddToPlaylist: () -> Unit,
+    onToggleTheme: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onSelectVersion: (Int) -> Unit,
+    onAddVersion: () -> Unit,
+    onSizeDelta: (Int) -> Unit,
+    onTransposeDelta: (Int) -> Unit,
+    onTapBody: () -> Unit,
+    body: @Composable ColumnScope.() -> Unit,
+) {
+    val c = LocalLeatherColors.current
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // 1. Header
+        if (chromeVisible) {
+            LeatherHeader(
+                title = state.title,
+                subtitle = state.subtitle,
+                onBack = onBack,
+                actionRow = {
+                    HeaderAction(Icons.Filled.Share,        onShare)
+                    HeaderAction(Icons.Filled.Edit,         onEdit)
+                    HeaderAction(Icons.Filled.Delete,       onDelete, tintError = true)
+                    HeaderAction(Icons.Filled.PlaylistAdd,  onAddToPlaylist)
+                    HeaderAction(Icons.Filled.DarkMode,     onToggleTheme)
+                    HeaderAction(
+                        if (state.favorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        onToggleFavorite,
+                    )
+                }
+            )
+
+            // 2. Version chips
+            VersionChips(
+                versions = state.versions,
+                activeIndex = state.activeVersion,
+                onSelect = onSelectVersion,
+                onAdd = onAddVersion,
+            )
+        }
+
+        // 3. Reader body — fills remaining space, taps toggle chrome
+        Column(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 4.dp)
+                .verticalScroll(rememberScrollState()),
+        ) { body() }
+
+        // 4. Toolbar
+        if (chromeVisible) {
+            ReaderToolbar(
+                fontSizeSp = state.fontSize,
+                transposeSemitones = state.transpose,
+                page = state.page,
+                totalPages = state.totalPages,
+                onSizeDelta = onSizeDelta,
+                onTransposeDelta = onTransposeDelta,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeaderAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    tintError: Boolean = false,
+) {
+    val c = LocalLeatherColors.current
+    IconButton(onClick = onClick, modifier = Modifier.size(36.dp)) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (tintError) c.accent else c.cream,
+        )
+    }
+}
+
+// ------------------- Example wiring (delete in production) ------------------
+
+@Composable
+fun SongDetailsScreenPreview() {
+    var chrome by remember { mutableStateOf(true) }
+    val c = LocalLeatherColors.current
+    SongDetailsScreen(
+        state = SongDetailsState(
+            title = "Amazing Grace",
+            subtitle = "Traditional (John Newton, 1779)",
+            versions = listOf("Default", "Version 2", "Version 3", "Version 4"),
+            activeVersion = 0,
+            page = 1, totalPages = 2,
+            fontSize = 14, transpose = 0,
+            favorite = false,
+        ),
+        chromeVisible = chrome,
+        onBack = {}, onShare = {}, onEdit = {}, onDelete = {},
+        onAddToPlaylist = {}, onToggleTheme = {}, onToggleFavorite = {},
+        onSelectVersion = {}, onAddVersion = {},
+        onSizeDelta = {}, onTransposeDelta = {},
+        onTapBody = { chrome = !chrome },
+    ) {
+        // body
+        Spacer(Modifier.height(8.dp))
+        Text("Amazing Grace", style = MaterialTheme.typography.headlineSmall, color = c.ink)
+        Text("Traditional (John Newton, 1779)", style = MaterialTheme.typography.bodySmall, color = c.inkSoft)
+        Spacer(Modifier.height(6.dp))
+        Row { Text("KEY: ", color = c.inkSoft); Text("Sol", color = c.section, fontWeight = FontWeight.Bold) }
+        Spacer(Modifier.height(12.dp))
+        Text("VERSE I", style = MaterialTheme.typography.titleMedium, color = c.section)
+        Spacer(Modifier.height(8.dp))
+        ChordLine(
+            lyric  = "Amazing grace how sweet the sound",
+            chords = listOf(ChordPlacement("Sol", 0), ChordPlacement("Re", 14)),
+        )
+        ChordLine(
+            lyric  = "That saved a wretch like me",
+            chords = listOf(ChordPlacement("Sol", 0), ChordPlacement("Re", 18)),
+        )
+    }
+}

@@ -78,7 +78,7 @@ import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
-import com.guitarapp.songsbook.ui.theme.GuitarSongsbookTheme
+import com.guitarapp.songsbook.ui.theme.CancioneroTheme
 
 data class BottomNavItem(
     val route: String,
@@ -144,7 +144,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
             }
-            GuitarSongsbookTheme(darkTheme = darkTheme) {
+            CancioneroTheme(darkTheme = darkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -195,7 +195,10 @@ private fun GuitarBottomBar(
     currentDestination: NavDestination?,
     onTabSelected: (String) -> Unit
 ) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = MaterialTheme.colorScheme.onTertiary,
+    ) {
         bottomNavItems.forEach { item ->
             val selected = currentDestination?.hierarchy?.any {
                 it.route == item.route

@@ -1,0 +1,99 @@
+package com.yourapp.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
+import com.yourapp.ui.components.BrassFAB
+import com.yourapp.ui.components.LeatherHeader
+import com.yourapp.ui.theme.LocalLeatherColors
+
+// =============================================================================
+// HomeScreen — landing view.
+//   • LeatherHeader with "Cancionero" wordmark + gear (Settings) trailing icon.
+//   • Body: collection cards on cream, each a peach surface with title + count.
+//   • BrassFAB anchored bottom-end for "Add Song".
+//   • Bottom nav (Home / Favorites) using BrassPill for active state.
+//
+// We don't ship the BottomBar composable here — it's two BrassPills inside a
+// leather-fade Row; trivial once Brass.kt is in place.
+// =============================================================================
+
+data class Collection(val id: String, val name: String, val songCount: Int)
+
+@Composable
+fun HomeScreen(
+    collections: List<Collection>,
+    onCollectionClick: (Collection) -> Unit,
+    onSettingsClick: () -> Unit,
+    onAddSong: () -> Unit,
+) {
+    val c = LocalLeatherColors.current
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Column(Modifier.fillMaxSize()) {
+            LeatherHeader(
+                title = "Cancionero",
+                trailingIcon = Icons.Filled.Settings,
+                onTrailingClick = onSettingsClick,
+            )
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                items(collections) { col ->
+                    CollectionCard(col, onClick = { onCollectionClick(col) })
+                }
+            }
+            // BottomNav goes here.
+        }
+
+        BrassFAB(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 20.dp, bottom = 88.dp),
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "Add song", tint = c.navyDeep)
+        }
+    }
+}
+
+@Composable
+private fun CollectionCard(col: Collection, onClick: () -> Unit) {
+    val c = LocalLeatherColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(col.name, style = MaterialTheme.typography.titleSmall, color = c.ink)
+            Text(
+                "${col.songCount} songs",
+                style = MaterialTheme.typography.bodySmall,
+                color = c.inkSoft,
+            )
+        }
+    }
+}
+
+// import shim
+private fun Modifier.clip(shape: androidx.compose.ui.graphics.Shape) =
+    androidx.compose.ui.draw.clip(shape).let { this.then(it) }

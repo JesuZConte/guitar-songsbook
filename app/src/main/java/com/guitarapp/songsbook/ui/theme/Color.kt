@@ -1,96 +1,159 @@
 package com.guitarapp.songsbook.ui.theme
 
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// ── Light Theme — aged paper under warm light ──
-val LightPrimary = Color(0xFFC47A2D)           // Deep amber — guitar wood finish
-val LightOnPrimary = Color(0xFFFFFFFF)
-val LightPrimaryContainer = Color(0xFFFFE0B2)   // Light amber — warm header background
-val LightOnPrimaryContainer = Color(0xFF3E2723) // Dark brown — text on headers
+// =============================================================================
+// LEATHER JOURNAL — color tokens
+// Hand-translated from the design system in Songbook Vintage Directions.html.
+// Two layers:
+//   1. Material 3 ColorScheme  — feeds MaterialTheme.colorScheme.*
+//   2. LeatherColors            — extended palette (cognac fade, brass, stitch)
+//      exposed via LocalLeatherColors for composables that need the full set.
+// =============================================================================
 
-val LightSecondary = Color(0xFF8B6914)          // Warm brown — leather strap
-val LightOnSecondary = Color(0xFFFFFFFF)
-val LightSecondaryContainer = Color(0xFFFFECB3) // Light golden
-val LightOnSecondaryContainer = Color(0xFF4E3B0C)
+// ---------- 1. MATERIAL 3 COLORSCHEME ---------------------------------------
 
-val LightTertiary = Color(0xFFA67C52)           // Muted gold — brass tuning pegs
-val LightOnTertiary = Color(0xFFFFFFFF)
-val LightTertiaryContainer = Color(0xFFFFDCC2)
-val LightOnTertiaryContainer = Color(0xFF3B2712)
+val LightColors = lightColorScheme(
+    primary           = Color(0xFFC89A3F),  // brass mid — selected chips, FAB
+    onPrimary         = Color(0xFF1B2A3E),  // navy text on brass
+    primaryContainer  = Color(0xFFE6C26B),  // brass light — pill backgrounds
+    onPrimaryContainer = Color(0xFF2A1A0E), // ink on brass
 
-val LightBackground = Color(0xFFFFF8F0)         // Warm cream — aged paper
-val LightOnBackground = Color(0xFF2C1810)       // Near-black brown — high contrast
-val LightSurface = Color(0xFFFFF5EB)            // Slightly warmer — card surface
-val LightOnSurface = Color(0xFF2C1810)
-val LightSurfaceVariant = Color(0xFFEDE0D4)     // Warm beige
-val LightOnSurfaceVariant = Color(0xFF5D4E42)
-val LightSurfaceContainerLowest = Color(0xFFFFFBF7)  // Almost white cream
-val LightSurfaceContainerLow = Color(0xFFFFF7EE)     // Pale cream
-val LightSurfaceContainer = Color(0xFFFFF3E6)         // Warm cream — nav bars
-val LightSurfaceContainerHigh = Color(0xFFFFEEDB)     // Warmer — cards, dialogs
-val LightSurfaceContainerHighest = Color(0xFFFFE8D0)  // Warmest — elevated surfaces
-val LightOutline = Color(0xFF8C7B6E)
-val LightOutlineVariant = Color(0xFFD4C4B0)
+    secondary         = Color(0xFF8A4A22),  // cognac — leather chrome
+    onSecondary       = Color(0xFFFAF3DE),  // cream
+    secondaryContainer = Color(0xFFB56A38), // cognac top
+    onSecondaryContainer = Color(0xFFFAF3DE),
 
-val LightError = Color(0xFFBA1A1A)
-val LightOnError = Color(0xFFFFFFFF)
-val LightErrorContainer = Color(0xFFFFDAD6)
-val LightOnErrorContainer = Color(0xFF410002)
+    tertiary          = Color(0xFF1B2A3E),  // navy — bottom of leather fade, nav
+    onTertiary        = Color(0xFFFAF3DE),
 
-// ── Dark Theme — stage lighting, late night rehearsal ──
-val DarkPrimary = Color(0xFFFFB74D)             // Warm amber/golden — spotlight
-val DarkOnPrimary = Color(0xFF3E2200)
-val DarkPrimaryContainer = Color(0xFF5C3A10)    // Deep amber
-val DarkOnPrimaryContainer = Color(0xFFFFDDB3)
+    background        = Color(0xFFFBF3E2),  // cream page
+    onBackground      = Color(0xFF2A1A0E),  // ink
 
-val DarkSecondary = Color(0xFFDBC68E)           // Soft golden
-val DarkOnSecondary = Color(0xFF3D2E00)
-val DarkSecondaryContainer = Color(0xFF574400)
-val DarkOnSecondaryContainer = Color(0xFFF8E1A0)
+    surface           = Color(0xFFFBF3E2),  // cream
+    onSurface         = Color(0xFF2A1A0E),
+    surfaceVariant    = Color(0xFFF7E4BE),  // peach card
+    onSurfaceVariant  = Color(0xFF5C4A32),  // ink soft
 
-val DarkTertiary = Color(0xFFD4A76A)            // Warm gold
-val DarkOnTertiary = Color(0xFF3B2712)
-val DarkTertiaryContainer = Color(0xFF5A3E22)
-val DarkOnTertiaryContainer = Color(0xFFFFDCC2)
+    outline           = Color(0xFFE0C898),  // hairline rule
+    outlineVariant    = Color(0xFFEAD9B0),  // faint rule
 
-val DarkBackground = Color(0xFF1A1614)          // Very dark warm brown
-val DarkOnBackground = Color(0xFFF5E6D3)        // Light cream — high contrast
-val DarkSurface = Color(0xFF211C19)             // Slightly lighter — card surface
-val DarkOnSurface = Color(0xFFF5E6D3)
-val DarkSurfaceVariant = Color(0xFF3E3530)
-val DarkOnSurfaceVariant = Color(0xFFD4C4B0)
-val DarkSurfaceContainerLowest = Color(0xFF140F0D)    // Deepest dark
-val DarkSurfaceContainerLow = Color(0xFF1E1915)       // Slightly lifted
-val DarkSurfaceContainer = Color(0xFF252019)           // Nav bars
-val DarkSurfaceContainerHigh = Color(0xFF2F2820)       // Cards, dialogs
-val DarkSurfaceContainerHighest = Color(0xFF3A3128)    // Elevated surfaces
-val DarkOutline = Color(0xFF9C8B7E)
-val DarkOutlineVariant = Color(0xFF4E4440)
+    error             = Color(0xFFB53225),  // accent red (trash)
+    onError           = Color(0xFFFAF3DE),
+)
 
-val DarkError = Color(0xFFFFB4AB)
-val DarkOnError = Color(0xFF690005)
-val DarkErrorContainer = Color(0xFF93000A)
-val DarkOnErrorContainer = Color(0xFFFFDAD6)
+val DarkColors = darkColorScheme(
+    primary           = Color(0xFFE6C26B),  // brass light reads better on navy
+    onPrimary         = Color(0xFF121B29),
+    primaryContainer  = Color(0xFFC89A3F),
+    onPrimaryContainer = Color(0xFFECD9A6),
 
-// ── Semantic — difficulty (light theme) ──
-val DifficultyBeginnerLight = Color(0xFF388E3C)     // Green — darkened for cream background
-val DifficultyIntermediateLight = Color(0xFFE68900)  // Dark amber
-val DifficultyAdvancedLight = Color(0xFFC62828)      // Dark red
+    secondary         = Color(0xFF6A3A1C),
+    onSecondary       = Color(0xFFECD9A6),
+    secondaryContainer = Color(0xFF3C1F0C),
+    onSecondaryContainer = Color(0xFFECD9A6),
 
-// ── Semantic — difficulty (dark theme) ──
-val DifficultyBeginnerDark = Color(0xFF81C784)       // Light green — readable on dark
-val DifficultyIntermediateDark = Color(0xFFFFCC80)   // Light amber
-val DifficultyAdvancedDark = Color(0xFFEF9A9A)       // Light red
+    tertiary          = Color(0xFF0C1420),
+    onTertiary        = Color(0xFFECD9A6),
 
-// ── Reader chord colors ──
-val ChordColorLight = Color(0xFFC47A2D)         // Amber — matches primary
-val ChordColorDark = Color(0xFFFFB74D)          // Golden — matches dark primary
+    background        = Color(0xFF121B29),  // navy page
+    onBackground      = Color(0xFFECD9A6),  // cream-gold ink
 
-// ── Nocturno mode — stage/performance, near-zero ambient light ──
-val NocturnoBackground         = Color(0xFF000000)  // Pure black
-val NocturnoSurface            = Color(0xFF0A0800)  // Near-black warm tint
-val NocturnoOnSurface          = Color(0xFFFFCC80)  // Warm amber — lyrics
-val NocturnoPrimaryContainer   = Color(0xFF1A1200)  // Very dark amber — header bg
-val NocturnoOnPrimaryContainer = Color(0xFFFFB74D)  // Amber — header text/icons
-val NocturnoOnSurfaceVariant   = Color(0xFFCC9944)  // Muted amber — secondary text
-val NocturnoChord              = Color(0xFFFFE57F)  // Bright amber — chords stand out
+    surface           = Color(0xFF121B29),
+    onSurface         = Color(0xFFECD9A6),
+    surfaceVariant    = Color(0xFF243042),
+    onSurfaceVariant  = Color(0xFFB29B6A),
+
+    outline           = Color(0xFF3A4458),
+    outlineVariant    = Color(0xFF28323E),
+
+    error             = Color(0xFFE08A6A),
+    onError           = Color(0xFF121B29),
+)
+
+// ---------- 2. EXTENDED LEATHER PALETTE -------------------------------------
+// These don't map cleanly to M3 roles — they describe the gradient stops,
+// stitch translucency, and brass shading used by the leather chrome.
+
+@Immutable
+data class LeatherColors(
+    // Leather header gradient stops — top → mid → deep
+    val leatherTop: Color,
+    val leatherMid: Color,
+    val leatherDeep: Color,
+    // Stitching (translucent cream)
+    val stitch: Color,
+    // Cream foreground on leather
+    val cream: Color,
+    val creamSoft: Color,
+    // Body text on cream/peach
+    val ink: Color,
+    val inkSoft: Color,
+    val inkFaint: Color,
+    // Hairlines
+    val rule: Color,
+    val ruleFaint: Color,
+    // Brass — three stops for the radial gradient
+    val brassLight: Color,
+    val brass: Color,
+    val brassDark: Color,
+    // Section/accent
+    val section: Color,    // section labels (chord rows, "Verse I")
+    val accent: Color,     // destructive (trash)
+    // Navy for nav bottom
+    val navy: Color,
+    val navyDeep: Color,
+)
+
+val LightLeather = LeatherColors(
+    leatherTop  = Color(0xFFB56A38),
+    leatherMid  = Color(0xFF8A4A22),
+    leatherDeep = Color(0xFF1B2A3E),
+    stitch      = Color(0x73FAF3DE),  // 45% cream
+    cream       = Color(0xFFFAF3DE),
+    creamSoft   = Color(0xC7FAF3DE),  // 78% cream
+    ink         = Color(0xFF2A1A0E),
+    inkSoft     = Color(0xFF5C4A32),
+    inkFaint    = Color(0xFF8A7656),
+    rule        = Color(0xFFE0C898),
+    ruleFaint   = Color(0xFFEAD9B0),
+    brassLight  = Color(0xFFE6C26B),
+    brass       = Color(0xFFC89A3F),
+    brassDark   = Color(0xFF8F6A20),
+    section     = Color(0xFFB07020),
+    accent      = Color(0xFFB53225),
+    navy        = Color(0xFF1B2A3E),
+    navyDeep    = Color(0xFF121B29),
+)
+
+val DarkLeather = LeatherColors(
+    leatherTop  = Color(0xFF6A3A1C),
+    leatherMid  = Color(0xFF3C1F0C),
+    leatherDeep = Color(0xFF0C1420),
+    stitch      = Color(0x40ECD9A6),  // 25% cream-gold
+    cream       = Color(0xFFECD9A6),
+    creamSoft   = Color(0xB3ECD9A6),  // 70%
+    ink         = Color(0xFFECD9A6),
+    inkSoft     = Color(0xFFB29B6A),
+    inkFaint    = Color(0xFF6A5A3A),
+    rule        = Color(0xFF3A4458),
+    ruleFaint   = Color(0xFF28323E),
+    brassLight  = Color(0xFFE6C26B),
+    brass       = Color(0xFFC89A3F),
+    brassDark   = Color(0xFF8F6A20),
+    section     = Color(0xFFD9A858),
+    accent      = Color(0xFFE08A6A),
+    navy        = Color(0xFF0C1420),
+    navyDeep    = Color(0xFF060A12),
+)
+
+val LocalLeatherColors = compositionLocalOf<LeatherColors> {
+    error("LeatherColors not provided — wrap your tree in CancioneroTheme")
+}
+
+// Nocturno reader mode uses the dark Material color scheme.
+val NocturnoColorScheme = DarkColors

@@ -1,7 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,30 +25,27 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
-import com.guitarapp.songsbook.ui.theme.ChordColorDark
-import com.guitarapp.songsbook.ui.theme.ChordColorLight
-import com.guitarapp.songsbook.ui.theme.NocturnoChord
-import com.guitarapp.songsbook.ui.theme.Merriweather
+import com.guitarapp.songsbook.ui.components.ChordLine
+import com.guitarapp.songsbook.ui.components.ChordPlacement
+import com.guitarapp.songsbook.ui.theme.Fraunces
 import com.guitarapp.songsbook.utils.ChordNotation
-import com.guitarapp.songsbook.utils.buildChordLine
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -132,7 +128,7 @@ internal fun VirtualPagedSong(
                 if (li > 0) lineBreaks.add(cumH)
 
                 val lineH = subcompose("l${si}_$li") {
-                    LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
+                    LineContent(line = line, transposeSteps = transposeSteps)
                 }.first().measure(itemConstraints).height
 
                 cumH += lineH
@@ -291,10 +287,6 @@ private fun PageSlice(
 // Song content composables (shared between Reader and Preview)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * The entire song as one continuous column — measured for pagination
- * and rendered (clipped) inside each PageSlice.
- */
 @Composable
 internal fun FullSongColumn(song: Song, fontSize: Int, transposeSteps: Int = 0) {
     Column(
@@ -314,7 +306,7 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Text(
             text = song.title,
-            fontFamily = Merriweather,
+            fontFamily = Fraunces,
             fontSize = (fontSize + 4).sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -369,14 +361,13 @@ internal fun SectionContent(section: SongSection, fontSize: Int, transposeSteps:
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         SectionHeaderText(section = section, fontSize = fontSize)
         section.lines.forEach { line ->
-            LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
+            LineContent(line = line, transposeSteps = transposeSteps)
         }
     }
 }
 
-/** Section label only — measured individually for line-aware page break computation. */
 @Composable
-private fun SectionHeaderText(section: SongSection, fontSize: Int) {
+internal fun SectionHeaderText(section: SongSection, fontSize: Int) {
     Text(
         text = "${sectionTypeLabel(section.type)} ${section.number}",
         fontSize = (fontSize - 2).sp,
@@ -387,40 +378,15 @@ private fun SectionHeaderText(section: SongSection, fontSize: Int) {
 }
 
 @Composable
-internal fun LineContent(line: SongLine, fontSize: Int, transposeSteps: Int = 0) {
-    val chordColor = when {
-        LocalNocturnoMode.current -> NocturnoChord
-        isSystemInDarkTheme() -> ChordColorDark
-        else -> ChordColorLight
-    }
+internal fun LineContent(line: SongLine, transposeSteps: Int = 0) {
     val notation = UserPreferences.getNotation(LocalContext.current)
-
-    val displayLine = if (transposeSteps != 0) {
-        line.copy(chords = line.chords.map {
-            it.copy(chord = ChordNotation.transpose(it.chord, transposeSteps))
-        })
-    } else line
-
-    Column(modifier = Modifier.padding(bottom = 2.dp)) {
-        if (line.chords.isNotEmpty()) {
-            Text(
-                text = buildChordLine(displayLine, notation),
-                fontFamily = FontFamily.Monospace,
-                fontSize = fontSize.sp,
-                fontWeight = FontWeight.Bold,
-                color = chordColor,
-                lineHeight = (fontSize + 4).sp
-            )
-        }
-        if (line.text.isNotBlank()) {
-            Text(
-                text = line.text,
-                fontFamily = FontFamily.Monospace,
-                fontSize = fontSize.sp,
-                lineHeight = (fontSize + 6).sp
-            )
-        }
+    val chordPlacements = line.chords.map { cp ->
+        ChordPlacement(
+            chord = ChordNotation.convert(ChordNotation.transpose(cp.chord, transposeSteps), notation),
+            column = cp.position
+        )
     }
+    ChordLine(lyric = line.text, chords = chordPlacements)
 }
 
 @Composable
