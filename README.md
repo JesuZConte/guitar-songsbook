@@ -1,61 +1,109 @@
 # Guitar Songbook
 
-Android songbook app for guitarists. Browse songs, view chords positioned over lyrics, and build playlists — all offline.
+Android app for guitarists to manage their personal repertoire — browse songs, read chord charts with lyrics, transpose on the fly, and organise into playlists. Fully offline.
 
 ## Features
 
-- Song library with searchable list
-- Chord positioning over lyrics (monospace aligned)
-- Song detail view with sections (verse, chorus, intro)
-- Offline-first with local Room database
-- Material 3 design
+- **Song library** — searchable and filterable by genre, difficulty, and key
+- **Chord reader** — chords positioned over lyrics, paginated with horizontal swipe (HorizontalPager)
+- **Transposition** — semitone up/down with reset, applied live in the reader
+- **Song versions** — store alternate arrangements (capo, key change, simplified chords) per song
+- **Collections** — Traditional Songs library + personal Playlists with add/remove and undo-delete
+- **Favorites** — heart toggle with dedicated tab
+- **Export/Share** — chord chart as plain text (no lyrics, copyright-safe)
+- **Nocturno mode** — low-brightness reading in dark environments
+- **Theme selector** — multiple color themes with live preview
+- **Offline-first** — all data stored locally with Room; no network required
 
 ## Tech Stack
 
-- **Language:** Kotlin
-- **UI:** Jetpack Compose + Material 3
-- **Architecture:** MVVM + Clean Architecture
-- **Database:** Room (SQLite)
-- **Navigation:** Jetpack Navigation Compose
-- **Serialization:** Gson
-- **Testing:** JUnit 4 + Mockito
+| Layer | Technology |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose + Material 3 |
+| Architecture | MVVM + Clean Architecture |
+| Database | Room 2.8.4 (SQLite) with versioned migrations |
+| Navigation | Jetpack Navigation Compose |
+| Serialization | Gson |
+| Async | Kotlin Coroutines + StateFlow |
+| Analytics / Crash | Firebase Analytics + Crashlytics |
+| Build | KSP, Gradle version catalog |
+| Testing | JUnit 4, Mockito, Coroutines Test, Room instrumented tests |
 
 ## Architecture
 
 ```
-domain/model/        → Pure Kotlin data classes (Song, SongSection, etc.)
-data/local/          → Room database, entities, DAOs, type converters
-data/repository/     → Repository interface + implementation
-presentation/        → ViewModels, Compose screens, UI state
+domain/model/        → Pure Kotlin data classes (Song, SongSection, SongLine, ChordPosition, SongVersion)
+data/
+  local/             → Room database, entities, DAOs, type converters, migrations
+  repository/        → SongRepository interface + RoomSongRepository implementation
+presentation/
+  viewmodel/         → HomeViewModel, FavoritesViewModel, ReaderViewModel, PlaylistsViewModel
+  screens/           → Compose screens + shared components
+ui/theme/            → Material 3 theme + ThemeManager
+utils/               → ChordFormatter, ChordNotation, SongExporter
 ```
 
-The app follows **Frontend-First** development with JSON mock data in `assets/`. Data flows through the Repository pattern, making it easy to swap data sources (local JSON → Room → remote API) without touching the UI layer.
+Data flow: `assets/songs.json` seeds the Room database on first launch. All subsequent reads/writes go through the Repository → ViewModel StateFlow → Compose UI.
+
+Dependency wiring is manual (no Hilt/Dagger). `MainActivity.onCreate()` constructs `SongDatabase` → `RoomSongRepository` → ViewModels via `ViewModelProvider.Factory`.
 
 ## Building
 
-1. Open in Android Studio (latest stable)
+1. Open in Android Studio (Meerkat or later)
 2. Sync Gradle
 3. Run on emulator or device (API 28+)
+
+```bash
+./gradlew build
+./gradlew installDebug
+```
 
 ## Running Tests
 
 ```bash
+# Unit tests (JVM)
 ./gradlew test
+
+# Single test class
+./gradlew test --tests "com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModelStateTest"
+
+# Instrumented tests — requires connected device or emulator
+./gradlew connectedAndroidTest
 ```
+
+**Test coverage:**
+- `ReaderViewModelStateTest` — font size bounds, transposition, version selection, page tracking, fullscreen/nocturno toggles
+- `SongExporterTest` — chord share text format, key/capo lines, section headers, no-lyrics guarantee
+- `MigrationTest` — full migration chain v1→v4, per-step assertions, data integrity
+
+## Database Migrations
+
+| Version | Change |
+|---|---|
+| v1 → v2 | Added `is_favorite` column to `songs` |
+| v2 → v3 | Created `playlists` and `playlist_songs` tables |
+| v3 → v4 | Created `song_versions` table; seeded a "Default" version for every existing song |
 
 ## Roadmap
 
-- [x] Song list with cards
-- [x] Room database persistence
-- [x] Song detail with positioned chords
-- [x] Navigation between screens
-- [ ] Song reader with auto-scroll
-- [ ] Search and filters
-- [ ] Playlists and favorites
-- [ ] Dark theme
-- [ ] AdMob integration
-- [ ] Google Play Store release
+- [x] Song library with search and filters
+- [x] Room database with seeded content
+- [x] Chord reader with positioned chords
+- [x] HorizontalPager pagination
+- [x] Transposition
+- [x] Song versions
+- [x] Playlists and favorites
+- [x] Collections (Traditional Songs)
+- [x] Export / share chord chart
+- [x] Theme selector
+- [x] Nocturno mode
+- [x] Firebase Analytics + Crashlytics
+- [x] Signed AAB ready for Play Store
+- [ ] AdMob banner integration
+- [ ] Chord auto-detection on song import
+- [ ] Setlist mode
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+GPL v3 — see [LICENSE](LICENSE) for details. Derivatives must also be open-sourced under GPL. The "Guitar Songbook" branding is reserved.
