@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [SongEntity::class, PlaylistEntity::class, PlaylistSongCrossRef::class, SongVersionEntity::class],
-    version = 4
+    version = 5
 )
 @TypeConverters(Converters::class)
 abstract class SongDatabase : RoomDatabase() {
@@ -87,7 +87,21 @@ abstract class SongDatabase : RoomDatabase() {
             }
         }
 
-        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        internal val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE playlist_songs ADD COLUMN position INTEGER NOT NULL DEFAULT 0")
+                // Backfill: assign distinct positions per playlist preserving insertion order via ROWID
+                db.execSQL("""
+                    UPDATE playlist_songs SET position = (
+                        SELECT COUNT(*) FROM playlist_songs p2
+                        WHERE p2.playlist_id = playlist_songs.playlist_id
+                          AND p2.ROWID < playlist_songs.ROWID
+                    )
+                """.trimIndent())
+            }
+        }
+
+        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 
         fun getInstance(context: Context): SongDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -96,7 +110,7 @@ abstract class SongDatabase : RoomDatabase() {
                     SongDatabase::class.java,
                     "songbook.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .build()
                     .also { INSTANCE = it }
             }

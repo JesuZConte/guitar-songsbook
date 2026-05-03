@@ -11,13 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,15 +40,19 @@ import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistDetailScreen(
     viewModel: PlaylistsViewModel,
     onSongClick: (String) -> Unit,
+    onStartSetlist: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val detailState by viewModel.detailState.collectAsState()
+    val playlistId = detailState.playlist?.id ?: 0L
 
     Scaffold(
         topBar = {
@@ -60,6 +68,15 @@ fun PlaylistDetailScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
+        },
+        floatingActionButton = {
+            if (detailState.songs.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = { onStartSetlist(playlistId) },
+                    icon = { Icon(Icons.Filled.PlayArrow, contentDescription = null) },
+                    text = { Text(stringResource(R.string.setlist_start_button)) }
+                )
+            }
         }
     ) { paddingValues ->
         Box(
@@ -82,11 +99,12 @@ fun PlaylistDetailScreen(
                     EmptyPlaylistDetailContent()
                 }
                 else -> {
-                    PlaylistSongList(
+                    ReorderableSongList(
                         songs = detailState.songs,
-                        playlistId = detailState.playlist?.id ?: 0,
+                        playlistId = playlistId,
                         onSongClick = onSongClick,
-                        onRemoveSong = viewModel::removeSongFromPlaylist
+                        onRemoveSong = viewModel::removeSongFromPlaylist,
+                        onReorder = { reordered -> viewModel.reorderSongs(playlistId, reordered) }
                     )
                 }
             }
@@ -116,13 +134,22 @@ private fun EmptyPlaylistDetailContent() {
 }
 
 @Composable
-private fun PlaylistSongList(
+private fun ReorderableSongList(
     songs: List<Song>,
     playlistId: Long,
     onSongClick: (String) -> Unit,
-    onRemoveSong: (Long, String) -> Unit
+    onRemoveSong: (Long, String) -> Unit,
+    onReorder: (List<Song>) -> Unit
 ) {
+    val lazyListState = rememberLazyListState()
+    val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val mutable = songs.toMutableList()
+        mutable.add(to.index - 1, mutable.removeAt(from.index - 1)) // -1 for the top spacer item
+        onReorder(mutable)
+    }
+
     LazyColumn(
+        state = lazyListState,
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
@@ -130,9 +157,26 @@ private fun PlaylistSongList(
     ) {
         item { Box(modifier = Modifier.padding(top = 8.dp)) }
         items(songs, key = { it.id }) { song ->
-            PlaylistSongCard(song, playlistId, onSongClick, onRemoveSong)
+            ReorderableItem(reorderState, key = song.id) { isDragging ->
+                PlaylistSongCard(
+                    song = song,
+                    playlistId = playlistId,
+                    isDragging = isDragging,
+                    onSongClick = onSongClick,
+                    onRemoveSong = onRemoveSong,
+                    dragHandle = {
+                        IconButton(
+                            modifier = Modifier.draggableHandle(),
+                            onClick = {}
+                        ) {
+                            Icon(Icons.Filled.DragHandle, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                )
+            }
         }
-        item { Box(modifier = Modifier.padding(bottom = 8.dp)) }
+        item { Box(modifier = Modifier.padding(bottom = 80.dp)) } // space for FAB
     }
 }
 
@@ -140,23 +184,28 @@ private fun PlaylistSongList(
 private fun PlaylistSongCard(
     song: Song,
     playlistId: Long,
+    isDragging: Boolean,
     onSongClick: (String) -> Unit,
-    onRemoveSong: (Long, String) -> Unit
+    onRemoveSong: (Long, String) -> Unit,
+    dragHandle: @Composable () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onSongClick(song.id) },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isDragging) 8.dp else 4.dp
+        ),
         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            dragHandle()
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = song.title,

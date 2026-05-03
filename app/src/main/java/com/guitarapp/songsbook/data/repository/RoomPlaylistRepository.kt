@@ -37,8 +37,16 @@ class RoomPlaylistRepository(
 
     override suspend fun addSongToPlaylist(playlistId: Long, songId: String) {
         if (!playlistDao.isSongInPlaylist(playlistId, songId)) {
-            playlistDao.addSong(PlaylistSongCrossRef(playlistId, songId))
+            val nextPosition = playlistDao.getMaxPosition(playlistId) + 1
+            playlistDao.addSong(PlaylistSongCrossRef(playlistId, songId, nextPosition))
         }
+    }
+
+    override suspend fun reorderSongs(playlistId: Long, songIds: List<String>) {
+        val crossRefs = songIds.mapIndexed { index, songId ->
+            PlaylistSongCrossRef(playlistId, songId, index)
+        }
+        playlistDao.updateCrossRefs(crossRefs)
     }
 
     override suspend fun removeSongFromPlaylist(playlistId: Long, songId: String) {

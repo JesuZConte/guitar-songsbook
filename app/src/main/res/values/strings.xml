@@ -77,6 +77,15 @@
     <string name="playlist_detail_empty_title">No songs in this playlist</string>
     <string name="playlist_detail_empty_body">Add songs from the reader screen</string>
 
+    <!-- Setlist mode -->
+    <string name="setlist_start_button">Start Setlist</string>
+    <string name="setlist_exit">Exit setlist</string>
+    <string name="setlist_next_song">Next: %1$s</string>
+    <string name="setlist_end_title">End of Setlist</string>
+    <string name="setlist_end_body">You\'ve reached the end of this collection.</string>
+    <string name="setlist_restart_button">Play again</string>
+    <string name="setlist_exit_to_home">Exit to home</string>
+
     <!-- Song reader screen -->
     <string name="reader_loading">Loading…</string>
     <string name="reader_delete_title">Delete song</string>

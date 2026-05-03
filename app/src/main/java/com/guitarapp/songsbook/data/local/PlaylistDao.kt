@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 
 @Dao
 interface PlaylistDao {
@@ -32,9 +33,16 @@ interface PlaylistDao {
         SELECT songs.* FROM songs
         INNER JOIN playlist_songs ON songs.id = playlist_songs.song_id
         WHERE playlist_songs.playlist_id = :playlistId
+        ORDER BY playlist_songs.position ASC
         """
     )
     suspend fun getSongsForPlaylist(playlistId: Long): List<SongEntity>
+
+    @Query("SELECT COALESCE(MAX(position), -1) FROM playlist_songs WHERE playlist_id = :playlistId")
+    suspend fun getMaxPosition(playlistId: Long): Int
+
+    @Update
+    suspend fun updateCrossRefs(crossRefs: List<PlaylistSongCrossRef>)
 
     @Query("SELECT COUNT(*) FROM playlist_songs WHERE playlist_id = :playlistId")
     suspend fun getSongCount(playlistId: Long): Int

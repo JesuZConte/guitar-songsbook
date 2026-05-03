@@ -77,6 +77,15 @@
     <string name="playlist_detail_empty_title">Esta lista no tiene canciones</string>
     <string name="playlist_detail_empty_body">Agrega canciones desde la pantalla de lectura</string>
 
+    <!-- Modo Setlist -->
+    <string name="setlist_start_button">Iniciar Setlist</string>
+    <string name="setlist_exit">Salir del setlist</string>
+    <string name="setlist_next_song">Siguiente: %1$s</string>
+    <string name="setlist_end_title">Fin del Setlist</string>
+    <string name="setlist_end_body">Has llegado al final de esta colección.</string>
+    <string name="setlist_restart_button">Volver a empezar</string>
+    <string name="setlist_exit_to_home">Salir al inicio</string>
+
     <!-- Lector -->
     <string name="reader_loading">Cargando…</string>
     <string name="reader_delete_title">Eliminar canción</string>

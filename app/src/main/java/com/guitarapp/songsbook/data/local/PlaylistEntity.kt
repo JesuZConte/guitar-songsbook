@@ -47,5 +47,7 @@ data class PlaylistSongCrossRef(
     @ColumnInfo(name = "playlist_id")
     val playlistId: Long,
     @ColumnInfo(name = "song_id")
-    val songId: String
+    val songId: String,
+    @ColumnInfo(name = "position")
+    val position: Int = 0
 )

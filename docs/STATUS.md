@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-03
+Last verified: 2026-05-03 (pinch-to-zoom, JSON import, language selector added)
 
 ---
 
@@ -29,6 +29,9 @@ Everything in this section is verified in the codebase.
 | Nocturno mode (black + amber, reader toggle) | `ReaderViewModel.kt`, `Color.kt` | — |
 | Chord auto-detection on import ("Detectar Formato") | `OverUnderConverter.kt`, `AddSongViewModel.kt` | [ADR-012](adr/ADR-012-bracket-format-import.md) |
 | Long-press delete with undo snackbar (Home) | `HomeScreen.kt`, `HomeViewModel.kt` | — |
+| Pinch-to-zoom font size in Reader | `SongReaderScreen.kt` → `rememberTransformableState` | — |
+| Import song from JSON file | `HomeScreen.kt` → `importLauncher`, `HomeViewModel.importSongFromJson` | — |
+| Language selector (Idiomas) | `SettingsScreen.kt` → `LanguageSelectorRow` | — |
 | Firebase Analytics + Crashlytics | `AnalyticsHelper.kt`, `google-services.json` | — |
 | AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
 | Signed AAB — Play Store ready | `build.gradle.kts` (signing config) | — |

@@ -62,6 +62,22 @@ class MigrationTest {
 
         private const val V3_CREATE_INDEX_PLAYLIST_SONGS =
             "CREATE INDEX IF NOT EXISTS index_playlist_songs_song_id ON playlist_songs(song_id)"
+
+        private const val V4_CREATE_SONG_VERSIONS = """
+            CREATE TABLE IF NOT EXISTS song_versions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                song_id TEXT NOT NULL,
+                name TEXT NOT NULL DEFAULT 'Default',
+                `key` TEXT NOT NULL DEFAULT '',
+                capo INTEGER NOT NULL DEFAULT 0,
+                chords TEXT NOT NULL DEFAULT '[]',
+                notes TEXT NOT NULL DEFAULT '',
+                content TEXT NOT NULL DEFAULT '[]',
+                FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE
+            )"""
+
+        private const val V4_CREATE_INDEX_SONG_VERSIONS =
+            "CREATE INDEX IF NOT EXISTS index_song_versions_song_id ON song_versions(song_id)"
     }
 
     @After
@@ -217,6 +233,82 @@ class MigrationTest {
         assertTrue(cursor.moveToFirst())
         assertEquals(2, cursor.getInt(0))
         cursor.close()
+    }
+
+    // ── 4→5: adds position column to playlist_songs ──
+
+    @Test
+    fun migrate4To5_positionColumnExists() {
+        val db = seedAndMigrate(startVersion = 4) { raw ->
+            raw.execSQL(V1_CREATE_SONGS)
+            raw.execSQL(V2_ADD_FAVORITE)
+            raw.execSQL(V3_CREATE_PLAYLISTS)
+            raw.execSQL(V3_CREATE_PLAYLIST_SONGS)
+            raw.execSQL(V3_CREATE_INDEX_PLAYLIST_SONGS)
+            raw.execSQL(V4_CREATE_SONG_VERSIONS)
+            raw.execSQL(V4_CREATE_INDEX_SONG_VERSIONS)
+        }
+        val cursor = query(db, "PRAGMA table_info(playlist_songs)")
+        val columns = mutableListOf<String>()
+        while (cursor.moveToNext()) columns.add(cursor.getString(cursor.getColumnIndexOrThrow("name")))
+        cursor.close()
+        assertTrue("position column should exist after migration", "position" in columns)
+    }
+
+    @Test
+    fun migrate4To5_backfillAssignsDistinctPositionsPerPlaylist() {
+        val db = seedAndMigrate(startVersion = 4) { raw ->
+            raw.execSQL(V1_CREATE_SONGS)
+            raw.execSQL(V2_ADD_FAVORITE)
+            raw.execSQL(V3_CREATE_PLAYLISTS)
+            raw.execSQL(V3_CREATE_PLAYLIST_SONGS)
+            raw.execSQL(V3_CREATE_INDEX_PLAYLIST_SONGS)
+            raw.execSQL(V4_CREATE_SONG_VERSIONS)
+            raw.execSQL(V4_CREATE_INDEX_SONG_VERSIONS)
+            insertSong(raw, "s1", withFavorite = true)
+            insertSong(raw, "s2", withFavorite = true)
+            insertSong(raw, "s3", withFavorite = true)
+            // Playlist 1 with 3 songs
+            raw.execSQL("INSERT INTO playlists (id, name) VALUES (1, 'Show')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (1, 's1')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (1, 's2')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (1, 's3')")
+        }
+        val cursor = query(db, "SELECT position FROM playlist_songs WHERE playlist_id=1 ORDER BY ROWID")
+        val positions = mutableListOf<Int>()
+        while (cursor.moveToNext()) positions.add(cursor.getInt(0))
+        cursor.close()
+        assertEquals(listOf(0, 1, 2), positions)
+    }
+
+    @Test
+    fun migrate4To5_twoPlaylistsGetIndependentPositions() {
+        val db = seedAndMigrate(startVersion = 4) { raw ->
+            raw.execSQL(V1_CREATE_SONGS)
+            raw.execSQL(V2_ADD_FAVORITE)
+            raw.execSQL(V3_CREATE_PLAYLISTS)
+            raw.execSQL(V3_CREATE_PLAYLIST_SONGS)
+            raw.execSQL(V3_CREATE_INDEX_PLAYLIST_SONGS)
+            raw.execSQL(V4_CREATE_SONG_VERSIONS)
+            raw.execSQL(V4_CREATE_INDEX_SONG_VERSIONS)
+            insertSong(raw, "s1", withFavorite = true)
+            insertSong(raw, "s2", withFavorite = true)
+            raw.execSQL("INSERT INTO playlists (id, name) VALUES (1, 'A')")
+            raw.execSQL("INSERT INTO playlists (id, name) VALUES (2, 'B')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (1, 's1')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (2, 's1')")
+            raw.execSQL("INSERT INTO playlist_songs (playlist_id, song_id) VALUES (2, 's2')")
+        }
+        val c1 = query(db, "SELECT position FROM playlist_songs WHERE playlist_id=1")
+        assertTrue(c1.moveToFirst())
+        assertEquals(0, c1.getInt(0))
+        c1.close()
+
+        val c2 = query(db, "SELECT position FROM playlist_songs WHERE playlist_id=2 ORDER BY ROWID")
+        val p2 = mutableListOf<Int>()
+        while (c2.moveToNext()) p2.add(c2.getInt(0))
+        c2.close()
+        assertEquals(listOf(0, 1), p2)
     }
 
     // ── Full chain: 1→4 ──

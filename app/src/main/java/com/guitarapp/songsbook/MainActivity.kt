@@ -69,6 +69,7 @@ import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistDetailScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistsScreen
+import com.guitarapp.songsbook.presentation.screens.SetlistScreen
 import com.guitarapp.songsbook.presentation.screens.SettingsScreen
 import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
 import com.guitarapp.songsbook.presentation.screens.VersionEditorScreen
@@ -307,7 +308,19 @@ private fun GuitarNavHost(
             PlaylistDetailScreen(
                 viewModel = playlistsViewModel,
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
+                onStartSetlist = { id -> navController.navigate(Routes.setlist(id)) },
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Routes.SETLIST,
+            arguments = listOf(navArgument("playlistId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val playlistId = backStackEntry.arguments?.getLong("playlistId") ?: return@composable
+            SetlistScreen(
+                playlistId = playlistId,
+                viewModel = playlistsViewModel,
+                onExit = { navController.popBackStack() }
             )
         }
         composable(Routes.ADD_SONG) {

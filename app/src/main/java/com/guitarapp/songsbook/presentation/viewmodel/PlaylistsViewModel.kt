@@ -32,7 +32,7 @@ class PlaylistsViewModel(
     private val _uiState = MutableStateFlow(PlaylistsUiState())
     val uiState: StateFlow<PlaylistsUiState> = _uiState.asStateFlow()
 
-    private val _detailState = MutableStateFlow(PlaylistDetailUiState())
+    internal val _detailState = MutableStateFlow(PlaylistDetailUiState())
     val detailState: StateFlow<PlaylistDetailUiState> = _detailState.asStateFlow()
 
     init {
@@ -105,6 +105,13 @@ class PlaylistsViewModel(
                     playlist = state.playlist?.copy(songCount = updatedSongs.size)
                 )
             }
+        }
+    }
+
+    fun reorderSongs(playlistId: Long, songs: List<Song>) {
+        _detailState.update { it.copy(songs = songs) }
+        viewModelScope.launch {
+            playlistRepository.reorderSongs(playlistId, songs.map { it.id })
         }
     }
 
