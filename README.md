@@ -87,24 +87,9 @@ Dependency wiring is manual (no Hilt/Dagger). `MainActivity.onCreate()` construc
 | v2 → v3 | Created `playlists` and `playlist_songs` tables |
 | v3 → v4 | Created `song_versions` table; seeded a "Default" version for every existing song |
 
-## Roadmap
+## Status
 
-- [x] Song library with search and filters
-- [x] Room database with seeded content
-- [x] Chord reader with positioned chords
-- [x] HorizontalPager pagination
-- [x] Transposition
-- [x] Song versions
-- [x] Playlists and favorites
-- [x] Collections (Traditional Songs)
-- [x] Export / share chord chart
-- [x] Theme selector
-- [x] Nocturno mode
-- [x] Firebase Analytics + Crashlytics
-- [x] Signed AAB ready for Play Store
-- [ ] AdMob banner integration
-- [ ] Chord auto-detection on song import
-- [ ] Setlist mode
+See [docs/STATUS.md](docs/STATUS.md) for the full feature registry — what is shipped, what is remaining, tech debt, and v2 plans with ADR links. Check it at the start of every session.
 
 ## License
 
