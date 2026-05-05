@@ -136,6 +136,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             songRepository.getSongs() // ensures songs are seeded before playlist cross-refs
             playlistRepository.ensureDefaultCollections()
+            playlistsViewModel.loadPlaylists() // refresh after seeding so home screen shows collections immediately
         }
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
@@ -333,7 +334,7 @@ private fun GuitarNavHost(
                 onPreviewClick = {
                     val preview = addSongViewModel.buildPreviewSong()
                     if (preview != null) {
-                        AddSongViewModel.pendingPreview = preview
+                        addSongViewModel.pendingPreview = preview
                         navController.navigate(Routes.PREVIEW)
                     }
                 },
@@ -343,12 +344,16 @@ private fun GuitarNavHost(
             )
         }
         composable(Routes.PREVIEW) {
-            val previewSong = remember { AddSongViewModel.pendingPreview }
+            val sourceEntry = navController.previousBackStackEntry
+            val sourceViewModel: AddSongViewModel? = sourceEntry?.let {
+                viewModel(viewModelStoreOwner = it, factory = AddSongViewModel.Factory(songRepository))
+            }
+            val previewSong = remember { sourceViewModel?.pendingPreview }
             if (previewSong != null) {
                 PreviewReaderScreen(
                     song = previewSong,
                     onBackClick = {
-                        AddSongViewModel.pendingPreview = null
+                        sourceViewModel?.pendingPreview = null
                         navController.popBackStack()
                     }
                 )
@@ -414,7 +419,7 @@ private fun GuitarNavHost(
                 onPreviewClick = {
                     val preview = editSongViewModel.buildPreviewSong()
                     if (preview != null) {
-                        AddSongViewModel.pendingPreview = preview
+                        editSongViewModel.pendingPreview = preview
                         navController.navigate(Routes.PREVIEW)
                     }
                 },
@@ -426,11 +431,13 @@ private fun GuitarNavHost(
             arguments = listOf(navArgument("songId") { type = NavType.StringType })
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId") ?: return@composable
+            val context = LocalContext.current
             val readerViewModel: ReaderViewModel = viewModel(
                 factory = ReaderViewModel.Factory(
                     songRepository,
                     songId,
-                    UserPreferences.getFontSize(LocalContext.current)
+                    UserPreferences.getFontSize(context),
+                    onFontSizePersist = { size -> UserPreferences.setFontSize(context.applicationContext, size) }
                 )
             )
             SongReaderScreen(

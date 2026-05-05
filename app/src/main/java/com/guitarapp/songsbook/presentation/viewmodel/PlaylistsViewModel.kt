@@ -97,13 +97,17 @@ class PlaylistsViewModel(
 
     fun removeSongFromPlaylist(playlistId: Long, songId: String) {
         viewModelScope.launch {
-            playlistRepository.removeSongFromPlaylist(playlistId, songId)
-            _detailState.update { state ->
-                val updatedSongs = state.songs.filter { it.id != songId }
-                state.copy(
-                    songs = updatedSongs,
-                    playlist = state.playlist?.copy(songCount = updatedSongs.size)
-                )
+            try {
+                playlistRepository.removeSongFromPlaylist(playlistId, songId)
+                _detailState.update { state ->
+                    val updatedSongs = state.songs.filter { it.id != songId }
+                    state.copy(
+                        songs = updatedSongs,
+                        playlist = state.playlist?.copy(songCount = updatedSongs.size)
+                    )
+                }
+            } catch (e: Exception) {
+                _detailState.update { it.copy(error = e.message ?: "Failed to remove song") }
             }
         }
     }

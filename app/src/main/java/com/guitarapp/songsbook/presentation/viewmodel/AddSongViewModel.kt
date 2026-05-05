@@ -161,9 +161,7 @@ class AddSongViewModel(
         }
     }
 
-    companion object {
-        var pendingPreview: Song? = null
-    }
+    var pendingPreview: Song? = null
 
     class Factory(
         private val songRepository: SongRepository,

@@ -36,7 +36,8 @@ data class ReaderUiState(
 class ReaderViewModel(
     private val songRepository: SongRepository,
     private val songId: String,
-    initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE
+    initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE,
+    private val onFontSizePersist: (Int) -> Unit = {}
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReaderUiState(fontSize = initialFontSize))
@@ -78,19 +79,26 @@ class ReaderViewModel(
     }
 
     fun increaseFontSize() {
-        _uiState.update {
-            if (it.fontSize < ReaderUiState.MAX_FONT_SIZE) it.copy(fontSize = it.fontSize + 2) else it
+        val current = _uiState.value.fontSize
+        if (current < ReaderUiState.MAX_FONT_SIZE) {
+            val newSize = current + 2
+            onFontSizePersist(newSize)
+            _uiState.update { it.copy(fontSize = newSize) }
         }
     }
 
     fun decreaseFontSize() {
-        _uiState.update {
-            if (it.fontSize > ReaderUiState.MIN_FONT_SIZE) it.copy(fontSize = it.fontSize - 2) else it
+        val current = _uiState.value.fontSize
+        if (current > ReaderUiState.MIN_FONT_SIZE) {
+            val newSize = current - 2
+            onFontSizePersist(newSize)
+            _uiState.update { it.copy(fontSize = newSize) }
         }
     }
 
     fun setFontSize(size: Int) {
         val clamped = size.coerceIn(ReaderUiState.MIN_FONT_SIZE, ReaderUiState.MAX_FONT_SIZE)
+        onFontSizePersist(clamped)
         _uiState.update { it.copy(fontSize = clamped) }
     }
 
@@ -154,11 +162,12 @@ class ReaderViewModel(
     class Factory(
         private val songRepository: SongRepository,
         private val songId: String,
-        private val initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE
+        private val initialFontSize: Int = ReaderUiState.DEFAULT_FONT_SIZE,
+        private val onFontSizePersist: (Int) -> Unit = {}
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ReaderViewModel(songRepository, songId, initialFontSize) as T
+            return ReaderViewModel(songRepository, songId, initialFontSize, onFontSizePersist) as T
         }
     }
 }

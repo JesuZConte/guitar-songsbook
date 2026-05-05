@@ -44,7 +44,7 @@ import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.ui.components.ChordLine
 import com.guitarapp.songsbook.ui.components.ChordPlacement
-import com.guitarapp.songsbook.ui.theme.Fraunces
+import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.ChordNotation
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
@@ -306,7 +306,7 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         Text(
             text = song.title,
-            fontFamily = Fraunces,
+            fontFamily = Merriweather,
             fontSize = (fontSize + 4).sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface

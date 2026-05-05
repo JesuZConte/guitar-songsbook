@@ -23,7 +23,7 @@ import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 
 // =============================================================================
 // LeatherHeader — the cognac → navy fade with stitched inner frame, flame-
-// guitar emblem, and Fraunces small-caps title.
+// guitar emblem, and Merriweather title.
 //
 // Anatomy (top → bottom):
 //   1. Outer Box: vertical gradient + inset shadows (M3 elevation OFF; we paint).

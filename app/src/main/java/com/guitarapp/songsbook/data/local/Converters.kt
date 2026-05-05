@@ -17,7 +17,7 @@ class Converters {
     @TypeConverter
     fun toStringList(value: String): List<String> {
         val type = object : TypeToken<List<String>>() {}.type
-        return gson.fromJson(value, type)
+        return runCatching { gson.fromJson<List<String>>(value, type) }.getOrDefault(emptyList())
     }
 
     @TypeConverter
@@ -28,6 +28,6 @@ class Converters {
     @TypeConverter
     fun toSongSections(value: String): List<SongSection> {
         val type = object : TypeToken<List<SongSection>>() {}.type
-        return gson.fromJson(value, type)
+        return runCatching { gson.fromJson<List<SongSection>>(value, type) }.getOrDefault(emptyList())
     }
 }

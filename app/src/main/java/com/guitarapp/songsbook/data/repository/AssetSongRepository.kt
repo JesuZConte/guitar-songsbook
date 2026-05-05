@@ -9,6 +9,8 @@ import com.guitarapp.songsbook.data.local.SongVersionDao
 import com.guitarapp.songsbook.data.local.SongVersionEntity
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongVersion
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class AssetSongRepository(
     private val assetManager: AssetManager,
@@ -124,9 +126,16 @@ class AssetSongRepository(
     override suspend fun deleteVersion(versionId: Long) =
         songVersionDao.deleteById(versionId)
 
+    private val seedMutex = Mutex()
+    @Volatile private var seeded = false
+
     private suspend fun ensureSeeded() {
-        if (songDao.count() == 0) {
-            seedFromAssets()
+        if (seeded) return
+        seedMutex.withLock {
+            if (!seeded) {
+                if (songDao.count() == 0) seedFromAssets()
+                seeded = true
+            }
         }
     }
 

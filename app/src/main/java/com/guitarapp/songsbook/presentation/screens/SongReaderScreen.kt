@@ -76,6 +76,7 @@ import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Playlist
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
+import com.guitarapp.songsbook.ui.theme.DarkLeather
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.NocturnoColorScheme
 
@@ -342,7 +343,10 @@ fun SongReaderScreen(
 
     if (uiState.isNocturno) {
         MaterialTheme(colorScheme = NocturnoColorScheme) {
-            CompositionLocalProvider(LocalNocturnoMode provides true) {
+            CompositionLocalProvider(
+                LocalNocturnoMode provides true,
+                LocalLeatherColors provides DarkLeather,
+            ) {
                 screenContent()
             }
         }

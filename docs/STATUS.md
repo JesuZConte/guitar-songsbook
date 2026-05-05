@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-03 (pinch-to-zoom, JSON import, language selector added)
+Last verified: 2026-05-04 (v1.3.0 — setlist, Merriweather, Nocturno fix, toda la deuda técnica resuelta)
 
 ---
 
@@ -26,7 +26,8 @@ Everything in this section is verified in the codebase.
 | Export / share chord chart (no lyrics) | `SongExporter.kt` | [ADR-010](adr/ADR-010-chords-public-lyrics-private.md) |
 | Chord notation switching (American / Latin) | `ChordNotation.kt`, `UserPreferences.kt` | [ADR-011](adr/ADR-011-chord-notation-switching.md) |
 | Theme selector (system / light / dark) | `SettingsScreen.kt`, `ThemeManager.kt` | [ADR-008](adr/ADR-008-vintage-craft-visual-identity.md) |
-| Nocturno mode (black + amber, reader toggle) | `ReaderViewModel.kt`, `Color.kt` | — |
+| Nocturno mode (black + amber, reader toggle) | `ReaderViewModel.kt`, `SongReaderScreen.kt`, `Color.kt` | — |
+| Tipografía Merriweather | `Type.kt` — reemplaza Fraunces en toda la UI; JetBrains Mono se mantiene en el reader | — |
 | Chord auto-detection on import ("Detectar Formato") | `OverUnderConverter.kt`, `AddSongViewModel.kt` | [ADR-012](adr/ADR-012-bracket-format-import.md) |
 | Long-press delete with undo snackbar (Home) | `HomeScreen.kt`, `HomeViewModel.kt` | — |
 | Pinch-to-zoom font size in Reader | `SongReaderScreen.kt` → `rememberTransformableState` | — |
@@ -35,33 +36,19 @@ Everything in this section is verified in the codebase.
 | Firebase Analytics + Crashlytics | `AnalyticsHelper.kt`, `google-services.json` | — |
 | AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
 | Signed AAB — Play Store ready | `build.gradle.kts` (signing config) | — |
+| Setlist mode | Continuous reader across a collection; forward-only swipe; bottom nav hidden; back returns to Collection | — |
 
 ---
 
 ## v1 — Remaining
 
-| Feature | Notes | ADR |
-|---------|-------|-----|
-| Setlist mode | Continuous reader across a collection; swipe forward between songs; no Home between songs — designed for live performance | — |
-
----
-
-## Tech Debt — P1 (fix before next Play Store release)
-
-| # | Location | Issue |
-|---|----------|-------|
-| 1 | `Converters.kt:20,31` | `gson.fromJson` has no try-catch — a corrupt DB row crashes the app with `JsonSyntaxException` |
-| 2 | `ReaderViewModel.kt` | Font size changes update in-memory state only; `UserPreferences.setFontSize` is never called — preference lost on restart |
+Nothing. v1 is feature-complete.
 
 ---
 
 ## Tech Debt — P2 (v1.1)
 
-| # | Location | Issue |
-|---|----------|-------|
-| 3 | `AddSongViewModel.kt:165` | `var pendingPreview: Song?` in `companion object` — mutable static state for nav handoff; not thread-safe, no lifecycle management. Replace with `SavedStateHandle` |
-| 4 | `PlaylistsViewModel.kt` | `removeSongFromPlaylist` has no try-catch; `deletePlaylist` does — inconsistent error handling |
-| 5 | `RoomSongRepository.kt` | `ensureSeeded()` runs a `SELECT COUNT(*)` on every public method call — move to one-time `init` |
+Resuelto. Sin deuda técnica pendiente.
 
 ---
 
