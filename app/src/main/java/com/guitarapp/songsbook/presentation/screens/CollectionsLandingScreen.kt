@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -257,9 +258,12 @@ private fun CreateCollectionDialog(
     onCreate: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
+    val c = LocalLeatherColors.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = c.ink,
         title = { Text(stringResource(R.string.playlists_new_dialog_title)) },
         text = {
             OutlinedTextField(
@@ -267,7 +271,16 @@ private fun CreateCollectionDialog(
                 onValueChange = { name = it },
                 label = { Text(stringResource(R.string.playlists_name_label)) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = c.brass,
+                    unfocusedBorderColor = c.rule,
+                    focusedLabelColor = c.brass,
+                    unfocusedLabelColor = c.inkSoft,
+                    focusedTextColor = c.ink,
+                    unfocusedTextColor = c.ink,
+                    cursorColor = c.ink,
+                )
             )
         },
         confirmButton = {
@@ -275,12 +288,12 @@ private fun CreateCollectionDialog(
                 onClick = { onCreate(name) },
                 enabled = name.isNotBlank()
             ) {
-                Text(stringResource(R.string.common_create))
+                Text(stringResource(R.string.common_create), color = c.brass)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
+                Text(stringResource(R.string.common_cancel), color = c.inkSoft)
             }
         }
     )
