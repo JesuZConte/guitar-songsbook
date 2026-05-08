@@ -1,13 +1,17 @@
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
@@ -25,8 +29,10 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
@@ -44,8 +50,10 @@ import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.ui.components.ChordLine
 import com.guitarapp.songsbook.ui.components.ChordPlacement
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.ChordNotation
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -186,63 +194,114 @@ internal fun VirtualPagedSong(
                 }
             }
 
-            HorizontalPager(
-                state = pagerState,
+            val c = LocalLeatherColors.current
+            val offsetFraction = pagerState.currentPageOffsetFraction
+            val isTransitioning = abs(offsetFraction) > 0.005f
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .onSizeChanged { pagerWidthPx = it.width }
-                    .pointerInput(pageCount) {
-                        detectTapGestures { offset ->
-                            when {
-                                offset.x < pagerWidthPx / 3f -> {
-                                    // Left third → previous page
-                                    if (pagerState.currentPage > 0) {
-                                        scope.launch {
-                                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(pageCount) {
+                            detectTapGestures { offset ->
+                                when {
+                                    offset.x < pagerWidthPx / 3f -> {
+                                        if (pagerState.currentPage > 0) {
+                                            scope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                            }
                                         }
                                     }
-                                }
-                                offset.x > pagerWidthPx * 2f / 3f -> {
-                                    // Right third → next page
-                                    if (pagerState.currentPage < pageCount - 1) {
-                                        scope.launch {
-                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                    offset.x > pagerWidthPx * 2f / 3f -> {
+                                        if (pagerState.currentPage < pageCount - 1) {
+                                            scope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            }
                                         }
                                     }
+                                    else -> onTap()
                                 }
-                                else -> onTap() // Centre third → toggle fullscreen
                             }
                         }
-                    }
-            ) { pageIndex ->
-                // Clip exactly to the distance between this page's start and the next,
-                // so no line is ever cut at the bottom. Any remaining space (last page or
-                // a page whose content is shorter than effectiveViewportH) stays blank.
-                val contentHeightPx = if (pageIndex + 1 < pageStarts.size)
-                    pageStarts[pageIndex + 1] - pageStarts[pageIndex]
-                else
-                    (totalHeight - pageStarts[pageIndex]).coerceAtLeast(1)
+                ) { pageIndex ->
+                    val contentHeightPx = if (pageIndex + 1 < pageStarts.size)
+                        pageStarts[pageIndex + 1] - pageStarts[pageIndex]
+                    else
+                        (totalHeight - pageStarts[pageIndex]).coerceAtLeast(1)
 
-                Box(modifier = Modifier.fillMaxSize()) {
                     PageSlice(
                         contentOffsetPx = pageStarts[pageIndex],
                         contentHeightPx = contentHeightPx
                     ) {
                         FullSongColumn(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
                     }
+                }
 
-                    if (pageCount > 1) {
-                        Text(
-                            text = "${pageIndex + 1} / $pageCount",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 8.dp)
-                        )
+                // Leather seam strip at the physical boundary between pages during swipe
+                if (isTransitioning && pagerWidthPx > 0) {
+                    val seamX = if (offsetFraction >= 0f)
+                        ((1f - offsetFraction) * pagerWidthPx).roundToInt()
+                    else
+                        ((-offsetFraction) * pagerWidthPx).roundToInt()
+
+                    // Soft shadow on the incoming page's left edge
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(24.dp)
+                            .offset { IntOffset(x = seamX - 24.dp.roundToPx(), y = 0) }
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        c.leatherDeep.copy(alpha = 0.20f)
+                                    )
+                                )
+                            )
+                    )
+
+                    // Seam strip (leather spine colour)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(3.dp)
+                            .offset { IntOffset(x = seamX, y = 0) }
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        c.leatherDeep.copy(alpha = 0.53f),
+                                        c.leatherMid.copy(alpha = 0.40f),
+                                        c.leatherDeep.copy(alpha = 0.53f)
+                                    )
+                                )
+                            )
+                    )
+                }
+
+                // Page indicator overlay
+                if (pageCount > 1) {
+                    val indicatorText = if (isTransitioning) {
+                        val left = if (offsetFraction >= 0f) pagerState.currentPage + 1 else pagerState.currentPage
+                        val right = left + 1
+                        "$left ↔ $right"
+                    } else {
+                        "${pagerState.currentPage + 1} / $pageCount"
                     }
+                    Text(
+                        text = indicatorText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 8.dp)
+                    )
                 }
             }
         }.first().measure(constraints)
@@ -402,10 +461,13 @@ internal fun sectionTypeLabel(type: String): String = when (type.lowercase()) {
 }
 
 @Composable
-internal fun sectionColor(type: String): Color = when (type.lowercase()) {
-    "chorus" -> MaterialTheme.colorScheme.primary
-    "verse" -> MaterialTheme.colorScheme.tertiary
-    "intro", "outro" -> MaterialTheme.colorScheme.secondary
-    "bridge" -> MaterialTheme.colorScheme.error
-    else -> MaterialTheme.colorScheme.onSurfaceVariant
+internal fun sectionColor(type: String): Color {
+    val c = LocalLeatherColors.current
+    return when (type.lowercase()) {
+        "chorus" -> MaterialTheme.colorScheme.primary
+        "verse" -> c.ink
+        "intro", "outro" -> MaterialTheme.colorScheme.secondary
+        "bridge" -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
 }

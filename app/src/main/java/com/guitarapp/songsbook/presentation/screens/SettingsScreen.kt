@@ -14,14 +14,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import com.guitarapp.songsbook.ui.components.LeatherChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
+import com.guitarapp.songsbook.ui.components.BrassSurface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.guitarapp.songsbook.ui.components.BrassToggle
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.statusBarsPadding
 import com.guitarapp.songsbook.ui.components.LeatherHeader
@@ -178,15 +179,12 @@ private fun SignInRow() {
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Surface(
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            shape = MaterialTheme.shapes.small
-        ) {
+        BrassSurface(shape = RoundedCornerShape(4.dp), elevation = 2.dp) {
             Text(
                 text = stringResource(R.string.settings_coming_soon),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                color = LocalLeatherColors.current.navyDeep,
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
             )
         }
     }
@@ -210,10 +208,10 @@ private fun ThemeSelectorRow(current: ThemeMode, onSelected: (ThemeMode) -> Unit
                 ThemeMode.LIGHT  to stringResource(R.string.settings_theme_light),
                 ThemeMode.DARK   to stringResource(R.string.settings_theme_dark)
             ).forEach { (mode, label) ->
-                FilterChip(
+                LeatherChip(
+                    label = label,
                     selected = current == mode,
                     onClick = { onSelected(mode) },
-                    label = { Text(label) }
                 )
             }
         }
@@ -232,10 +230,10 @@ private fun LanguageSelectorRow(currentLanguage: String, onSelected: (String) ->
                 "en" to stringResource(R.string.settings_lang_english),
                 "es" to stringResource(R.string.settings_lang_spanish)
             ).forEach { (code, label) ->
-                FilterChip(
+                LeatherChip(
+                    label = label,
                     selected = currentLanguage == code,
                     onClick = { onSelected(code) },
-                    label = { Text(label) }
                 )
             }
         }
@@ -263,9 +261,9 @@ private fun NotationToggleRow(isLatin: Boolean, onToggle: (Boolean) -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Switch(
+        BrassToggle(
             checked = isLatin,
-            onCheckedChange = onToggle
+            onCheckedChange = onToggle,
         )
     }
 }

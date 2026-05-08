@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [SongEntity::class, PlaylistEntity::class, PlaylistSongCrossRef::class, SongVersionEntity::class],
-    version = 5
+    version = 6
 )
 @TypeConverters(Converters::class)
 abstract class SongDatabase : RoomDatabase() {
@@ -87,6 +87,22 @@ abstract class SongDatabase : RoomDatabase() {
             }
         }
 
+        internal val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Remove duplicate "Default" versions that were inserted by both
+                // MIGRATION_3_4 and seedFromAssets() during development iterations.
+                // Keep the row with the lowest id for each song.
+                db.execSQL(
+                    """
+                    DELETE FROM song_versions
+                    WHERE id NOT IN (
+                        SELECT MIN(id) FROM song_versions GROUP BY song_id, name
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         internal val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE playlist_songs ADD COLUMN position INTEGER NOT NULL DEFAULT 0")
@@ -101,7 +117,7 @@ abstract class SongDatabase : RoomDatabase() {
             }
         }
 
-        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+        internal val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
 
         fun getInstance(context: Context): SongDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -110,7 +126,7 @@ abstract class SongDatabase : RoomDatabase() {
                     SongDatabase::class.java,
                     "songbook.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build()
                     .also { INSTANCE = it }
             }

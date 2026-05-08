@@ -16,6 +16,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +28,29 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.guitarapp.songsbook.ui.components.BrassPill
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -68,7 +88,6 @@ import com.guitarapp.songsbook.presentation.screens.PreviewReaderScreen
 import com.guitarapp.songsbook.presentation.screens.FavoritesScreen
 import com.guitarapp.songsbook.presentation.screens.HomeScreen
 import com.guitarapp.songsbook.presentation.screens.PlaylistDetailScreen
-import com.guitarapp.songsbook.presentation.screens.PlaylistsScreen
 import com.guitarapp.songsbook.presentation.screens.SetlistScreen
 import com.guitarapp.songsbook.presentation.screens.SettingsScreen
 import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
@@ -197,29 +216,92 @@ private fun GuitarBottomBar(
     currentDestination: NavDestination?,
     onTabSelected: (String) -> Unit
 ) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.tertiary,
-        contentColor = MaterialTheme.colorScheme.onTertiary,
+    val c = LocalLeatherColors.current
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Brush.verticalGradient(listOf(c.navy, c.navyDeep)))
+            .stitchedTop(c.stitch)
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
-        bottomNavItems.forEach { item ->
-            val selected = currentDestination?.hierarchy?.any {
-                it.route == item.route
-            } == true
-
-            NavigationBarItem(
-                selected = selected,
-                onClick = { if (!selected) onTabSelected(item.route) },
-                icon = {
-                    Icon(
-                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                        contentDescription = stringResource(item.labelRes)
-                    )
-                },
-                label = { Text(stringResource(item.labelRes)) }
-            )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            bottomNavItems.forEach { item ->
+                val selected = currentDestination?.hierarchy?.any {
+                    it.route == item.route
+                } == true
+                BottomNavItem(
+                    item = item,
+                    selected = selected,
+                    onClick = { if (!selected) onTabSelected(item.route) },
+                )
+            }
         }
     }
 }
+
+@Composable
+private fun BottomNavItem(
+    item: BottomNavItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val c = LocalLeatherColors.current
+    Column(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        if (selected) {
+            BrassPill(
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                    horizontal = 18.dp, vertical = 5.dp
+                ),
+            ) {
+                Icon(
+                    imageVector = item.selectedIcon,
+                    contentDescription = stringResource(item.labelRes),
+                    tint = c.navyDeep,
+                )
+            }
+        } else {
+            Box(modifier = Modifier.padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Icon(
+                    imageVector = item.unselectedIcon,
+                    contentDescription = stringResource(item.labelRes),
+                    tint = c.creamSoft,
+                )
+            }
+        }
+        Text(
+            text = stringResource(item.labelRes),
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            fontStyle = if (selected) FontStyle.Normal else FontStyle.Italic,
+            color = if (selected) c.brassLight else c.creamSoft,
+            letterSpacing = 0.5.sp,
+        )
+    }
+}
+
+private fun Modifier.stitchedTop(color: Color): Modifier =
+    this.drawWithContent {
+        drawContent()
+        val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 4f), 0f)
+        drawLine(
+            color = color,
+            start = Offset(12.dp.toPx(), 4.dp.toPx()),
+            end = Offset(size.width - 12.dp.toPx(), 4.dp.toPx()),
+            strokeWidth = 1.dp.toPx(),
+            pathEffect = dash,
+        )
+    }
 
 @Composable
 private fun GuitarNavHost(
@@ -285,17 +367,6 @@ private fun GuitarNavHost(
             FavoritesScreen(
                 viewModel = favoritesViewModel,
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) }
-            )
-        }
-        composable(Routes.PLAYLISTS) {
-            LaunchedEffect(Unit) {
-                playlistsViewModel.loadPlaylists()
-            }
-            PlaylistsScreen(
-                viewModel = playlistsViewModel,
-                onPlaylistClick = { playlistId ->
-                    navController.navigate(Routes.playlistDetail(playlistId))
-                }
             )
         }
         composable(

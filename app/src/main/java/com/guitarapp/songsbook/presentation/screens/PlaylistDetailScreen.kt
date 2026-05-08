@@ -1,6 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,37 +9,38 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RemoveCircleOutline
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import com.guitarapp.songsbook.ui.components.BrassSurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
+import com.guitarapp.songsbook.ui.components.LeatherHeader
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -55,34 +56,38 @@ fun PlaylistDetailScreen(
     val playlistId = detailState.playlist?.id ?: 0L
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(detailState.playlist?.name ?: stringResource(R.string.playlists_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        },
         floatingActionButton = {
             if (detailState.songs.isNotEmpty()) {
-                ExtendedFloatingActionButton(
-                    onClick = { onStartSetlist(playlistId) },
-                    icon = { Icon(Icons.Filled.PlayArrow, contentDescription = null) },
-                    text = { Text(stringResource(R.string.setlist_start_button)) }
-                )
+                BrassSurface(
+                    shape = RoundedCornerShape(14.dp),
+                    elevation = 6.dp,
+                    modifier = Modifier.clickable { onStartSetlist(playlistId) }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                        Text(
+                            text = stringResource(R.string.setlist_start_button),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
             }
         }
     ) { paddingValues ->
+        Column(Modifier.fillMaxSize()) {
+            LeatherHeader(
+                title = detailState.playlist?.name ?: stringResource(R.string.playlists_title),
+                onBack = onBackClick,
+                modifier = Modifier.statusBarsPadding(),
+            )
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             when {
                 detailState.isLoading -> {
@@ -109,11 +114,13 @@ fun PlaylistDetailScreen(
                 }
             }
         }
+        } // Column
     }
 }
 
 @Composable
 private fun EmptyPlaylistDetailContent() {
+    val c = LocalLeatherColors.current
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -122,12 +129,12 @@ private fun EmptyPlaylistDetailContent() {
             Text(
                 text = stringResource(R.string.playlist_detail_empty_title),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = c.ink,
             )
             Text(
                 text = stringResource(R.string.playlist_detail_empty_body),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                color = c.inkSoft,
             )
         }
     }
@@ -170,7 +177,7 @@ private fun ReorderableSongList(
                             onClick = {}
                         ) {
                             Icon(Icons.Filled.DragHandle, contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                tint = LocalLeatherColors.current.inkFaint)
                         }
                     }
                 )
@@ -189,42 +196,41 @@ private fun PlaylistSongCard(
     onRemoveSong: (Long, String) -> Unit,
     dragHandle: @Composable () -> Unit
 ) {
-    Card(
+    val c = LocalLeatherColors.current
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onSongClick(song.id) },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isDragging) 8.dp else 4.dp
-        ),
-        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (isDragging) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f)
+                else MaterialTheme.colorScheme.surfaceVariant
+            )
+            .clickable { onSongClick(song.id) }
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            dragHandle()
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = song.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = song.artist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(onClick = { onRemoveSong(playlistId, song.id) }) {
-                Icon(
-                    imageVector = Icons.Filled.RemoveCircleOutline,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
+        dragHandle()
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = song.title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = c.ink,
+            )
+            Text(
+                text = song.artist,
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+                color = c.inkSoft,
+            )
+        }
+        IconButton(onClick = { onRemoveSong(playlistId, song.id) }) {
+            Icon(
+                imageVector = Icons.Filled.RemoveCircleOutline,
+                contentDescription = null,
+                tint = c.accent,
+            )
         }
     }
 }

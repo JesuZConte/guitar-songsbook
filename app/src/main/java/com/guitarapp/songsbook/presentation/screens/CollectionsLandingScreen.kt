@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import com.guitarapp.songsbook.ui.components.BrassFAB
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
@@ -93,12 +95,7 @@ fun CollectionsLandingScreen(
 
             if (uiState.playlists.isNotEmpty()) {
                 item {
-                    Text(
-                        text = stringResource(R.string.collections_my_collections),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = LocalLeatherColors.current.inkSoft,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    CollectionsSectionHeader(count = uiState.playlists.size)
                 }
                 items(uiState.playlists, key = { it.id }) { playlist ->
                     CollectionCard(
@@ -126,24 +123,63 @@ fun CollectionsLandingScreen(
 }
 
 @Composable
+private fun CollectionsSectionHeader(count: Int) {
+    val c = LocalLeatherColors.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.collections_my_collections),
+            style = MaterialTheme.typography.titleMedium,
+            color = c.section,
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(c.rule)
+        )
+        Text(
+            text = pluralStringResource(R.plurals.collections_count, count, count),
+            style = MaterialTheme.typography.bodySmall,
+            color = c.inkFaint,
+        )
+    }
+}
+
+@Composable
 private fun AllSongsCard(onClick: () -> Unit) {
     val c = LocalLeatherColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, c.rule, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
-            .padding(20.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(
-            imageVector = Icons.Filled.LibraryMusic,
-            contentDescription = null,
-            tint = c.section,
-            modifier = Modifier.size(32.dp)
-        )
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(c.cream.copy(alpha = 0.6f))
+                .border(1.dp, c.rule, RoundedCornerShape(6.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.LibraryMusic,
+                contentDescription = null,
+                tint = c.leatherMid,
+                modifier = Modifier.size(20.dp)
+            )
+        }
         Column {
             Text(
                 text = stringResource(R.string.collections_all_songs),
@@ -169,8 +205,9 @@ private fun CollectionCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, c.rule, RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

@@ -61,9 +61,8 @@ fun LeatherHeader(
                     )
                 )
             )
-            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
-        // Stitched inner frame
+        // Stitched inner frame — inset from the gradient edges, clear of content
         Box(
             Modifier
                 .matchParentSize()
@@ -71,7 +70,7 @@ fun LeatherHeader(
                 .stitchBorder(c.stitch)
         )
 
-        Column(Modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp)) {
             // Title row
             Row(
                 verticalAlignment = Alignment.CenterVertically,

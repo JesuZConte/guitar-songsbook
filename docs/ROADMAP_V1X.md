@@ -3,31 +3,61 @@
 What is already shipped is tracked in [STATUS.md](STATUS.md).
 This file contains only what is **not yet built**, in priority order.
 
-Last updated: 2026-05-04
+Last updated: 2026-05-07
 
 ---
 
 ## v1 Status
 
-**v1 is feature-complete and tech-debt clean.** All P1 items are resolved:
+**Features complete. v1.4.0 UI refinement complete. Uploading to Play Console closed test on Day 30.**
 
-- ~~TD-1: Converters crash on corrupt JSON~~ — fixed (`runCatching` in both converters)
-- ~~TD-2: Font size not persisted~~ — fixed (`onFontSizePersist` callback wired in Factory)
-- ~~Collections not shown on first launch~~ — fixed (race condition between seeding and ViewModel init)
+All functional P1 items resolved as of v1.3.0:
+
+- ~~TD-1: Converters crash on corrupt JSON~~ — fixed
+- ~~TD-2: Font size not persisted~~ — fixed
+- ~~Collections not shown on first launch~~ — fixed (race condition)
 - ~~Setlist mode~~ — shipped
+- ~~TD-3/TD-4/TD-5: Tech debt P2~~ — all resolved
 
 ---
 
+## v1.4 — Leather Journal UI Refinement ✓ COMPLETE
 
-## Tech Debt P2 — v1.1
+Full rationale in [ADR-021](adr/ADR-021-leather-journal-ui-refinement.md).
 
-**Todos resueltos.** Listo para v2.
+| # | What | File(s) | Status |
+|---|------|---------|--------|
+| 1 | FAB shape → rounded square 52dp | `ui/components/Brass.kt` | ✓ done |
+| 2 | "Mis colecciones" header → label + rule + count | `CollectionsLandingScreen.kt` | ✓ done |
+| 3 | AllSongsCard icon → cream tile container | `CollectionsLandingScreen.kt` | ✓ done |
+| 4 | `LeatherChip` composable + wire HomeScreen filters | `ui/components/LeatherChip.kt`, `HomeScreen.kt` | ✓ done |
+| 5 | `LeatherChip` wired in SettingsScreen | `SettingsScreen.kt` | ✓ done |
+| 6 | "Coming soon" badge → `BrassSurface` | `SettingsScreen.kt` | ✓ done |
+| 7 | Bottom nav → gradient bg + brass active pill | `MainActivity.kt` | ✓ done |
+| 8 | Help dialog styling | `HomeScreen.kt` | ✓ done |
+| 9 | `BrassToggle` replacing settings `Switch` | `SettingsScreen.kt`, `ui/components/` | ✓ done |
+| 10 | Leather seam animation on all pagers | `SongContentComponents.kt`, `SetlistScreen.kt` | ✓ done |
+| 11 | All screens → `LeatherHeader` (no more TopAppBar) | `SetlistScreen`, `VersionEditorScreen`, `AboutScreen`, `PreviewReaderScreen` | ✓ done |
+| 12 | Brass gradient → diagonal linear, brighter brassLight | `Brass.kt`, `Color.kt` | ✓ done |
+| 13 | Latin notation in builder quick chips | `AddSongScreen.kt`, `BracketParser.kt` | ✓ done |
+| 14 | Duplicate "Default" versions fix | `SongDatabase.kt` (MIGRATION_5_6), `AssetSongRepository.kt` | ✓ done |
+| 15 | Start Setlist FAB themed | `PlaylistDetailScreen.kt` | ✓ done |
+| 16 | Add Song / Import menu themed | `HomeScreen.kt` | ✓ done |
+| 17 | Dead code removed (PlaylistsScreen, VersionChips, BrassButton) | multiple | ✓ done |
 
-- ~~TD-3: Static `pendingPreview`~~ — movido a campo de instancia; `Routes.PREVIEW` usa `previousBackStackEntry` para obtener el ViewModel correcto
-- ~~TD-4: Error handling inconsistente en `PlaylistsViewModel`~~ — `removeSongFromPlaylist` ahora tiene `try-catch` igual que `deletePlaylist`
-- ~~TD-5: `ensureSeeded()` en cada método~~ — double-checked locking con `Mutex`; el `SELECT COUNT(*)` solo ocurre una vez
+**Known deferred (not in v1.4):**
+- `font-variant: small-caps` — requires Fraunces or a small-caps font variant; planned for a future type pass
+- Double-frame inset on help dialog — not achievable with native `AlertDialog`; skip for now
 
 ---
+
+## Day 30 — Próximas acciones
+
+| # | Qué | Detalle |
+|---|-----|---------|
+| 1 | Subir v1.4.0 a Play Console | Build AAB firmado → subir a prueba cerrada (internal/closed test track) |
+| 2 | Screenshots actualizados | Capturar nuevas pantallas con el tema Leather Journal completo para la ficha de la tienda |
+| 3 | Revisar feedback de prueba cerrada | Si hay testers activos, revisar reportes antes de promover a producción |
 
 ## Antes de la release pública
 
@@ -39,7 +69,7 @@ Last updated: 2026-05-04
 
 ## v2 — Cloud & AI
 
-Do not start until v1 is stable on Play Store and has real user feedback.
+Do not start until v1.4 UI refinement is complete and v1 is stable on Play Store with real user feedback.
 Full context in [ADR-020](adr/ADR-020-v2-roadmap.md).
 
 | Priority | Feature | Gate |

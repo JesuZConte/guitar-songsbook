@@ -3,6 +3,7 @@ package com.guitarapp.songsbook.utils
 import com.guitarapp.songsbook.domain.model.ChordPosition
 import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
+import com.guitarapp.songsbook.utils.ChordNotation
 
 /**
  * Parses bracket-format song text into structured SongSection/SongLine/ChordPosition.
@@ -87,7 +88,7 @@ object BracketParser {
         for (match in matches) {
             textBuilder.append(line.substring(lastEnd, match.range.first))
             val position = textBuilder.length
-            val chord = match.groupValues[1]
+            val chord = ChordNotation.toAmericanNotation(match.groupValues[1])
             chords.add(ChordPosition(chord = chord, position = position))
             lastEnd = match.range.last + 1
         }

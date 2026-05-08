@@ -1,6 +1,9 @@
 package com.guitarapp.songsbook.presentation.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -9,25 +12,27 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -49,7 +55,15 @@ import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
+import com.guitarapp.songsbook.ui.components.BrassSurface
+import com.guitarapp.songsbook.ui.components.FlameGuitar
+import com.guitarapp.songsbook.ui.components.LeatherHeader
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,6 +78,7 @@ fun SetlistScreen(
 
     var currentSongIndex by remember { mutableIntStateOf(0) }
     val currentSongTitle = songs.getOrNull(currentSongIndex)?.title ?: ""
+    val songSubtitle = if (songs.isNotEmpty()) "${currentSongIndex + 1} / ${songs.size}" else null
     var isFullscreen by remember { mutableStateOf(false) }
 
     LaunchedEffect(playlistId) {
@@ -77,23 +92,13 @@ fun SetlistScreen(
                 enter = slideInVertically(),
                 exit = slideOutVertically()
             ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = currentSongTitle,
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = onExit) {
-                            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.setlist_exit))
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                LeatherHeader(
+                    title = currentSongTitle,
+                    subtitle = songSubtitle,
+                    leadingEmblem = false,
+                    trailingIcon = Icons.Filled.Close,
+                    onTrailingClick = onExit,
+                    modifier = Modifier.statusBarsPadding()
                 )
             }
         }
@@ -229,74 +234,122 @@ private fun VirtualSetlist(
                 }
             }
 
+            val c = LocalLeatherColors.current
+            val offsetFraction = pagerState.currentPageOffsetFraction
+            val isTransitioning = abs(offsetFraction) > 0.005f
+
             var pagerWidthPx by remember { mutableIntStateOf(0) }
-            HorizontalPager(
-                state = pagerState,
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .onSizeChanged { pagerWidthPx = it.width }
-                    .pointerInput(totalPages) {
-                        detectTapGestures { offset ->
-                            when {
-                                offset.x < pagerWidthPx / 3f -> {
-                                    if (pagerState.currentPage > 0)
-                                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+            ) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(totalPages) {
+                            detectTapGestures { offset ->
+                                when {
+                                    offset.x < pagerWidthPx / 3f -> {
+                                        if (pagerState.currentPage > 0)
+                                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                                    }
+                                    offset.x > pagerWidthPx * 2f / 3f -> {
+                                        if (pagerState.currentPage < totalPages - 1)
+                                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                                    }
+                                    else -> onTap()
                                 }
-                                offset.x > pagerWidthPx * 2f / 3f -> {
-                                    if (pagerState.currentPage < totalPages - 1)
-                                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                                }
-                                else -> onTap()
                             }
                         }
-                    }
-            ) { pageIndex ->
-                if (pageIndex >= pages.size) {
-                    // End-of-setlist page
-                    SetlistEndPage(
-                        onRestart = { scope.launch { pagerState.scrollToPage(0) } },
-                        onExit = onExit
-                    )
-                } else {
-                    val entry = pages[pageIndex]
-                    val contentHeightPx = if (pageIndex + 1 < pages.size &&
-                        pages[pageIndex + 1].songIndex == entry.songIndex) {
-                        pages[pageIndex + 1].startOffset - entry.startOffset
-                    } else {
-                        (entry.songTotalHeight - entry.startOffset).coerceAtLeast(1)
-                    }
-
-                    val song = songs[entry.songIndex]
-                    val isLastPageOfSong = pageIndex + 1 >= pages.size ||
-                            pages[pageIndex + 1].songIndex != entry.songIndex
-                    val songPageIndex = entry.pageStarts.indexOf(entry.startOffset)
-                    val songPageCount = entry.pageStarts.size
-
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Layout(
-                            content = {
-                                FullSongColumn(song = song, fontSize = fontSize)
-                            },
-                            modifier = Modifier.fillMaxSize().clipToBounds()
-                        ) { measurables, layoutConstraints ->
-                            val placeable = measurables.first().measure(
-                                layoutConstraints.copy(minHeight = 0, maxHeight = Int.MAX_VALUE)
-                            )
-                            layout(layoutConstraints.maxWidth, contentHeightPx) {
-                                placeable.placeRelative(0, -entry.startOffset)
-                            }
-                        }
-
-                        // Page indicator: shows position within song + song progress
-                        val nextSong = if (isLastPageOfSong)
-                            songs.getOrNull(entry.songIndex + 1)?.title else null
-                        SetlistPageIndicator(
-                            songPage = songPageIndex + 1,
-                            songPageCount = songPageCount,
-                            nextSongTitle = nextSong,
-                            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp)
+                ) { pageIndex ->
+                    if (pageIndex >= pages.size) {
+                        SetlistEndPage(
+                            onRestart = { scope.launch { pagerState.scrollToPage(0) } },
+                            onExit = onExit
                         )
+                    } else {
+                        val entry = pages[pageIndex]
+                        val contentHeightPx = if (pageIndex + 1 < pages.size &&
+                            pages[pageIndex + 1].songIndex == entry.songIndex) {
+                            pages[pageIndex + 1].startOffset - entry.startOffset
+                        } else {
+                            (entry.songTotalHeight - entry.startOffset).coerceAtLeast(1)
+                        }
+
+                        val song = songs[entry.songIndex]
+                        val isLastPageOfSong = pageIndex + 1 >= pages.size ||
+                                pages[pageIndex + 1].songIndex != entry.songIndex
+                        val songPageIndex = entry.pageStarts.indexOf(entry.startOffset)
+                        val songPageCount = entry.pageStarts.size
+
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Layout(
+                                content = {
+                                    FullSongColumn(song = song, fontSize = fontSize)
+                                },
+                                modifier = Modifier.fillMaxSize().clipToBounds()
+                            ) { measurables, layoutConstraints ->
+                                val placeable = measurables.first().measure(
+                                    layoutConstraints.copy(minHeight = 0, maxHeight = Int.MAX_VALUE)
+                                )
+                                layout(layoutConstraints.maxWidth, contentHeightPx) {
+                                    placeable.placeRelative(0, -entry.startOffset)
+                                }
+                            }
+
+                            val nextSong = if (isLastPageOfSong)
+                                songs.getOrNull(entry.songIndex + 1)?.title else null
+                            SetlistPageIndicator(
+                                songPage = songPageIndex + 1,
+                                songPageCount = songPageCount,
+                                nextSongTitle = nextSong,
+                                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 8.dp)
+                            )
+                        }
                     }
+                }
+
+                // Leather seam strip at the physical boundary between pages during swipe
+                if (isTransitioning && pagerWidthPx > 0) {
+                    val seamX = if (offsetFraction >= 0f)
+                        ((1f - offsetFraction) * pagerWidthPx).roundToInt()
+                    else
+                        ((-offsetFraction) * pagerWidthPx).roundToInt()
+
+                    // Soft shadow on the incoming page's left edge
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(24.dp)
+                            .offset { IntOffset(x = seamX - 24.dp.roundToPx(), y = 0) }
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        c.leatherDeep.copy(alpha = 0.20f)
+                                    )
+                                )
+                            )
+                    )
+
+                    // Seam strip (leather spine colour)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .width(3.dp)
+                            .offset { IntOffset(x = seamX, y = 0) }
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        c.leatherDeep.copy(alpha = 0.53f),
+                                        c.leatherMid.copy(alpha = 0.40f),
+                                        c.leatherDeep.copy(alpha = 0.53f)
+                                    )
+                                )
+                            )
+                    )
                 }
             }
         }.first().measure(constraints)
@@ -339,32 +392,59 @@ private fun SetlistEndPage(
     onRestart: () -> Unit,
     onExit: () -> Unit
 ) {
+    val c = LocalLeatherColors.current
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        FlameGuitar(size = 64.dp, color = c.leatherMid, flame = c.brassLight)
+        Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.setlist_end_title),
             style = MaterialTheme.typography.headlineMedium,
+            color = c.ink,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.setlist_end_body),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = c.inkSoft,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = onRestart) {
-            Icon(Icons.Filled.Replay, contentDescription = null)
-            Spacer(modifier = Modifier.padding(start = 8.dp))
-            Text(stringResource(R.string.setlist_restart_button))
+        BrassSurface(
+            shape = RoundedCornerShape(14.dp),
+            elevation = 4.dp,
+            modifier = Modifier.clickable(onClick = onRestart)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Filled.Replay, contentDescription = null)
+                Text(
+                    text = stringResource(R.string.setlist_restart_button),
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        OutlinedButton(onClick = onExit) {
-            Text(stringResource(R.string.setlist_exit_to_home))
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(14.dp))
+                .border(1.5.dp, c.rule, RoundedCornerShape(14.dp))
+                .clickable(onClick = onExit)
+                .padding(horizontal = 24.dp, vertical = 14.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.setlist_exit_to_home),
+                style = MaterialTheme.typography.labelLarge,
+                color = c.ink
+            )
         }
     }
 }

@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-04 (v1.3.0 — setlist, Merriweather, Nocturno fix, toda la deuda técnica resuelta)
+Last verified: 2026-05-07 (v1.4.0 complete — uploading to Play Console closed test tomorrow)
 
 ---
 
@@ -40,9 +40,12 @@ Everything in this section is verified in the codebase.
 
 ---
 
-## v1 — Remaining
+## v1.4 — Complete ✓
 
-Nothing. v1 is feature-complete.
+Full Leather Journal UI refinement pass. See [ROADMAP_V1X.md](ROADMAP_V1X.md) for item-by-item status.
+Rationale in [ADR-021](adr/ADR-021-leather-journal-ui-refinement.md).
+
+Highlights: leather seam animation on all pagers, all screens use `LeatherHeader`, brass gradient improved, Latin notation in builder, dead code removed, FAB menu themed.
 
 ---
 
@@ -54,7 +57,7 @@ Resuelto. Sin deuda técnica pendiente.
 
 ## v2 — Planned
 
-Requires Firebase Auth + Firestore. Do not implement until v1 is stable on Play Store.
+Requires Firebase Auth + Firestore. Do not implement until v1.4 is complete and v1 is stable on Play Store.
 
 | Feature | Notes | ADR |
 |---------|-------|-----|

@@ -72,6 +72,10 @@
         <item quantity="one">%d song</item>
         <item quantity="other">%d songs</item>
     </plurals>
+    <plurals name="collections_count">
+        <item quantity="one">%d list</item>
+        <item quantity="other">%d lists</item>
+    </plurals>
 
     <!-- Playlist detail screen -->
     <string name="playlist_detail_empty_title">No songs in this playlist</string>

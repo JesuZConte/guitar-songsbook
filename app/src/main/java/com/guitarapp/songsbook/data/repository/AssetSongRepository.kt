@@ -150,18 +150,20 @@ class AssetSongRepository(
             val response = Gson().fromJson(jsonString, SongbookResponse::class.java)
             val entities = response.songbook.songs.map { SongEntity.fromDomain(it) }
             songDao.insertAll(entities)
-            val versionEntities = entities.map { entity ->
-                SongVersionEntity(
-                    songId = entity.id,
-                    name = "Default",
-                    key = entity.key,
-                    capo = entity.capo,
-                    chords = entity.chords,
-                    notes = entity.notes,
-                    content = entity.content
-                )
-            }
-            songVersionDao.insertAll(versionEntities)
+            val versionEntities = entities
+                .filter { songVersionDao.getVersionsForSong(it.id).isEmpty() }
+                .map { entity ->
+                    SongVersionEntity(
+                        songId = entity.id,
+                        name = "Default",
+                        key = entity.key,
+                        capo = entity.capo,
+                        chords = entity.chords,
+                        notes = entity.notes,
+                        content = entity.content
+                    )
+                }
+            if (versionEntities.isNotEmpty()) songVersionDao.insertAll(versionEntities)
         } catch (e: Exception) {
             FirebaseCrashlytics.getInstance().recordException(e)
             throw e

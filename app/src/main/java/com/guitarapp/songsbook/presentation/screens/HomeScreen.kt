@@ -48,8 +48,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import com.guitarapp.songsbook.ui.components.LeatherChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -82,6 +83,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
 import androidx.compose.ui.res.stringResource
 import com.guitarapp.songsbook.R
@@ -184,19 +186,37 @@ fun HomeScreen(
                 }
                 DropdownMenu(
                     expanded = showFabMenu,
-                    onDismissRequest = { showFabMenu = false }
+                    onDismissRequest = { showFabMenu = false },
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = fabC.leatherMid,
+                    border = BorderStroke(1.dp, fabC.rule),
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.home_add_song)) },
-                        leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                        text = {
+                            Text(
+                                stringResource(R.string.home_add_song),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = fabC.cream
+                            )
+                        },
+                        leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null, tint = fabC.brass) },
+                        colors = MenuDefaults.itemColors(textColor = fabC.cream, leadingIconColor = fabC.brass),
                         onClick = {
                             showFabMenu = false
                             onAddSongClick()
                         }
                     )
+                    HorizontalDivider(color = fabC.rule, thickness = 0.5.dp)
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.home_import_from_file)) },
-                        leadingIcon = { Icon(Icons.Filled.FileOpen, contentDescription = null) },
+                        text = {
+                            Text(
+                                stringResource(R.string.home_import_from_file),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = fabC.cream
+                            )
+                        },
+                        leadingIcon = { Icon(Icons.Filled.FileOpen, contentDescription = null, tint = fabC.brass) },
+                        colors = MenuDefaults.itemColors(textColor = fabC.cream, leadingIconColor = fabC.brass),
                         onClick = {
                             showFabMenu = false
                             importLauncher.launch("application/json")
@@ -254,9 +274,17 @@ fun HomeScreen(
 
 @Composable
 private fun AddSongsHelpDialog(onDismiss: () -> Unit) {
+    val c = LocalLeatherColors.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.help_title)) },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        title = {
+            Text(
+                text = stringResource(R.string.help_title),
+                style = MaterialTheme.typography.headlineSmall,
+                color = c.ink,
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 HelpSection(
@@ -271,7 +299,12 @@ private fun AddSongsHelpDialog(onDismiss: () -> Unit) {
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.help_got_it))
+                Text(
+                    text = stringResource(R.string.help_got_it),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = c.section,
+                    letterSpacing = 0.5.sp,
+                )
             }
         }
     )
@@ -279,16 +312,17 @@ private fun AddSongsHelpDialog(onDismiss: () -> Unit) {
 
 @Composable
 private fun HelpSection(title: String, body: String) {
+    val c = LocalLeatherColors.current
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary
+            color = c.section,
         )
         Text(
             text = body,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = c.inkSoft,
         )
     }
 }
@@ -388,7 +422,7 @@ private fun FilterSection(
             Text(
                 text = stringResource(R.string.home_filter_difficulty),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = LocalLeatherColors.current.section,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             FlowRow(
@@ -397,10 +431,10 @@ private fun FilterSection(
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 difficulties.forEach { difficulty ->
-                    FilterChip(
+                    LeatherChip(
+                        label = difficulty.replaceFirstChar { it.uppercase() },
                         selected = difficulty == selectedDifficulty,
                         onClick = { onDifficultySelected(difficulty) },
-                        label = { Text(difficulty.replaceFirstChar { it.uppercase() }) }
                     )
                 }
             }
@@ -410,7 +444,7 @@ private fun FilterSection(
             Text(
                 text = stringResource(R.string.home_filter_genre),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = LocalLeatherColors.current.section,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             FlowRow(
@@ -419,10 +453,10 @@ private fun FilterSection(
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 genres.forEach { genre ->
-                    FilterChip(
+                    LeatherChip(
+                        label = genre,
                         selected = genre == selectedGenre,
                         onClick = { onGenreSelected(genre) },
-                        label = { Text(genre) }
                     )
                 }
             }

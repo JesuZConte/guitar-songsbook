@@ -1,5 +1,6 @@
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,13 +13,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoFixHigh
 import androidx.compose.material.icons.filled.Delete
@@ -26,15 +28,12 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,9 +44,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.draw.clip
+import com.guitarapp.songsbook.ui.components.LeatherChip
+import com.guitarapp.songsbook.ui.components.LeatherHeader
+import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,7 +57,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -185,27 +185,19 @@ fun AddSongScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (viewModel.isEditMode) stringResource(R.string.edit_song_title) else stringResource(R.string.add_song_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            )
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets(0)
     ) { paddingValues ->
+        Column(Modifier.fillMaxSize()) {
+            LeatherHeader(
+                title = if (viewModel.isEditMode) stringResource(R.string.edit_song_title) else stringResource(R.string.add_song_title),
+                onBack = onBackClick,
+                modifier = Modifier.statusBarsPadding(),
+            )
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(bottom = paddingValues.calculateBottomPadding())
                 .padding(16.dp)
                 .imePadding()
                 .verticalScroll(rememberScrollState()),
@@ -352,6 +344,7 @@ fun AddSongScreen(
                 }
             }
         }
+        } // outer Column
     }
 
     if (showFormatHelp) {
@@ -377,27 +370,28 @@ internal fun InputModeToggle(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val c = LocalLeatherColors.current
         Text(
             text = stringResource(R.string.add_song_input_mode),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = c.inkSoft
         )
-        FilterChip(
+        LeatherChip(
+            label = stringResource(R.string.add_song_mode_builder),
             selected = mode == InputMode.BUILDER,
-            onClick = { onModeChange(InputMode.BUILDER) },
-            label = { Text(stringResource(R.string.add_song_mode_builder)) }
+            onClick = { onModeChange(InputMode.BUILDER) }
         )
-        FilterChip(
+        LeatherChip(
+            label = stringResource(R.string.add_song_mode_text),
             selected = mode == InputMode.TEXT,
-            onClick = { onModeChange(InputMode.TEXT) },
-            label = { Text(stringResource(R.string.add_song_mode_text)) }
+            onClick = { onModeChange(InputMode.TEXT) }
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onHelpClick, modifier = Modifier.size(32.dp)) {
             Icon(
                 Icons.Outlined.Info,
                 contentDescription = "Format help",
-                tint = MaterialTheme.colorScheme.primary,
+                tint = c.section,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -425,22 +419,25 @@ private fun FormatHelpContent() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.add_song_example_label),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = "[Am]Hello [F]darkness, my [C]old [G]friend",
-                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            val c = LocalLeatherColors.current
+            Text(
+                text = stringResource(R.string.add_song_example_label),
+                style = MaterialTheme.typography.labelSmall,
+                color = c.section
+            )
+            Text(
+                text = "[Am]Hello [F]darkness, my [C]old [G]friend",
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                color = c.ink
+            )
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
@@ -506,9 +503,16 @@ private fun SectionCard(
 ) {
     var customChord by remember { mutableStateOf("") }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-
+    val c = LocalLeatherColors.current
+    val notation = UserPreferences.getNotation(androidx.compose.ui.platform.LocalContext.current)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -517,7 +521,7 @@ private fun SectionCard(
                 Text(
                     text = "${sectionTypeLabel(section.type)} ${section.number}",
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = c.section,
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = onDelete) {
@@ -538,8 +542,12 @@ private fun SectionCard(
                     .heightIn(min = 120.dp, max = 300.dp),
                 label = { Text(stringResource(R.string.add_song_lyrics_chords)) },
                 placeholder = {
+                    val am = ChordNotation.convert("Am", notation)
+                    val f  = ChordNotation.convert("F",  notation)
+                    val c2 = ChordNotation.convert("C",  notation)
+                    val g  = ChordNotation.convert("G",  notation)
                     Text(
-                        "[Am]Hello [F]darkness\nmy [C]old [G]friend",
+                        "[$am]Hello [$f]darkness\nmy [$c2]old [$g]friend",
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                     )
                 },
@@ -561,15 +569,16 @@ private fun SectionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 QUICK_CHORDS.forEach { chord ->
+                    val displayChord = ChordNotation.convert(chord, notation)
                     SuggestionChip(
-                        onClick = { onContentChange(insertChord(section, chord)) },
-                        label = { Text(chord, style = MaterialTheme.typography.labelSmall) }
+                        onClick = { onContentChange(insertChord(section, displayChord)) },
+                        label = { Text(displayChord, style = MaterialTheme.typography.labelSmall) }
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 OutlinedTextField(
                     value = customChord,
-                    onValueChange = { customChord = it.take(6) },
+                    onValueChange = { customChord = it.take(8) },
                     modifier = Modifier.width(80.dp),
                     singleLine = true,
                     label = { Text(stringResource(R.string.add_song_other_chord)) },
@@ -588,7 +597,6 @@ private fun SectionCard(
                     }
                 )
             }
-        }
     }
 }
 

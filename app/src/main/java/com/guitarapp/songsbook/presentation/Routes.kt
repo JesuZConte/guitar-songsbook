@@ -3,7 +3,6 @@ package com.guitarapp.songsbook.presentation
 object Routes {
     const val HOME = "home"
     const val FAVORITES = "favorites"
-    const val PLAYLISTS = "playlists"
     const val PLAYLIST_DETAIL = "playlist/{playlistId}"
     const val ADD_SONG = "add_song"
     const val EDIT_SONG = "edit_song/{songId}"

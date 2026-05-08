@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
@@ -29,16 +28,15 @@ import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 // radial-gradient + inset highlight recipe so they read as one material family.
 // =============================================================================
 
-/** Radial brass gradient (top-left highlight → mid → dark edge). */
-fun brassBrush(c: LeatherColors): Brush = Brush.radialGradient(
+/** Diagonal brass gradient: top-left highlight sweeps to bottom-right shadow. */
+fun brassBrush(c: LeatherColors): Brush = Brush.linearGradient(
     colorStops = arrayOf(
         0.0f to c.brassLight,
-        0.55f to c.brass,
+        0.45f to c.brass,
         1.0f to c.brassDark,
     ),
-    // off-center (top-left) so the highlight sits where light would catch.
-    center = Offset.Unspecified,  // resolved at draw time; see Modifier below
-    radius = Float.POSITIVE_INFINITY,
+    start = Offset.Zero,
+    end = Offset.Infinite,
 )
 
 /** Brass surface with all three layers: drop shadow, gradient fill, dark border. */
@@ -81,21 +79,6 @@ fun BrassPill(
     }
 }
 
-// ---------- Round button (toolbar actions) ----------------------------------
-
-@Composable
-fun BrassButton(
-    size: Dp = 44.dp,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    BrassSurface(
-        shape = CircleShape,
-        modifier = modifier.size(size),
-        elevation = 3.dp,
-    ) { content() }
-}
-
 // ---------- FAB (primary "Add Song" action) ---------------------------------
 
 @Composable
@@ -104,8 +87,8 @@ fun BrassFAB(
     content: @Composable () -> Unit,
 ) {
     BrassSurface(
-        shape = CircleShape,
-        modifier = modifier.size(56.dp),
+        shape = RoundedCornerShape(14.dp),
+        modifier = modifier.size(52.dp),
         elevation = 8.dp,
     ) { content() }
 }
