@@ -155,5 +155,21 @@ val LocalLeatherColors = compositionLocalOf<LeatherColors> {
     error("LeatherColors not provided — wrap your tree in CancioneroTheme")
 }
 
-// Nocturno reader mode uses the dark Material color scheme.
-val NocturnoColorScheme = DarkColors
+// Nocturno reader mode: warm deep-black night theme built on top of DarkColors so all
+// unspecified M3 tokens (surfaceContainer, inverseSurface, scrim, etc.) stay consistent.
+val NocturnoColorScheme = DarkColors.copy(
+    primary            = Color(0xFFD9A858),  // amber-gold instead of brass-light
+    onPrimary          = Color(0xFF0A0A0A),
+    primaryContainer   = Color(0xFF3A2800),
+    onPrimaryContainer = Color(0xFFFFDFA0),
+    secondary          = Color(0xFF3A2800),
+    onSecondary        = Color(0xFFD9A858),
+    secondaryContainer = Color(0xFF1E1600),
+    onSecondaryContainer = Color(0xFFD9A858),
+    background         = Color(0xFF0A0800),  // near-black warm vs navy
+    surface            = Color(0xFF0F0B00),
+    surfaceVariant     = Color(0xFF1E1600),
+    onSurfaceVariant   = Color(0xFFB29B6A),
+    outline            = Color(0xFF3A2800),
+    outlineVariant     = Color(0xFF1E1600),
+)

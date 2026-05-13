@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-07 (v1.4.0 complete — uploading to Play Console closed test tomorrow)
+Last verified: 2026-05-12 (v1.4.1 bug-fix patch complete — ready for Play Console)
 
 ---
 
@@ -39,6 +39,24 @@ Everything in this section is verified in the codebase.
 | Setlist mode | Continuous reader across a collection; forward-only swipe; bottom nav hidden; back returns to Collection | — |
 
 ---
+
+## v1.4.1 — Complete ✓ (bug-fix patch)
+
+Tester feedback fixes only — no new features.
+
+| Fix | File(s) |
+|-----|---------|
+| Nocturno toggle no-op in system/dark mode | `Color.kt` — `NocturnoColorScheme` now `DarkColors.copy(...)` |
+| Keyboard covering builder UI on Samsung A50 | `AndroidManifest.xml` (`adjustResize`), `AddSongScreen.kt` (`weight(1f)` + `imePadding`) |
+| Long song content clips instead of scrolling | `AddSongScreen.kt` — removed `heightIn(max)` cap on text fields |
+| Font size slider only scaled titles, not lyrics/chords | `SongContentComponents.kt`, `ChordLine.kt` — threaded `fontSize` through full render chain |
+| Title scaled with font size slider (undesired) | `SongContentComponents.kt` — `SongHeader` uses fixed sizes |
+| Chord bar was below text input (builder UX) | `AddSongScreen.kt` — chord bar moved above text area |
+| Add Section bar was at the bottom (builder UX) | `AddSongScreen.kt` — `AddSectionBar` moved to top of builder |
+| Excess spacing in `SectionCard` | `AddSongScreen.kt` — offset + compact `BasicTextField` chip field |
+| Delete button 24dp touch target (WCAG regression) | `AddSongScreen.kt` — restored full 48dp `IconButton` |
+| Missing TalkBack labels on chord/lyrics fields | `AddSongScreen.kt` — `Modifier.semantics { contentDescription }` added |
+| Genre field not auto-capitalizing | `AddSongScreen.kt` — `KeyboardCapitalization.Words` added |
 
 ## v1.4 — Complete ✓
 

@@ -9,8 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -65,6 +70,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.getTextBeforeSelection
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.data.local.UserPreferences
@@ -196,11 +203,11 @@ fun AddSongScreen(
             )
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .padding(bottom = paddingValues.calculateBottomPadding())
-                .padding(16.dp)
                 .imePadding()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // ---- Metadata fields ----
@@ -247,7 +254,8 @@ fun AddSongScreen(
                     onValueChange = viewModel::onGenreChanged,
                     label = { Text(stringResource(R.string.add_song_field_genre)) },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
                 )
                 DifficultyDropdown(
                     selected = uiState.difficulty,
@@ -305,7 +313,7 @@ fun AddSongScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 250.dp, max = 400.dp),
+                        .heightIn(min = 250.dp),
                     maxLines = Int.MAX_VALUE,
                     textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
                 )
@@ -472,6 +480,12 @@ internal fun BuilderContent(
     onSectionsChanged: (List<BuilderSection>) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        AddSectionBar(
+            onAdd = { type ->
+                onSectionsChanged(sections + addSection(type, sections))
+            }
+        )
+
         sections.forEachIndexed { index, section ->
             SectionCard(
                 section = section,
@@ -484,12 +498,6 @@ internal fun BuilderContent(
                 }
             )
         }
-
-        AddSectionBar(
-            onAdd = { type ->
-                onSectionsChanged(sections + addSection(type, sections))
-            }
-        )
     }
 }
 
@@ -505,17 +513,21 @@ private fun SectionCard(
 
     val c = LocalLeatherColors.current
     val notation = UserPreferences.getNotation(androidx.compose.ui.platform.LocalContext.current)
+    val chordFieldDesc = stringResource(R.string.add_song_other_chord)
+    val lyricsFieldDesc = stringResource(R.string.add_song_lyrics_chords)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-            // Header
+            // Header row — negative top offset trims the built-in 48dp IconButton padding
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-8).dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -528,8 +540,73 @@ private fun SectionCard(
                     Icon(
                         Icons.Filled.Delete,
                         contentDescription = "Delete section",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp)
                     )
+                }
+            }
+
+            // Chord quick-insert bar — compact BasicTextField avoids M3's 56dp OutlinedTextField height
+            val chordBorderColor = if (customChord.isNotBlank())
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.outline
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = (-6).dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                QUICK_CHORDS.forEach { chord ->
+                    val displayChord = ChordNotation.convert(chord, notation)
+                    SuggestionChip(
+                        onClick = { onContentChange(insertChord(section, displayChord)) },
+                        label = { Text(displayChord, style = MaterialTheme.typography.labelSmall) }
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .width(90.dp)
+                        .height(32.dp)
+                        .border(1.dp, chordBorderColor, RoundedCornerShape(4.dp))
+                        .semantics { contentDescription = chordFieldDesc },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicTextField(
+                        value = customChord,
+                        onValueChange = { customChord = it.take(8) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp),
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                        decorationBox = { inner ->
+                            if (customChord.isEmpty()) {
+                                Text(
+                                    stringResource(R.string.add_song_other_chord),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                )
+                            }
+                            inner()
+                        }
+                    )
+                    if (customChord.isNotBlank()) {
+                        IconButton(
+                            onClick = {
+                                onContentChange(insertChord(section, customChord.trim()))
+                                customChord = ""
+                            },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Insert", modifier = Modifier.size(16.dp))
+                        }
+                    }
                 }
             }
 
@@ -539,8 +616,8 @@ private fun SectionCard(
                 onValueChange = { onContentChange(section.copy(content = it)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 120.dp, max = 300.dp),
-                label = { Text(stringResource(R.string.add_song_lyrics_chords)) },
+                    .heightIn(min = 120.dp)
+                    .semantics { contentDescription = lyricsFieldDesc },
                 placeholder = {
                     val am = ChordNotation.convert("Am", notation)
                     val f  = ChordNotation.convert("F",  notation)
@@ -554,49 +631,6 @@ private fun SectionCard(
                 maxLines = Int.MAX_VALUE,
                 textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
             )
-
-            // Chord quick-insert bar
-            Text(
-                text = stringResource(R.string.add_song_insert_chord),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                QUICK_CHORDS.forEach { chord ->
-                    val displayChord = ChordNotation.convert(chord, notation)
-                    SuggestionChip(
-                        onClick = { onContentChange(insertChord(section, displayChord)) },
-                        label = { Text(displayChord, style = MaterialTheme.typography.labelSmall) }
-                    )
-                }
-                Spacer(modifier = Modifier.width(4.dp))
-                OutlinedTextField(
-                    value = customChord,
-                    onValueChange = { customChord = it.take(8) },
-                    modifier = Modifier.width(80.dp),
-                    singleLine = true,
-                    label = { Text(stringResource(R.string.add_song_other_chord)) },
-                    textStyle = MaterialTheme.typography.bodySmall,
-                    trailingIcon = {
-                        if (customChord.isNotBlank()) {
-                            IconButton(
-                                onClick = {
-                                    onContentChange(insertChord(section, customChord.trim()))
-                                    customChord = ""
-                                }
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Insert", modifier = Modifier.padding(0.dp))
-                            }
-                        }
-                    }
-                )
-            }
     }
 }
 

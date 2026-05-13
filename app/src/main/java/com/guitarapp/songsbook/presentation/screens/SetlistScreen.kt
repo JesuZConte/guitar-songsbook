@@ -186,7 +186,7 @@ private fun VirtualSetlist(
                 section.lines.forEachIndexed { li, line ->
                     if (li > 0) lineBreaks.add(cumH)
                     val lineH = subcompose("l${si}_${secIdx}_$li") {
-                        LineContent(line = line, transposeSteps = 0)
+                        LineContent(line = line, fontSize = fontSize, transposeSteps = 0)
                     }.first().measure(itemConstraints).height
                     cumH += lineH
                 }

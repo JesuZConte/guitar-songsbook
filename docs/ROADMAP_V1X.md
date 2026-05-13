@@ -3,13 +3,13 @@
 What is already shipped is tracked in [STATUS.md](STATUS.md).
 This file contains only what is **not yet built**, in priority order.
 
-Last updated: 2026-05-07
+Last updated: 2026-05-12
 
 ---
 
 ## v1 Status
 
-**Features complete. v1.4.0 UI refinement complete. Uploading to Play Console closed test on Day 30.**
+**Features complete. v1.4.1 bug-fix patch complete. Ready to upload to Play Console.**
 
 All functional P1 items resolved as of v1.3.0:
 
@@ -51,11 +51,31 @@ Full rationale in [ADR-021](adr/ADR-021-leather-journal-ui-refinement.md).
 
 ---
 
-## Day 30 — Próximas acciones
+## v1.4.1 — Bug-fix patch ✓ COMPLETE
+
+No new features. All items are tester-reported regressions or UX friction fixes.
+
+| # | Fix | Status |
+|---|-----|--------|
+| 1 | Nocturno toggle no-op in system/dark mode | ✓ done |
+| 2 | Keyboard covers builder UI (Samsung A50 / Android 11) | ✓ done |
+| 3 | Long song content clips instead of scrolling in builder | ✓ done |
+| 4 | Font size slider only scaling titles, not lyrics/chords | ✓ done |
+| 5 | Title scaling with font slider (should be fixed size) | ✓ done |
+| 6 | Builder UX: chord bar below text input | ✓ done |
+| 7 | Builder UX: Add Section bar at bottom | ✓ done |
+| 8 | Excess spacing in SectionCard | ✓ done |
+| 9 | Delete button 24dp touch target (WCAG regression) | ✓ done |
+| 10 | Missing TalkBack labels on chord/lyrics fields | ✓ done |
+| 11 | Genre field not auto-capitalizing | ✓ done |
+
+---
+
+## Próximas acciones
 
 | # | Qué | Detalle |
 |---|-----|---------|
-| 1 | Subir v1.4.0 a Play Console | Build AAB firmado → subir a prueba cerrada (internal/closed test track) |
+| 1 | Subir v1.4.1 a Play Console | Build AAB firmado → subir a prueba cerrada (internal/closed test track) |
 | 2 | Screenshots actualizados | Capturar nuevas pantallas con el tema Leather Journal completo para la ficha de la tienda |
 | 3 | Revisar feedback de prueba cerrada | Si hay testers activos, revisar reportes antes de promover a producción |
 

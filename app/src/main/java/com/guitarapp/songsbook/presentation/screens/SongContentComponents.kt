@@ -136,7 +136,7 @@ internal fun VirtualPagedSong(
                 if (li > 0) lineBreaks.add(cumH)
 
                 val lineH = subcompose("l${si}_$li") {
-                    LineContent(line = line, transposeSteps = transposeSteps)
+                    LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
                 }.first().measure(itemConstraints).height
 
                 cumH += lineH
@@ -366,13 +366,13 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
         Text(
             text = song.title,
             fontFamily = Merriweather,
-            fontSize = (fontSize + 4).sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = song.artist,
-            fontSize = (fontSize + 1).sp,
+            fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 2.dp)
         )
@@ -387,14 +387,14 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
                 )
                 Text(
                     text = stringResource(R.string.reader_key_label, displayKey),
-                    fontSize = (fontSize - 2).sp,
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
             if (song.capo > 0) {
                 Text(
                     text = stringResource(R.string.reader_capo_label, song.capo),
-                    fontSize = (fontSize - 2).sp,
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
@@ -402,7 +402,7 @@ internal fun SongHeader(song: Song, fontSize: Int, transposeSteps: Int = 0) {
         if (song.notes.isNotBlank()) {
             Text(
                 text = song.notes,
-                fontSize = (fontSize - 2).sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.outline,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(top = 4.dp)
@@ -420,7 +420,7 @@ internal fun SectionContent(section: SongSection, fontSize: Int, transposeSteps:
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         SectionHeaderText(section = section, fontSize = fontSize)
         section.lines.forEach { line ->
-            LineContent(line = line, transposeSteps = transposeSteps)
+            LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
         }
     }
 }
@@ -437,7 +437,7 @@ internal fun SectionHeaderText(section: SongSection, fontSize: Int) {
 }
 
 @Composable
-internal fun LineContent(line: SongLine, transposeSteps: Int = 0) {
+internal fun LineContent(line: SongLine, fontSize: Int, transposeSteps: Int = 0) {
     val notation = UserPreferences.getNotation(LocalContext.current)
     val chordPlacements = line.chords.map { cp ->
         ChordPlacement(
@@ -445,7 +445,7 @@ internal fun LineContent(line: SongLine, transposeSteps: Int = 0) {
             column = cp.position
         )
     }
-    ChordLine(lyric = line.text, chords = chordPlacements)
+    ChordLine(lyric = line.text, chords = chordPlacements, fontSize = fontSize)
 }
 
 @Composable

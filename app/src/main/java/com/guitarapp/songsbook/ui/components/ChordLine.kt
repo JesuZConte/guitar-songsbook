@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.guitarapp.songsbook.ui.theme.ChordLineStyle
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.LyricLineStyle
@@ -31,6 +32,7 @@ fun ChordLine(
     lyric: String,
     chords: List<ChordPlacement>,
     modifier: Modifier = Modifier,
+    fontSize: Int = 13,
 ) {
     val c = LocalLeatherColors.current
     val chordRow = buildString {
@@ -41,8 +43,8 @@ fun ChordLine(
         }
     }
     Column(modifier) {
-        Text(text = chordRow, style = ChordLineStyle, color = c.section)
-        Text(text = lyric,    style = LyricLineStyle, color = c.ink)
+        Text(text = chordRow, style = ChordLineStyle.copy(fontSize = fontSize.sp, lineHeight = (fontSize + 4).sp), color = c.section)
+        Text(text = lyric,    style = LyricLineStyle.copy(fontSize = fontSize.sp, lineHeight = (fontSize + 4).sp), color = c.ink)
         Spacer(Modifier.height(4.dp))
     }
 }
