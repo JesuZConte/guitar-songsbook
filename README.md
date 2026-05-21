@@ -91,6 +91,10 @@ Dependency wiring is manual (no Hilt/Dagger). `MainActivity.onCreate()` construc
 
 See [docs/STATUS.md](docs/STATUS.md) for the full feature registry — what is shipped, what is remaining, tech debt, and v2 plans with ADR links. Check it at the start of every session.
 
+## Contributing
+
+This project is not currently accepting external contributions. The codebase is public to comply with the GPL v3 license. If you find a bug or have a suggestion, feel free to open an issue.
+
 ## License
 
 GPL v3 — see [LICENSE](LICENSE) for details. Derivatives must also be open-sourced under GPL. The "Cancionero" branding is reserved.
