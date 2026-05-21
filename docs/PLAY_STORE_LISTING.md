@@ -1,9 +1,9 @@
-# Play Store Listing — Guitar Songbook
+# Play Store Listing — Cancionero – Chord Songbook
 
 ---
 
 ## App title
-Guitar Songbook
+Cancionero – Chord Songbook
 
 ## Short description (80 chars max)
 Your personal chord notebook. Add songs, organize playlists, play with confidence.
@@ -12,7 +12,7 @@ Your personal chord notebook. Add songs, organize playlists, play with confidenc
 
 ## Full description (4000 chars max)
 
-Guitar Songbook is the personal notebook every guitarist needs.
+Cancionero is the personal notebook every guitarist needs.
 
 Add the songs you actually play — your favorite covers, originals, or session material — with chords aligned exactly where they fall in the lyrics. No subscriptions, no internet required, no bloat. Just your songs, always at hand.
 

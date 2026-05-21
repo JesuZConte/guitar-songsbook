@@ -1,4 +1,4 @@
-# Guitar Songbook
+# Cancionero – Chord Songbook
 
 Android app for guitarists to manage their personal repertoire — browse songs, read chord charts with lyrics, transpose on the fly, and organise into playlists. Fully offline.
 
@@ -93,4 +93,4 @@ See [docs/STATUS.md](docs/STATUS.md) for the full feature registry — what is s
 
 ## License
 
-GPL v3 — see [LICENSE](LICENSE) for details. Derivatives must also be open-sourced under GPL. The "Guitar Songbook" branding is reserved.
+GPL v3 — see [LICENSE](LICENSE) for details. Derivatives must also be open-sourced under GPL. The "Cancionero" branding is reserved.

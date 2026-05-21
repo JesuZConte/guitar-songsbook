@@ -63,7 +63,7 @@ utils/               → ChordFormatter
 
 ## Project Context
 
-- **License:** GPL v3 — derivatives must also be open-sourced under GPL. Branding ("Guitar Songbook") is reserved.
+- **License:** GPL v3 — derivatives must also be open-sourced under GPL. Branding ("Cancionero") is reserved.
 - **Commercial project** — decisions should favour production quality, not just learning exercises.
 - **Architecture decisions** are documented in `docs/adr/`. Read them before proposing structural changes.
 - **Roadmap:** v1 = local + AdMob. v2 = Firebase Auth (Google Sign-In) + Firestore + community song submissions. See `docs/` for day-by-day plans.
