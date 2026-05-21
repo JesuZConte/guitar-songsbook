@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-12 (v1.4.1 bug-fix patch complete — ready for Play Console)
+Last verified: 2026-05-21 (v1 feature-complete and security-hardened — AAB built, uploading to internal testing)
 
 ---
 
@@ -33,16 +33,16 @@ Everything in this section is verified in the codebase.
 | Pinch-to-zoom font size in Reader | `SongReaderScreen.kt` → `rememberTransformableState` | — |
 | Import song from JSON file | `HomeScreen.kt` → `importLauncher`, `HomeViewModel.importSongFromJson` | — |
 | Language selector (Idiomas) | `SettingsScreen.kt` → `LanguageSelectorRow` | — |
-| Firebase Analytics + Crashlytics | `AnalyticsHelper.kt`, `google-services.json` | — |
+| Firebase Analytics + Crashlytics + breadcrumbs | `AnalyticsHelper.kt`, `google-services.json` | [ADR-022](adr/ADR-022-security-hardening-and-crashlytics-breadcrumbs.md) |
 | AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
 | Signed AAB — Play Store ready | `build.gradle.kts` (signing config) | — |
 | Setlist mode | Continuous reader across a collection; forward-only swipe; bottom nav hidden; back returns to Collection | — |
 
 ---
 
-## v1.4.1 — Complete ✓ (bug-fix patch)
+## v1.4.1 — Complete ✓ (bug-fix patch + security hardening)
 
-Tester feedback fixes only — no new features.
+Tester feedback fixes + pre-launch security hardening. See [ADR-022](adr/ADR-022-security-hardening-and-crashlytics-breadcrumbs.md).
 
 | Fix | File(s) |
 |-----|---------|
