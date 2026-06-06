@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.guitarapp.songsbook.data.repository.SongRepository
+import com.guitarapp.songsbook.domain.model.ImportConflict
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.domain.model.SongVersion
+import com.guitarapp.songsbook.domain.model.suggestVersionName
 import com.guitarapp.songsbook.utils.AnalyticsHelper
 import com.guitarapp.songsbook.utils.BracketParser
 import com.guitarapp.songsbook.utils.BracketSerializer
@@ -27,7 +30,8 @@ data class AddSongUiState(
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val error: String? = null,
-    val formatNotDetected: Boolean = false
+    val formatNotDetected: Boolean = false,
+    val pendingConflict: ImportConflict? = null
 ) {
     val isValid: Boolean
         get() = title.isNotBlank() && artist.isNotBlank() && rawText.isNotBlank()
@@ -146,11 +150,25 @@ class AddSongViewModel(
                 if (editSongId != null) {
                     songRepository.updateSong(songWithId)
                     AnalyticsHelper.logSongEdited()
+                    _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
                 } else {
-                    songRepository.insertSong(songWithId)
-                    AnalyticsHelper.logSongAdded()
+                    val matches = try { songRepository.findSongsByTitle(songWithId.title) } catch (_: Exception) { emptyList() }
+                    if (matches.isNotEmpty()) {
+                        val existing = matches.first()
+                        _uiState.value = _uiState.value.copy(
+                            isSaving = false,
+                            pendingConflict = ImportConflict(
+                                existing = existing,
+                                incoming = songWithId,
+                                suggestedVersionName = suggestVersionName(existing, songWithId)
+                            )
+                        )
+                    } else {
+                        songRepository.insertSong(songWithId)
+                        AnalyticsHelper.logSongAdded()
+                        _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
+                    }
                 }
-                _uiState.value = _uiState.value.copy(isSaving = false, saveSuccess = true)
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.value = _uiState.value.copy(
@@ -159,6 +177,52 @@ class AddSongViewModel(
                 )
             }
         }
+    }
+
+    fun resolveConflictAsVersion(conflict: ImportConflict, versionName: String) {
+        viewModelScope.launch {
+            try {
+                songRepository.insertVersion(
+                    SongVersion(
+                        id = 0,
+                        songId = conflict.existing.id,
+                        name = versionName,
+                        key = conflict.incoming.key,
+                        capo = conflict.incoming.capo,
+                        chords = conflict.incoming.chords,
+                        notes = conflict.incoming.notes,
+                        content = conflict.incoming.content
+                    )
+                )
+                _uiState.value = _uiState.value.copy(pendingConflict = null, saveSuccess = true)
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.value = _uiState.value.copy(
+                    pendingConflict = null,
+                    error = e.message ?: "Failed to save version"
+                )
+            }
+        }
+    }
+
+    fun resolveConflictAsSeparate(conflict: ImportConflict) {
+        viewModelScope.launch {
+            try {
+                songRepository.insertSong(conflict.incoming)
+                AnalyticsHelper.logSongAdded()
+                _uiState.value = _uiState.value.copy(pendingConflict = null, saveSuccess = true)
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.value = _uiState.value.copy(
+                    pendingConflict = null,
+                    error = e.message ?: "Failed to save song"
+                )
+            }
+        }
+    }
+
+    fun cancelConflict() {
+        _uiState.value = _uiState.value.copy(pendingConflict = null, isSaving = false)
     }
 
     var pendingPreview: Song? = null
