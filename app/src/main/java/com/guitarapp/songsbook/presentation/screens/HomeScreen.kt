@@ -267,6 +267,16 @@ fun HomeScreen(
         }
     }
 
+    val importConflict = uiState.pendingImportConflict
+    if (importConflict != null) {
+        ImportConflictDialog(
+            conflict = importConflict,
+            onAddAsVersion = { name -> viewModel.resolveImportAsVersion(importConflict, name) },
+            onSaveAsSeparate = { viewModel.resolveImportAsSeparate(importConflict) },
+            onCancel = { viewModel.cancelImport() }
+        )
+    }
+
     if (showHelp) {
         AddSongsHelpDialog(onDismiss = { showHelp = false })
     }
