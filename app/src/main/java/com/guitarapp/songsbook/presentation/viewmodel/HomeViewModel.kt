@@ -6,7 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import com.guitarapp.songsbook.data.repository.SongRepository
+import com.guitarapp.songsbook.domain.model.ImportConflict
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.domain.model.SongVersion
+import com.guitarapp.songsbook.domain.model.suggestVersionName
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +29,8 @@ data class HomeUiState(
     val selectedDifficulty: String? = null,
     val isLoading: Boolean = true,
     val error: String? = null,
-    val importedSongTitle: String? = null
+    val importedSongTitle: String? = null,
+    val pendingImportConflict: ImportConflict? = null
 )
 
 class HomeViewModel(
@@ -160,15 +164,74 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val song = Gson().fromJson(json, Song::class.java)
-                val imported = song.copy(id = UUID.randomUUID().toString(), isFavorite = false)
-                songRepository.insertSong(imported)
-                refreshSongs()
-                _uiState.update { it.copy(importedSongTitle = imported.title) }
+                val incoming = song.copy(
+                    id = UUID.randomUUID().toString(),
+                    isFavorite = false,
+                    versions = song.versions ?: emptyList()
+                )
+                val matches = try { songRepository.findSongsByTitle(incoming.title) } catch (_: Exception) { emptyList() }
+                if (matches.isNotEmpty()) {
+                    val existing = matches.first()
+                    _uiState.update {
+                        it.copy(
+                            pendingImportConflict = ImportConflict(
+                                existing = existing,
+                                incoming = incoming,
+                                suggestedVersionName = suggestVersionName(existing, incoming)
+                            )
+                        )
+                    }
+                } else {
+                    songRepository.insertSong(incoming)
+                    refreshSongs()
+                    _uiState.update { it.copy(importedSongTitle = incoming.title) }
+                }
             } catch (e: Exception) {
                 FirebaseCrashlytics.getInstance().recordException(e)
                 _uiState.update { it.copy(error = "Could not import song") }
             }
         }
+    }
+
+    fun resolveImportAsVersion(conflict: ImportConflict, versionName: String) {
+        viewModelScope.launch {
+            try {
+                songRepository.insertVersion(
+                    SongVersion(
+                        id = 0,
+                        songId = conflict.existing.id,
+                        name = versionName,
+                        key = conflict.incoming.key,
+                        capo = conflict.incoming.capo,
+                        chords = conflict.incoming.chords,
+                        notes = conflict.incoming.notes,
+                        content = conflict.incoming.content
+                    )
+                )
+                refreshSongs()
+                _uiState.update { it.copy(pendingImportConflict = null, importedSongTitle = conflict.existing.title) }
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.update { it.copy(pendingImportConflict = null, error = "Could not add version") }
+            }
+        }
+    }
+
+    fun resolveImportAsSeparate(conflict: ImportConflict) {
+        viewModelScope.launch {
+            try {
+                songRepository.insertSong(conflict.incoming)
+                refreshSongs()
+                _uiState.update { it.copy(pendingImportConflict = null, importedSongTitle = conflict.incoming.title) }
+            } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
+                _uiState.update { it.copy(pendingImportConflict = null, error = "Could not import song") }
+            }
+        }
+    }
+
+    fun cancelImport() {
+        _uiState.update { it.copy(pendingImportConflict = null) }
     }
 
     fun clearImportResult() {
