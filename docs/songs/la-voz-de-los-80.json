@@ -1,0 +1,514 @@
+{
+  "id": "los-prisioneros-voz80",
+  "title": "La Voz De Los 80",
+  "artist": "Los Prisioneros",
+  "genre": "Rock",
+  "difficulty": "intermediate",
+  "key": "B",
+  "capo": 0,
+  "chords": ["B", "E", "D", "A", "G#m", "G", "F#"],
+  "tags": ["rock", "80s", "chileno", "los-prisioneros"],
+  "notes": "Tuning: E A D G B E",
+  "versions": [],
+  "content": [
+    {
+      "type": "intro",
+      "number": 1,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 1,
+      "lines": [
+        {
+          "text": "Algo grande está naciendo",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 15 }
+          ]
+        },
+        {
+          "text": "En la década de los ochenta",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 16 }
+          ]
+        },
+        {
+          "text": "Ya se siente la atmósfera",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 16 }
+          ]
+        },
+        {
+          "text": "Saturada de aburrimiento",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 12 }
+          ]
+        },
+        {
+          "text": "Los hippies y los punk tuvieron la ocasión",
+          "chords": [
+            { "chord": "B", "position": 4 },
+            { "chord": "E", "position": 23 }
+          ]
+        },
+        {
+          "text": "De romper el estancamiento",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 13 }
+          ]
+        },
+        {
+          "text": "En las garras de la comercialización",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 20 }
+          ]
+        },
+        {
+          "text": "Murió toda la buena intención",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 14 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 1,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 2,
+      "lines": [
+        {
+          "text": "Las juventudes cacarearon bastante",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 18 }
+          ]
+        },
+        {
+          "text": "Y no convencen ni por solo un instante",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 25 }
+          ]
+        },
+        {
+          "text": "Pidieron comprensión, amor y paz",
+          "chords": [
+            { "chord": "B", "position": 4 },
+            { "chord": "E", "position": 22 }
+          ]
+        },
+        {
+          "text": "Con frases hechas muchos años atrás",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 25 }
+          ]
+        },
+        {
+          "text": "Deja la inercia de los setenta, abre los ojos, ponte de pie",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 17 },
+            { "chord": "D", "position": 32 },
+            { "chord": "A", "position": 47 }
+          ]
+        },
+        {
+          "text": "Escucha el latido, sintoniza el sonido",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 19 }
+          ]
+        },
+        {
+          "text": "Agudiza tus sentidos, date cuenta que estás vivo",
+          "chords": [
+            { "chord": "D", "position": 4 },
+            { "chord": "A", "position": 23 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 1,
+      "lines": [
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "A", "position": 9 }
+          ]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [
+            { "chord": "G#m", "position": 0 },
+            { "chord": "G", "position": 10 }
+          ]
+        },
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "A", "position": 9 }
+          ]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [
+            { "chord": "G#m", "position": 0 },
+            { "chord": "G", "position": 10 }
+          ]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [
+            { "chord": "G#m", "position": 0 },
+            { "chord": "G", "position": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 2,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 3,
+      "lines": [
+        {
+          "text": "En Roma, Lima y en Santander",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 15 }
+          ]
+        },
+        {
+          "text": "La gente de tu edad no sabe qué hacer",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 24 }
+          ]
+        },
+        {
+          "text": "Santiago, Asunción y también Buenos Aires",
+          "chords": [
+            { "chord": "B", "position": 4 },
+            { "chord": "E", "position": 22 }
+          ]
+        },
+        {
+          "text": "Bueno, las cosas no están que arden",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 22 }
+          ]
+        },
+        {
+          "text": "Sangre latina necesita el mundo",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 19 }
+          ]
+        },
+        {
+          "text": "Roja, furiosa y adolescente",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 17 }
+          ]
+        },
+        {
+          "text": "Sangre latina necesita el planeta",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 19 }
+          ]
+        },
+        {
+          "text": "Adiós, barreras, adiós, setentas",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 18 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 2,
+      "lines": [
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 3,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    },
+    {
+      "type": "solo",
+      "number": 1,
+      "lines": [
+        {
+          "text": "",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 3 },
+            { "chord": "D", "position": 6 },
+            { "chord": "A", "position": 9 }
+          ]
+        },
+        {
+          "text": "",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 3 },
+            { "chord": "D", "position": 6 },
+            { "chord": "A", "position": 9 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 4,
+      "lines": [
+        {
+          "text": "En plena edad del plástico",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 15 }
+          ]
+        },
+        {
+          "text": "Seremos fuerza seremos cambio",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "A", "position": 16 }
+          ]
+        },
+        {
+          "text": "No te conformes con mirar",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 14 }
+          ]
+        },
+        {
+          "text": "En los ochenta tu rol es estelar",
+          "chords": [
+            { "chord": "D", "position": 0 },
+            { "chord": "F#", "position": 25 }
+          ]
+        },
+        {
+          "text": "Tienes la fuerza",
+          "chords": [{ "chord": "D", "position": 0 }]
+        },
+        {
+          "text": "Eres actor principal",
+          "chords": [{ "chord": "F#", "position": 0 }]
+        },
+        {
+          "text": "De las entrañas de nuestras ciudades",
+          "chords": [{ "chord": "G", "position": 0 }]
+        },
+        {
+          "text": "Surge la piel que vestirá al mundo",
+          "chords": [
+            { "chord": "A", "position": 0 },
+            { "chord": "F#", "position": 26 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 3,
+      "lines": [
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 4,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 5,
+      "lines": [
+        {
+          "text": "Escucha el murmullo, algo se siente venir",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 16 },
+            { "chord": "D", "position": 21 },
+            { "chord": "A", "position": 38 }
+          ]
+        },
+        {
+          "text": "Los últimos vientos de los setenta, se mueren",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 22 },
+            { "chord": "D", "position": 35 },
+            { "chord": "A", "position": 41 }
+          ]
+        },
+        {
+          "text": "Mira nuestra juventud, que alegría más triste y falsa",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 15 },
+            { "chord": "D", "position": 23 },
+            { "chord": "A", "position": 41 }
+          ]
+        },
+        {
+          "text": "Deja la inercia de los setentas, abre los ojos, ponte de pie",
+          "chords": [
+            { "chord": "B", "position": 0 },
+            { "chord": "E", "position": 17 },
+            { "chord": "D", "position": 33 },
+            { "chord": "A", "position": 47 }
+          ]
+        },
+        {
+          "text": "Escucha el latido, sintoniza el sonido",
+          "chords": [
+            { "chord": "B", "position": 3 },
+            { "chord": "E", "position": 32 }
+          ]
+        },
+        {
+          "text": "Agudiza tus sentidos, date cuenta que estás vivo",
+          "chords": [
+            { "chord": "D", "position": 4 },
+            { "chord": "A", "position": 29 }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 4,
+      "lines": [
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza (ya viene la fuerza!)",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta (la voz de los ochenta!)",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza (ya viene la fuerza, la fuerza!)",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta (la voz de los ochenta!)",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "Ya viene la fuerza",
+          "chords": [{ "chord": "B", "position": 0 }, { "chord": "A", "position": 9 }]
+        },
+        {
+          "text": "La voz de los ochenta",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        },
+        {
+          "text": "La voz de los ochenta!",
+          "chords": [{ "chord": "G#m", "position": 0 }, { "chord": "G", "position": 10 }]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 5,
+      "lines": [
+        { "text": "", "chords": [{ "chord": "B", "position": 0 }] }
+      ]
+    }
+  ]
+}
