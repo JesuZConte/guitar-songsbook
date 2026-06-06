@@ -67,7 +67,11 @@ override suspend fun findSongsByTitle(title: String): List<Song> {
 New data class in the domain layer (e.g., `domain/model/ImportConflict.kt`):
 
 ```kotlin
-data class ImportConflict(val existing: Song, val incoming: Song)
+data class ImportConflict(
+    val existing: Song,
+    val incoming: Song,
+    val suggestedVersionName: String  // pre-computed by ViewModel, editable in UI
+)
 ```
 
 ### 3. HomeUiState — new field
@@ -114,9 +118,9 @@ fun importSongFromJson(json: String) {
 New functions to resolve the conflict:
 
 ```kotlin
-fun resolveImportAsVersion(conflict: ImportConflict)   // inserts version, clears state
-fun resolveImportAsSeparate(conflict: ImportConflict)  // inserts song, clears state
-fun cancelImport()                                      // clears state only
+fun resolveImportAsVersion(conflict: ImportConflict, versionName: String)  // inserts version with user-provided name, clears state
+fun resolveImportAsSeparate(conflict: ImportConflict)                       // inserts song, clears state
+fun cancelImport()                                                           // clears state only
 ```
 
 ### 6. AddSongViewModel — updated save flow
@@ -136,9 +140,9 @@ songRepository.insertSong(songWithId)
 New functions:
 
 ```kotlin
-fun resolveConflictAsVersion(conflict: ImportConflict)  // inserts version, sets saveSuccess = true
-fun resolveConflictAsSeparate(conflict: ImportConflict) // inserts song, sets saveSuccess = true
-fun cancelConflict()                                     // clears pendingConflict
+fun resolveConflictAsVersion(conflict: ImportConflict, versionName: String)  // inserts version with user-provided name, sets saveSuccess = true
+fun resolveConflictAsSeparate(conflict: ImportConflict)                       // inserts song, sets saveSuccess = true
+fun cancelConflict()                                                           // clears pendingConflict
 ```
 
 ## Version Name Generation
@@ -161,7 +165,8 @@ A single reusable composable `ImportConflictDialog` shown in both `HomeScreen` a
 ┌─────────────────────────────────────────┐
 │  Ya tienes "[título]"                   │
 │                                         │
-│  ¿Qué quieres hacer?                    │
+│  Nombre de la versión:                  │
+│  [ B / Capo 2                        ]  │  ← editable, pre-filled
 │                                         │
 │  [Agregar como versión nueva]           │
 │  [Guardar como canción separada]        │
@@ -169,6 +174,10 @@ A single reusable composable `ImportConflictDialog` shown in both `HomeScreen` a
 └─────────────────────────────────────────┘
 ```
 
+- The version name field is pre-filled with the `suggestedVersionName` from `ImportConflict` and is freely editable by the user
+- The text field state lives in the composable (local UI state) — the ViewModel only provides the initial suggestion
+- "Agregar como versión nueva" uses whatever the user has typed in the field; the button is disabled if the field is blank
+- "Guardar como canción separada" ignores the version name field entirely
 - Triggered when `pendingImportConflict != null` (HomeScreen) or `pendingConflict != null` (AddSongScreen)
 - Dismissing the dialog (back gesture or Cancelar) calls the cancel function
 - Uses existing `LeatherDialog` / `AlertDialog` pattern from the codebase
