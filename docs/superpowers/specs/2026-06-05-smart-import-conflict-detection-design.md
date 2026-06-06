@@ -16,11 +16,21 @@ Two entry points, same behavior:
 
 ## Title Matching Rules
 
-A conflict is detected when an existing song matches the incoming song's title using:
+A conflict is detected when an existing song matches the incoming song's title using a normalized comparison:
 
-- `LOWER(TRIM(incoming.title)) == LOWER(TRIM(existing.title))`
-- Exact match after normalizing case and stripping leading/trailing whitespace
+- Strip leading/trailing whitespace (`trim()`)
+- Lowercase
+- **Strip diacritics** — NFD decomposition followed by removal of combining characters, so `"Corazón"` == `"Corazon"`, `"Sé"` == `"Se"`, etc.
 - No fuzzy matching — if titles differ after normalization, no conflict is reported
+
+Normalization is done in Kotlin (SQLite does not support accent-insensitive comparison natively).
+
+```kotlin
+fun normalizeTitle(title: String): String =
+    Normalizer.normalize(title.trim(), Normalizer.Form.NFD)
+        .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+        .lowercase()
+```
 
 ## Architecture
 
@@ -29,8 +39,8 @@ A conflict is detected when an existing song matches the incoming song's title u
 Add to `SongDao`:
 
 ```kotlin
-@Query("SELECT * FROM songs WHERE LOWER(TRIM(title)) = LOWER(TRIM(:title))")
-suspend fun findByTitle(title: String): List<SongEntity>
+@Query("SELECT * FROM songs")
+suspend fun getAllSongsOnce(): List<SongEntity>
 ```
 
 Add to `SongRepository` interface:
@@ -39,7 +49,18 @@ Add to `SongRepository` interface:
 suspend fun findSongsByTitle(title: String): List<Song>
 ```
 
-Implemented in `AssetSongRepository` by delegating to `SongDao.findByTitle()`.
+Implemented in `AssetSongRepository`: loads all songs via `getAllSongsOnce()`, then filters in Kotlin using `normalizeTitle()` on both sides.
+
+```kotlin
+override suspend fun findSongsByTitle(title: String): List<Song> {
+    val normalized = normalizeTitle(title)
+    return songDao.getAllSongsOnce()
+        .map { it.toDomain() }
+        .filter { normalizeTitle(it.title) == normalized }
+}
+```
+
+`normalizeTitle` lives in a shared utility (e.g., `utils/TitleNormalizer.kt`) so both the repository and any future callers use the same logic.
 
 ### 2. Shared conflict model
 
