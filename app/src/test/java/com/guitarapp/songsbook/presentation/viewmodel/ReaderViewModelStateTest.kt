@@ -190,6 +190,7 @@ class ReaderViewModelStateTest {
     private class FakeSongRepository : SongRepository {
         override suspend fun getSongs() = emptyList<Song>()
         override suspend fun getSongById(id: String) = null
+        override suspend fun findSongsByTitle(title: String) = emptyList<Song>()
         override suspend fun searchSongs(query: String) = emptyList<Song>()
         override suspend fun getGenres() = emptyList<String>()
         override suspend fun getDifficulties() = emptyList<String>()

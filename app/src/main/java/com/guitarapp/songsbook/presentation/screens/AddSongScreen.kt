@@ -186,6 +186,16 @@ fun AddSongScreen(
         if (uiState.saveSuccess) onSaveSuccess()
     }
 
+    val songConflict = uiState.pendingConflict
+    if (songConflict != null) {
+        ImportConflictDialog(
+            conflict = songConflict,
+            onAddAsVersion = { name -> viewModel.resolveConflictAsVersion(songConflict, name) },
+            onSaveAsSeparate = { viewModel.resolveConflictAsSeparate(songConflict) },
+            onCancel = { viewModel.cancelConflict() }
+        )
+    }
+
     fun onSectionsChanged(updated: List<BuilderSection>) {
         builderSections = updated
         viewModel.onRawTextChanged(builderSectionsToRawText(updated))
