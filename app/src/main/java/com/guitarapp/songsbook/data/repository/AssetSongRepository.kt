@@ -9,6 +9,7 @@ import com.guitarapp.songsbook.data.local.SongVersionDao
 import com.guitarapp.songsbook.data.local.SongVersionEntity
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongVersion
+import com.guitarapp.songsbook.utils.normalizeTitle
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -32,6 +33,17 @@ class AssetSongRepository(
         val entity = songDao.getById(id) ?: return null
         val versions = songVersionDao.getVersionsForSong(id).map { it.toDomain() }
         return entity.toDomain().copy(versions = versions)
+    }
+
+    override suspend fun findSongsByTitle(title: String): List<Song> {
+        ensureSeeded()
+        val normalized = normalizeTitle(title)
+        return songDao.getAll()
+            .filter { normalizeTitle(it.title) == normalized }
+            .map { entity ->
+                val versions = songVersionDao.getVersionsForSong(entity.id).map { it.toDomain() }
+                entity.toDomain().copy(versions = versions)
+            }
     }
 
     override suspend fun searchSongs(query: String): List<Song> {
