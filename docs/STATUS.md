@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-05-21 (v1 feature-complete and security-hardened — AAB built, uploading to internal testing)
+Last verified: 2026-06-08
 
 ---
 
@@ -32,6 +32,7 @@ Everything in this section is verified in the codebase.
 | Long-press delete with undo snackbar (Home) | `HomeScreen.kt`, `HomeViewModel.kt` | — |
 | Pinch-to-zoom font size in Reader | `SongReaderScreen.kt` → `rememberTransformableState` | — |
 | Import song from JSON file | `HomeScreen.kt` → `importLauncher`, `HomeViewModel.importSongFromJson` | — |
+| Smart import — duplicate title detection + version merge | `ImportConflictDialog.kt`, `HomeViewModel`, `AddSongViewModel`, `TitleNormalizer.kt` — accent-insensitive matching; dialog offers merge-as-version or save-separate | — |
 | Language selector (Idiomas) | `SettingsScreen.kt` → `LanguageSelectorRow` | — |
 | Firebase Analytics + Crashlytics + breadcrumbs | `AnalyticsHelper.kt`, `google-services.json` | [ADR-022](adr/ADR-022-security-hardening-and-crashlytics-breadcrumbs.md) |
 | AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
