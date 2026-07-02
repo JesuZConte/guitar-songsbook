@@ -1,0 +1,383 @@
+{
+  "id": "chico-trujillo-loca",
+  "title": "Loca",
+  "artist": "Chico Trujillo",
+  "genre": "Cumbia",
+  "difficulty": "beginner",
+  "key": "Dm",
+  "capo": 0,
+  "chords": [
+    "Dm",
+    "Gm",
+    "A7",
+    "Dmmaj7",
+    "Dm7",
+    "Dm6",
+    "D7"
+  ],
+  "tags": [
+    "cumbia",
+    "chileno",
+    "chico-trujillo"
+  ],
+  "notes": "Tuning: E A D G B E",
+  "versions": [],
+  "content": [
+    {
+      "type": "intro",
+      "number": 1,
+      "lines": [
+        {
+          "text": "",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 3
+            },
+            {
+              "chord": "A7",
+              "position": 6
+            },
+            {
+              "chord": "Dm",
+              "position": 9
+            },
+            {
+              "chord": "Gm",
+              "position": 12
+            },
+            {
+              "chord": "A7",
+              "position": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 1,
+      "lines": [
+        {
+          "text": "Loca, loca, loca",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            },
+            {
+              "chord": "Dmmaj7",
+              "position": 5
+            },
+            {
+              "chord": "Dm7",
+              "position": 12
+            }
+          ]
+        },
+        {
+          "text": "Te volviste loca y disparaste frente a mí",
+          "chords": [
+            {
+              "chord": "Dm6",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 13
+            },
+            {
+              "chord": "A7",
+              "position": 39
+            }
+          ]
+        },
+        {
+          "text": "Que te habías enamorado hace unos años sin decirme nada",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 17
+            },
+            {
+              "chord": "Dmmaj7",
+              "position": 30
+            },
+            {
+              "chord": "Dm7",
+              "position": 45
+            }
+          ]
+        },
+        {
+          "text": "Entonces la emoción confirma el sentimiento. (bis)",
+          "chords": [
+            {
+              "chord": "Dm6",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 15
+            },
+            {
+              "chord": "A7",
+              "position": 33
+            },
+            {
+              "chord": "D7",
+              "position": 53
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 1,
+      "lines": [
+        {
+          "text": "Que mala suerte en el amor y buena suerte en el juego",
+          "chords": [
+            {
+              "chord": "Gm",
+              "position": 0
+            },
+            {
+              "chord": "A7",
+              "position": 29
+            }
+          ]
+        },
+        {
+          "text": "Y si al final lo que hay que vivir, lo que hay que soñar, hay que vivirlo",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 9
+            },
+            {
+              "chord": "Dmmaj7",
+              "position": 27
+            },
+            {
+              "chord": "Dm7",
+              "position": 47
+            },
+            {
+              "chord": "Dm6",
+              "position": 67
+            }
+          ]
+        },
+        {
+          "text": "Te vuelvo a dar las gracias, te vuelvo a dar las gracias",
+          "chords": [
+            {
+              "chord": "Gm",
+              "position": 1
+            },
+            {
+              "chord": "A7",
+              "position": 29
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "interlude",
+      "number": 1,
+      "lines": [
+        {
+          "text": "",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 3
+            },
+            {
+              "chord": "A7",
+              "position": 6
+            },
+            {
+              "chord": "Dm",
+              "position": 9
+            },
+            {
+              "chord": "Gm",
+              "position": 12
+            },
+            {
+              "chord": "A7",
+              "position": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "verse",
+      "number": 2,
+      "lines": [
+        {
+          "text": "Me muero por saber que paso contigo",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            }
+          ]
+        },
+        {
+          "text": "En todos estos años en que no nos vimos",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 37
+            }
+          ]
+        },
+        {
+          "text": "Me muero por saber que paso en tu cama",
+          "chords": [
+            {
+              "chord": "A7",
+              "position": 35
+            }
+          ]
+        },
+        {
+          "text": "Necesito esa cara de vulgaridad en mi cama",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 28
+            }
+          ]
+        },
+        {
+          "text": "La que me dice que hacer, la que pregunta por que, como, no se y donde...",
+          "chords": [
+            {
+              "chord": "Gm",
+              "position": 42
+            },
+            {
+              "chord": "A7",
+              "position": 58
+            },
+            {
+              "chord": "D7",
+              "position": 71
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "chorus",
+      "number": 2,
+      "lines": [
+        {
+          "text": "Que mala suerte en el amor y buena suerte en el juego",
+          "chords": [
+            {
+              "chord": "Gm",
+              "position": 0
+            },
+            {
+              "chord": "A7",
+              "position": 29
+            }
+          ]
+        },
+        {
+          "text": "Y si al final lo que hay que vivir, lo que hay que soñar, hay que vivirlo",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 9
+            },
+            {
+              "chord": "Dmmaj7",
+              "position": 27
+            },
+            {
+              "chord": "Dm7",
+              "position": 47
+            },
+            {
+              "chord": "Dm6",
+              "position": 67
+            }
+          ]
+        },
+        {
+          "text": "Te vuelvo a dar las gracias, te vuelvo a dar las gracias",
+          "chords": [
+            {
+              "chord": "Gm",
+              "position": 1
+            },
+            {
+              "chord": "A7",
+              "position": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "outro",
+      "number": 1,
+      "lines": [
+        {
+          "text": "",
+          "chords": [
+            {
+              "chord": "Dm",
+              "position": 0
+            },
+            {
+              "chord": "Gm",
+              "position": 3
+            },
+            {
+              "chord": "A7",
+              "position": 6
+            },
+            {
+              "chord": "Dm",
+              "position": 9
+            },
+            {
+              "chord": "Gm",
+              "position": 12
+            },
+            {
+              "chord": "A7",
+              "position": 15
+            },
+            {
+              "chord": "Dm",
+              "position": 19
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

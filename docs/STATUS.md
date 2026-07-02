@@ -41,6 +41,16 @@ Everything in this section is verified in the codebase.
 
 ---
 
+## v1.4.4 — Complete ✓ (bug-fix patch)
+
+Tester feedback fix: chord collision on tightly-spaced chord rows.
+
+| Fix | File(s) |
+|-----|---------|
+| Chords rendered with no gap ("RemSolmLa7...") when Latin notation names are longer than the tab's original spacing, most visible on intro/chord-only lines | `ChordLine.kt` — now delegates to shared `layoutChordRow()` (`ChordFormatter.kt`), which pushes colliding chords right with a 1-space gap. Same fix applied to `buildChordLine`, which had it for Latin already (v1.1) but was never wired into the actual reader composable. |
+
+---
+
 ## v1.4.1 — Complete ✓ (bug-fix patch + security hardening)
 
 Tester feedback fixes + pre-launch security hardening. See [ADR-022](adr/ADR-022-security-hardening-and-crashlytics-breadcrumbs.md).

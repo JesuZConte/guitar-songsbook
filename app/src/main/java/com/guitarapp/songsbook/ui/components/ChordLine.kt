@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
 import com.guitarapp.songsbook.ui.theme.ChordLineStyle
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.LyricLineStyle
+import com.guitarapp.songsbook.utils.layoutChordRow
 
 // =============================================================================
 // ChordLine — one chord row + one lyric row, monospaced so chord positions
@@ -27,6 +28,10 @@ import com.guitarapp.songsbook.ui.theme.LyricLineStyle
 
 data class ChordPlacement(val chord: String, val column: Int)
 
+/** Row-building logic used by [ChordLine], pulled out so it's unit-testable without Compose. */
+fun buildChordRow(chords: List<ChordPlacement>): String =
+    layoutChordRow(chords.map { it.chord to it.column })
+
 @Composable
 fun ChordLine(
     lyric: String,
@@ -35,13 +40,7 @@ fun ChordLine(
     fontSize: Int = 13,
 ) {
     val c = LocalLeatherColors.current
-    val chordRow = buildString {
-        var cursor = 0
-        for ((chord, pos) in chords) {
-            while (cursor < pos) { append(' '); cursor++ }
-            append(chord); cursor += chord.length
-        }
-    }
+    val chordRow = buildChordRow(chords)
     Column(modifier) {
         Text(text = chordRow, style = ChordLineStyle.copy(fontSize = fontSize.sp, lineHeight = (fontSize + 4).sp), color = c.section)
         Text(text = lyric,    style = LyricLineStyle.copy(fontSize = fontSize.sp, lineHeight = (fontSize + 4).sp), color = c.ink)
