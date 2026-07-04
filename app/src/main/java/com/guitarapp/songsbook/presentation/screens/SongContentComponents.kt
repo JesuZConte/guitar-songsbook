@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -50,6 +51,7 @@ import com.guitarapp.songsbook.domain.model.SongLine
 import com.guitarapp.songsbook.domain.model.SongSection
 import com.guitarapp.songsbook.ui.components.ChordLine
 import com.guitarapp.songsbook.ui.components.ChordPlacement
+import com.guitarapp.songsbook.ui.theme.LeatherColors
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.Merriweather
 import com.guitarapp.songsbook.utils.ChordNotation
@@ -195,8 +197,6 @@ internal fun VirtualPagedSong(
             }
 
             val c = LocalLeatherColors.current
-            val offsetFraction = pagerState.currentPageOffsetFraction
-            val isTransitioning = abs(offsetFraction) > 0.005f
 
             Box(
                 modifier = Modifier
@@ -242,61 +242,12 @@ internal fun VirtualPagedSong(
                     }
                 }
 
-                // Leather seam strip at the physical boundary between pages during swipe
-                if (isTransitioning && pagerWidthPx > 0) {
-                    val seamX = if (offsetFraction >= 0f)
-                        ((1f - offsetFraction) * pagerWidthPx).roundToInt()
-                    else
-                        ((-offsetFraction) * pagerWidthPx).roundToInt()
+                PageSeamOverlay(pagerState = pagerState, pagerWidthPx = pagerWidthPx, c = c)
 
-                    // Soft shadow on the incoming page's left edge
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(24.dp)
-                            .offset { IntOffset(x = seamX - 24.dp.roundToPx(), y = 0) }
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(
-                                        Color.Transparent,
-                                        c.leatherDeep.copy(alpha = 0.20f)
-                                    )
-                                )
-                            )
-                    )
-
-                    // Seam strip (leather spine colour)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(3.dp)
-                            .offset { IntOffset(x = seamX, y = 0) }
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(
-                                        c.leatherDeep.copy(alpha = 0.53f),
-                                        c.leatherMid.copy(alpha = 0.40f),
-                                        c.leatherDeep.copy(alpha = 0.53f)
-                                    )
-                                )
-                            )
-                    )
-                }
-
-                // Page indicator overlay
                 if (pageCount > 1) {
-                    val indicatorText = if (isTransitioning) {
-                        val left = if (offsetFraction >= 0f) pagerState.currentPage + 1 else pagerState.currentPage
-                        val right = left + 1
-                        "$left ↔ $right"
-                    } else {
-                        "${pagerState.currentPage + 1} / $pageCount"
-                    }
-                    Text(
-                        text = indicatorText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
+                    PageIndicator(
+                        pagerState = pagerState,
+                        pageCount = pageCount,
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomCenter)
@@ -310,6 +261,74 @@ internal fun VirtualPagedSong(
             pagerPlaceable.placeRelative(0, 0)
         }
     }
+}
+
+// pagerState.currentPageOffsetFraction changes on every frame of a swipe, so it
+// must only be read inside these leaf composables: reading it in VirtualPagedSong's
+// scope would recompose the whole pager (all PageSlices) per frame.
+
+/** Leather seam strip + shadow at the physical boundary between pages during swipe. */
+@Composable
+private fun PageSeamOverlay(pagerState: PagerState, pagerWidthPx: Int, c: LeatherColors) {
+    val offsetFraction = pagerState.currentPageOffsetFraction
+    if (abs(offsetFraction) <= 0.005f || pagerWidthPx <= 0) return
+
+    val seamX = if (offsetFraction >= 0f)
+        ((1f - offsetFraction) * pagerWidthPx).roundToInt()
+    else
+        ((-offsetFraction) * pagerWidthPx).roundToInt()
+
+    // Soft shadow on the incoming page's left edge
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(24.dp)
+            .offset { IntOffset(x = seamX - 24.dp.roundToPx(), y = 0) }
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        Color.Transparent,
+                        c.leatherDeep.copy(alpha = 0.20f)
+                    )
+                )
+            )
+    )
+
+    // Seam strip (leather spine colour)
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(3.dp)
+            .offset { IntOffset(x = seamX, y = 0) }
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        c.leatherDeep.copy(alpha = 0.53f),
+                        c.leatherMid.copy(alpha = 0.40f),
+                        c.leatherDeep.copy(alpha = 0.53f)
+                    )
+                )
+            )
+    )
+}
+
+@Composable
+private fun PageIndicator(pagerState: PagerState, pageCount: Int, modifier: Modifier = Modifier) {
+    val offsetFraction = pagerState.currentPageOffsetFraction
+    val indicatorText = if (abs(offsetFraction) > 0.005f) {
+        val left = if (offsetFraction >= 0f) pagerState.currentPage + 1 else pagerState.currentPage
+        val right = left + 1
+        "$left ↔ $right"
+    } else {
+        "${pagerState.currentPage + 1} / $pageCount"
+    }
+    Text(
+        text = indicatorText,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+    )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

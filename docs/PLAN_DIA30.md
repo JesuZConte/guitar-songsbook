@@ -89,15 +89,21 @@ composición de la lista (o precargarlo), por el frame de ~550ms medido.
 4. **Criterio de éxito global:** 0 frames >16ms durante los slides de 300ms con
    una canción de 200 líneas y librería de 100+ canciones, en release.
 
-### Fase 1 — Quick wins (~½ día, bajo riesgo)
-1. Mover la lectura del intent a IO: `withContext(Dispatchers.IO)` en
-   `handleIncomingIntent` (corregir antes de commitear el trabajo actual).
-2. Aislar las lecturas per-frame del pager: extraer el indicador de página y los
-   gradientes de borde (que leen `currentPageOffsetFraction`) a composables hoja
-   propios, para que la recomposición por frame no invalide el pager entero.
-3. En `SongReaderScreen`, envolver `effectiveSong` en
-   `remember(uiState.song, uiState.selectedVersionIndex)` — evita el `copy()`
-   en cada recomposición.
+### Fase 1 — Quick wins (~½ día, bajo riesgo) ✅ ejecutada 2026-07-04
+1. ✅ Mover la lectura del intent a IO: `withContext(Dispatchers.IO)` en
+   `handleIncomingIntent` (fix de corrección; no medible en estos flujos).
+2. ✅ Aislar las lecturas per-frame del pager: `PageSeamOverlay` y
+   `PageIndicator` extraídos como composables hoja que leen
+   `currentPageOffsetFraction` en su propio scope.
+3. ✅ `effectiveSong` envuelto en `remember(uiState.song, currentVersion)`.
+
+**Resultado medido (debug, mismos flujos que Fase 0):** primer swipe 62–65% /
+p90 150ms (igual a baseline), cambio de versión ~100ms (igual a baseline).
+**Los quick wins no mueven la aguja**: el costo dominante en primer swipe,
+cambio de versión y apertura es la composición/medición completa del
+`FullSongColumn`, confirmando que la ganancia real está en la Fase 3.
+Los tres cambios se conservan como corrección (#1) e higiene de recomposición
+(#2, #3). Tests unitarios en verde.
 
 ### Fase 2 — Capa de datos (~1 día)
 1. **Proyección para listas:** query `SELECT id, title, artist, genre,

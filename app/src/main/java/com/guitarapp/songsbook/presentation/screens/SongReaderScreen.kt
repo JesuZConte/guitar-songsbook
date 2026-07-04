@@ -97,16 +97,18 @@ fun SongReaderScreen(
     val currentVersion = uiState.song?.versions?.let { versions ->
         versions.getOrNull(uiState.selectedVersionIndex) ?: versions.firstOrNull()
     }
-    val effectiveSong = uiState.song?.let { song ->
-        if (currentVersion != null) {
-            song.copy(
-                key = currentVersion.key,
-                capo = currentVersion.capo,
-                chords = currentVersion.chords,
-                notes = currentVersion.notes,
-                content = currentVersion.content
-            )
-        } else song
+    val effectiveSong = remember(uiState.song, currentVersion) {
+        uiState.song?.let { song ->
+            if (currentVersion != null) {
+                song.copy(
+                    key = currentVersion.key,
+                    capo = currentVersion.capo,
+                    chords = currentVersion.chords,
+                    notes = currentVersion.notes,
+                    content = currentVersion.content
+                )
+            } else song
+        }
     }
 
     var showPlaylistPicker by remember { mutableStateOf(false) }

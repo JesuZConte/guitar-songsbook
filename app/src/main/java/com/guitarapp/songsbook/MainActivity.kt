@@ -6,7 +6,9 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 import com.google.android.gms.ads.MobileAds
 import androidx.activity.compose.setContent
@@ -217,15 +219,17 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch { handleIncomingIntent(intent) }
     }
 
-    private fun handleIncomingIntent(intent: Intent?) {
+    private suspend fun handleIncomingIntent(intent: Intent?) {
         if (intent?.action != Intent.ACTION_VIEW) return
         val uri = intent.data ?: return
-        try {
-            val json = contentResolver.openInputStream(uri)
-                ?.bufferedReader()
-                ?.use { it.readText() } ?: return
-            homeViewModel.importSongFromJson(json)
-        } catch (_: Exception) { }
+        val json = try {
+            withContext(Dispatchers.IO) {
+                contentResolver.openInputStream(uri)
+                    ?.bufferedReader()
+                    ?.use { it.readText() }
+            }
+        } catch (_: Exception) { null } ?: return
+        homeViewModel.importSongFromJson(json)
     }
 }
 
