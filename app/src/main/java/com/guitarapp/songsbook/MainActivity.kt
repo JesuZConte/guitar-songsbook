@@ -1,6 +1,7 @@
 package com.guitarapp.songsbook
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -156,6 +157,7 @@ class MainActivity : ComponentActivity() {
             songRepository.getSongs() // ensures songs are seeded before playlist cross-refs
             playlistRepository.ensureDefaultCollections()
             playlistsViewModel.loadPlaylists() // refresh after seeding so home screen shows collections immediately
+            handleIncomingIntent(intent)
         }
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
@@ -208,6 +210,22 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        lifecycleScope.launch { handleIncomingIntent(intent) }
+    }
+
+    private fun handleIncomingIntent(intent: Intent?) {
+        if (intent?.action != Intent.ACTION_VIEW) return
+        val uri = intent.data ?: return
+        try {
+            val json = contentResolver.openInputStream(uri)
+                ?.bufferedReader()
+                ?.use { it.readText() } ?: return
+            homeViewModel.importSongFromJson(json)
+        } catch (_: Exception) { }
     }
 }
 
@@ -515,7 +533,7 @@ private fun GuitarNavHost(
                 viewModel = readerViewModel,
                 playlistsViewModel = playlistsViewModel,
                 onBackClick = { navController.popBackStack() },
-                onEditClick = { navController.navigate(Routes.editSong(songId)) },
+                onEditClick = { versionId -> navController.navigate(Routes.editVersion(versionId)) },
                 onDeleteSuccess = { navController.popBackStack() },
                 onAddVersionClick = { sid, sourceVersionId ->
                     navController.navigate(Routes.addVersion(sid, sourceVersionId))

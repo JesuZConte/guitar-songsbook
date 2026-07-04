@@ -86,7 +86,7 @@ fun SongReaderScreen(
     viewModel: ReaderViewModel,
     playlistsViewModel: PlaylistsViewModel,
     onBackClick: () -> Unit,
-    onEditClick: () -> Unit = {},
+    onEditClick: (versionId: Long) -> Unit = {},
     onDeleteSuccess: () -> Unit = {},
     onAddVersionClick: (songId: String, sourceVersionId: Long) -> Unit = { _, _ -> },
     onEditVersionClick: (versionId: Long) -> Unit = {}
@@ -94,16 +94,17 @@ fun SongReaderScreen(
     val uiState by viewModel.uiState.collectAsState()
     val playlistsState by playlistsViewModel.uiState.collectAsState()
 
+    val currentVersion = uiState.song?.versions?.let { versions ->
+        versions.getOrNull(uiState.selectedVersionIndex) ?: versions.firstOrNull()
+    }
     val effectiveSong = uiState.song?.let { song ->
-        val version = song.versions.getOrNull(uiState.selectedVersionIndex)
-            ?: song.versions.firstOrNull()
-        if (version != null) {
+        if (currentVersion != null) {
             song.copy(
-                key = version.key,
-                capo = version.capo,
-                chords = version.chords,
-                notes = version.notes,
-                content = version.content
+                key = currentVersion.key,
+                capo = currentVersion.capo,
+                chords = currentVersion.chords,
+                notes = currentVersion.notes,
+                content = currentVersion.content
             )
         } else song
     }
@@ -203,8 +204,8 @@ fun SongReaderScreen(
                                 )
                             }
                         }
-                        IconButton(onClick = onEditClick) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Edit song", tint = LocalLeatherColors.current.cream)
+                        IconButton(onClick = { currentVersion?.let { onEditClick(it.id) } }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit version", tint = LocalLeatherColors.current.cream)
                         }
                         IconButton(onClick = { showDeleteConfirm = true }) {
                             Icon(Icons.Filled.Delete, contentDescription = "Delete song", tint = LocalLeatherColors.current.accent)

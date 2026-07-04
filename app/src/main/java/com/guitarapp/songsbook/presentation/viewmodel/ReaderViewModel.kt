@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.guitarapp.songsbook.data.repository.SongRepository
 import com.guitarapp.songsbook.domain.model.Song
+import com.guitarapp.songsbook.domain.model.SongVersion
 import com.guitarapp.songsbook.utils.AnalyticsHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,20 @@ data class ReaderUiState(
     }
 }
 
+internal fun resolveVersionIndexOnReload(
+    previousVersions: List<SongVersion>?,
+    newVersions: List<SongVersion>,
+    currentIndex: Int
+): Int {
+    val previousIds = previousVersions?.map { it.id }?.toSet()
+    val addedIndex = previousIds?.let { ids -> newVersions.indexOfFirst { it.id !in ids } } ?: -1
+    return if (addedIndex != -1) {
+        addedIndex
+    } else {
+        currentIndex.coerceIn(0, (newVersions.size - 1).coerceAtLeast(0))
+    }
+}
+
 class ReaderViewModel(
     private val songRepository: SongRepository,
     private val songId: String,
@@ -57,7 +72,14 @@ class ReaderViewModel(
                 FirebaseCrashlytics.getInstance().log("ReaderViewModel: loading song $songId")
                 val song = songRepository.getSongById(songId)
                 if (song != null) {
-                    _uiState.update { it.copy(song = song, isLoading = false) }
+                    _uiState.update { state ->
+                        val newIndex = resolveVersionIndexOnReload(
+                            previousVersions = state.song?.versions,
+                            newVersions = song.versions,
+                            currentIndex = state.selectedVersionIndex
+                        )
+                        state.copy(song = song, isLoading = false, selectedVersionIndex = newIndex)
+                    }
                     AnalyticsHelper.logSongOpened(song.id, song.title)
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Song not found") }
