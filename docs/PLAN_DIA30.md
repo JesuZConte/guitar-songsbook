@@ -118,15 +118,38 @@ Los tres cambios se conservan como corrección (#1) e higiene de recomposición
 4. Tests: `SearchFilterTest` debe seguir verde; añadir test de repositorio para
    la proyección.
 
-### Fase 3 — Reader / VirtualPagedSong (~2 días, respeta ADR-013)
-1. **Cachear el Pass 1:** los page breaks solo dependen de (song, fontSize,
-   transposeSteps, ancho, alto de viewport). Recalcular solo cuando cambie esa
-   tupla, no en cada measure pass del `SubcomposeLayout`.
-2. Aplicar `movableContentOf` a `FullSongColumn` — la mitigación que el propio
-   ADR-013 dejó prevista — o limitar la composición a páginas visibles
-   (`beyondViewportPageCount`).
-3. Si la estructura cambia, addendum a ADR-013 (no se reemplaza la decisión
-   render-then-measure; se optimiza su implementación).
+### Fase 3 — Reader / VirtualPagedSong (~2 días, respeta ADR-013) ✅ ejecutada 2026-07-04
+1. ✅ **Páginas por items** (`SongPageItems`): cada página compone solo las
+   líneas de su rango de píxeles (O(líneas/página), antes O(líneas/canción)
+   por página), colocadas en las posiciones que midió el Pass 1. `PageSlice`
+   eliminado. Breaks y renderizado comparten fuente de verdad.
+2. ❌ **Cachear el Pass 1 — intentado y revertido:** saltarse `subcompose()`
+   en pasadas cacheadas hace que `SubcomposeLayout` descarte ~200 slots en un
+   frame (+150–200ms medidos en cambio de versión). El Pass 1 solo corre en
+   measure passes reales (abrir, cambiar versión/fuente, viewport) — costo
+   aceptable medido.
+3. ❌ **`movableContentOf` — descartado:** durante el swipe hay dos páginas
+   visibles a la vez; el contenido movible solo puede existir en un lugar.
+4. ✅ Addendum añadido a ADR-013 con el detalle y las mediciones.
+
+**Resultado medido (debug, La Voz De Los 80, 10 páginas):**
+| Flujo | Baseline | Fase 3 |
+|---|---|---|
+| 1er swipe a página nueva | 62%, p90 150ms, peor ~200ms | 30-32%, p90 ~50-60ms, peor ~150ms |
+| 3 swipes sostenidos | 56%, p99 117ms | 38-45%, p99 77-89ms |
+| Cambio de versión | frame 97-105ms | frame 89-113ms (igual — acotado por Pass 1) |
+| Abrir reader | ~400-650ms | ~400-550ms (igual — acotado por Pass 1) |
+
+**Fase 3b ✅ (mismo día, tras feedback del usuario: "tac tac" al abrir):**
+paginación diferida. `SongFirstPageView` compone solo el tope de la canción
+(cap proporcional al viewport, ~18-25 líneas) durante los 400ms del slide de
+entrada; `VirtualPagedSong` lo reemplaza cuando la pantalla está estática —
+el frame pesado del Pass 1 deja de competir con la animación. El swap es
+visualmente invisible (mismos paddings y composables que la página 1).
+Medido en debug: ventana de animación de p95 400ms → p90 69ms / p99 200ms
+(warm; el primer open tras arrancar el proceso sigue sucio por JIT de debug —
+validar en release, donde no aplica). El cambio de versión en página 1
+también difiere su re-medición.
 
 ### Fase 4 — Calidad de producción (continuo)
 1. **Baseline Profiles** (`androidx.profileinstaller` + módulo

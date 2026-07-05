@@ -45,6 +45,7 @@ import com.guitarapp.songsbook.data.local.UserPreferences
 import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.domain.model.SongVersion
 import com.guitarapp.songsbook.utils.SongExporter
+import kotlinx.coroutines.delay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +80,9 @@ import com.guitarapp.songsbook.presentation.viewmodel.ReaderViewModel
 import com.guitarapp.songsbook.ui.theme.DarkLeather
 import com.guitarapp.songsbook.ui.theme.LocalLeatherColors
 import com.guitarapp.songsbook.ui.theme.NocturnoColorScheme
+
+/** Nav enter/exit slide is tween(300) in GuitarNavHost; margin so the swap lands after it. */
+private const val PAGINATION_DEFER_MS = 400L
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
@@ -297,16 +301,34 @@ fun SongReaderScreen(
                         )
                     }
                     effectiveSong != null -> {
-                        VirtualPagedSong(
-                            song = effectiveSong,
-                            fontSize = uiState.fontSize,
-                            transposeSteps = uiState.transposeSteps,
-                            currentPage = uiState.currentPage,
-                            onPageChanged = viewModel::onPageChanged,
-                            onPageCountMeasured = viewModel::onMeasuredPageCount,
-                            onTap = viewModel::toggleFullscreen,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        // Defer Pass-1 pagination until the 300ms nav slide (and the
+                        // version-switch content swap) has finished: the whole-song
+                        // measure is a single heavy frame, invisible on a static
+                        // screen but a visible stutter mid-animation.
+                        var paginated by remember(effectiveSong) { mutableStateOf(false) }
+                        LaunchedEffect(effectiveSong) {
+                            delay(PAGINATION_DEFER_MS)
+                            paginated = true
+                        }
+                        if (!paginated && uiState.currentPage == 0) {
+                            SongFirstPageView(
+                                song = effectiveSong,
+                                fontSize = uiState.fontSize,
+                                transposeSteps = uiState.transposeSteps,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            VirtualPagedSong(
+                                song = effectiveSong,
+                                fontSize = uiState.fontSize,
+                                transposeSteps = uiState.transposeSteps,
+                                currentPage = uiState.currentPage,
+                                onPageChanged = viewModel::onPageChanged,
+                                onPageCountMeasured = viewModel::onMeasuredPageCount,
+                                onTap = viewModel::toggleFullscreen,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

@@ -1,7 +1,7 @@
 # ADR-013: Render-then-measure pagination for the Song Reader
 
 ## Status
-Accepted (v1 — Day 14)
+Accepted (v1 — Day 14) · Amended (Day 30 — see Addendum)
 
 ## Context
 The Song Reader needs to split song content across swipeable pages. The original implementation used `SECTIONS_PER_PAGE = 2` (pack 2 sections per page regardless of size), which was later replaced with an estimation-based approach using `TEXT_HEIGHT_FACTOR = 1.8` to predict how many lines would fit in the available screen height.
@@ -59,3 +59,43 @@ Font size changes trigger re-render → re-measurement → new page count automa
 - Page breaks always occur at line boundaries, not between sections. A section header may appear at the very bottom of a page with no lines below it. Mitigation: acceptable for v1; could add "orphan control" (minimum lines after a header) in a future pass.
 - The reading position may shift slightly when toggling fullscreen (viewport height changes → page count changes → current page changes). Mitigation: preserve the scroll offset in dp and recompute the correct new page index after viewport change.
 - `PaginationTest.kt` unit tests (which tested the old `paginateContent()` pure function) are deleted. Layout-based pagination cannot be unit tested on the JVM — it requires the Android runtime. Instrumented Compose UI tests (`androidTest`) can replace these if desired.
+
+## Addendum (Day 30): per-page item composition
+
+The first negative consequence above materialized in profiling (Galaxy A50,
+Day 30 perf work): each `HorizontalPager` page composing the full
+`FullSongColumn` produced a 130–150 ms frame every time a page was composed
+for the first time (first swipe to each new page), and multiplied the cost of
+opening the reader and switching versions.
+
+**Change:** pages no longer clip a full-song column. Pass 1 now records each
+item's absolute position (`SongItemPlacement`); each page composes only the
+items intersecting its pixel range (`SongPageItems`, O(lines-per-page)) and
+places them at their Pass-1 positions. `PageSlice` was removed. Page breaks
+and rendering now derive from the same measured positions — Pass 1 and the
+visible layout can no longer drift apart.
+
+**Explored and rejected:**
+- `movableContentOf` (the mitigation originally suggested above) is not
+  viable: during a swipe two pages are visible simultaneously, and movable
+  content can only exist in one place at a time.
+- Caching Pass 1 results to skip re-measure: skipping `subcompose()` on
+  cached passes makes `SubcomposeLayout` dispose ~200 measurement slots in a
+  single frame — measured as a +150–200 ms regression on version switch.
+  Reverted; Pass 1 re-runs on every real measure pass (open, version/font
+  change, viewport change), which profiling shows is acceptable and keeps
+  slots alive for reuse.
+
+**Measured effect (debug build, 10-page song):** first swipe worst frame
+150–200 ms → ≤150 ms with p90 150 → ~50–60 ms; sustained swiping p99
+117 → ~80 ms; version switch unchanged (bounded by Pass 1).
+
+**Deferred pagination (same day):** opening a song still froze the 300 ms
+nav slide (Pass 1 ran mid-animation — user-visible "tac tac"). Fix:
+`SongFirstPageView` renders only the top of the song (viewport-proportional
+line cap, same paddings as page 1) while the transition runs;
+`VirtualPagedSong` replaces it ~400 ms in, when the screen is static and the
+Pass-1 frame is imperceptible. The swap is pixel-seamless. Animation-window
+jank on open: p95 400 ms → p90 ~70 ms (warm, debug). Pass 1 itself remains
+synchronous — `TextMeasurer`-based measurement stays the escalation path if
+release profiling ever demands it.

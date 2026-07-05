@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +41,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -70,6 +74,17 @@ internal val LocalNocturnoMode = compositionLocalOf { false }
 /** The HorizontalPager slot in the SubcomposeLayout. */
 private enum class SongContentSlot { Pager }
 
+/**
+ * One measured content item (song header, section header, or line) at its
+ * absolute content-pixel position. `si == -1` → song header; `li == -1` →
+ * header of section `si`; otherwise line `li` of section `si`.
+ */
+internal data class SongItemPlacement(val si: Int, val li: Int, val y: Int, val height: Int)
+
+/** Items visible in the content-pixel range [startPx, endPx) — page bounds clip partial overlap. */
+internal fun itemsInRange(items: List<SongItemPlacement>, startPx: Int, endPx: Int): List<SongItemPlacement> =
+    items.filter { it.y < endPx && it.y + it.height > startPx }
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Public entry point
 // ─────────────────────────────────────────────────────────────────────────────
@@ -99,8 +114,7 @@ internal fun VirtualPagedSong(
         val viewportH = constraints.maxHeight
         val effectiveViewportH = (viewportH - indicatorPx).coerceAtLeast(1)
 
-        // FullSongColumn has padding(horizontal = 16.dp, vertical = 12.dp).
-        // Use matching constraints for per-item measurements so text wraps identically.
+        // Same paddings FullSongColumn uses, so Preview/Setlist render identically.
         val hPaddingPx = (32 * density).roundToInt()   // 16dp × 2
         val topPaddingPx = (12 * density).roundToInt() // same value used for bottom padding
         val sectionBottomPx = (16 * density).roundToInt()
@@ -113,11 +127,16 @@ internal fun VirtualPagedSong(
         )
 
         // ── Pass 1: measure every item to find valid line-boundary break points ──
+        // Runs on every real measure pass (rare: open, version/font change, viewport
+        // change). Slots are reused across passes, so steady-state cost is re-measure
+        // only. Do NOT skip this via caching: dropping the subcompositions makes
+        // SubcomposeLayout dispose ~200 slots in one frame (measured at +150-200ms).
 
         val headerH = subcompose("h") {
             SongHeader(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
         }.first().measure(itemConstraints).height
 
+        val items = mutableListOf(SongItemPlacement(si = -1, li = -1, y = topPaddingPx, height = headerH))
         var cumH = topPaddingPx + headerH
 
         // lineBreaks: content-pixel offsets where a page break won't cut a line
@@ -131,6 +150,7 @@ internal fun VirtualPagedSong(
                 SectionHeaderText(section = section, fontSize = fontSize)
             }.first().measure(itemConstraints).height
 
+            items.add(SongItemPlacement(si = si, li = -1, y = cumH, height = secHeaderH))
             cumH += secHeaderH
 
             section.lines.forEachIndexed { li, line ->
@@ -141,6 +161,7 @@ internal fun VirtualPagedSong(
                     LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
                 }.first().measure(itemConstraints).height
 
+                items.add(SongItemPlacement(si = si, li = li, y = cumH, height = lineH))
                 cumH += lineH
             }
 
@@ -229,17 +250,21 @@ internal fun VirtualPagedSong(
                             }
                         }
                 ) { pageIndex ->
+                    val pageStart = pageStarts[pageIndex]
                     val contentHeightPx = if (pageIndex + 1 < pageStarts.size)
-                        pageStarts[pageIndex + 1] - pageStarts[pageIndex]
+                        pageStarts[pageIndex + 1] - pageStart
                     else
-                        (totalHeight - pageStarts[pageIndex]).coerceAtLeast(1)
+                        (totalHeight - pageStart).coerceAtLeast(1)
 
-                    PageSlice(
-                        contentOffsetPx = pageStarts[pageIndex],
-                        contentHeightPx = contentHeightPx
-                    ) {
-                        FullSongColumn(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
-                    }
+                    SongPageItems(
+                        song = song,
+                        fontSize = fontSize,
+                        transposeSteps = transposeSteps,
+                        items = itemsInRange(items, pageStart, pageStart + contentHeightPx),
+                        pageStartPx = pageStart,
+                        pageHeightPx = contentHeightPx,
+                        hPaddingPx = hPaddingPx
+                    )
                 }
 
                 PageSeamOverlay(pagerState = pagerState, pagerWidthPx = pagerWidthPx, c = c)
@@ -336,27 +361,92 @@ private fun PageIndicator(pagerState: PagerState, pageCount: Int, modifier: Modi
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Clips the full song content to exactly [contentHeightPx] pixels starting at
- * [contentOffsetPx]. Because [contentHeightPx] equals the distance to the next
- * page's start (a line boundary), no line is ever split at the bottom of a page.
+ * Renders exactly one page: only the items intersecting the page's content-pixel
+ * range are composed (O(lines per page), not O(lines per song)), each placed at
+ * its Pass-1 position relative to [pageStartPx]. Because page heights end on the
+ * same line boundaries Pass 1 recorded, no line is ever split at the bottom of a
+ * page — except the rare pixel-exact fallback break, which clipToBounds crops
+ * exactly like the previous full-column clipping did.
  */
 @Composable
-private fun PageSlice(
-    contentOffsetPx: Int,
-    contentHeightPx: Int,
-    content: @Composable () -> Unit
+private fun SongPageItems(
+    song: Song,
+    fontSize: Int,
+    transposeSteps: Int,
+    items: List<SongItemPlacement>,
+    pageStartPx: Int,
+    pageHeightPx: Int,
+    hPaddingPx: Int
 ) {
     Layout(
-        content = content,
+        content = {
+            items.forEach { item ->
+                when {
+                    item.si < 0 -> SongHeader(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
+                    item.li < 0 -> SectionHeaderText(section = song.content[item.si], fontSize = fontSize)
+                    else -> LineContent(
+                        line = song.content[item.si].lines[item.li],
+                        fontSize = fontSize,
+                        transposeSteps = transposeSteps
+                    )
+                }
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
             .clipToBounds()
     ) { measurables, constraints ->
-        val placeable = measurables.first().measure(
-            constraints.copy(maxHeight = Int.MAX_VALUE)
+        val itemConstraints = constraints.copy(
+            minWidth = 0,
+            minHeight = 0,
+            maxWidth = (constraints.maxWidth - hPaddingPx).coerceAtLeast(1),
+            maxHeight = Int.MAX_VALUE
         )
-        layout(constraints.maxWidth, contentHeightPx) {
-            placeable.placeRelative(x = 0, y = -contentOffsetPx)
+        val placeables = measurables.map { it.measure(itemConstraints) }
+        layout(constraints.maxWidth, pageHeightPx) {
+            placeables.forEachIndexed { i, placeable ->
+                placeable.placeRelative(x = hPaddingPx / 2, y = items[i].y - pageStartPx)
+            }
+        }
+    }
+}
+
+/**
+ * Cheap stand-in shown while the nav enter transition runs: the top of the song
+ * (header + first [FIRST_PAGE_MAX_LINES] lines), laid out with FullSongColumn's
+ * paddings so it is pixel-identical to what page 1 will show. Composing this is
+ * O(one screen), so the 300ms slide never competes with Pass-1 pagination —
+ * VirtualPagedSong replaces it once the screen is static.
+ */
+@Composable
+internal fun SongFirstPageView(
+    song: Song,
+    fontSize: Int,
+    transposeSteps: Int = 0,
+    modifier: Modifier = Modifier
+) {
+    BoxWithConstraints(modifier = modifier.clipToBounds()) {
+        // Compose just enough lines to overflow this viewport: a ChordLine is two
+        // text rows at (fontSize+4).sp line height plus a 4dp spacer, so the floor
+        // of that underestimates line height and slightly overshoots the count.
+        val minLinePx = with(LocalDensity.current) {
+            ((fontSize + 4) * 2).sp.toPx() + 4.dp.toPx()
+        }
+        val maxLines = (constraints.maxHeight / minLinePx).toInt() + 3
+
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            SongHeader(song = song, fontSize = fontSize, transposeSteps = transposeSteps)
+            var lines = 0
+            for (section in song.content) {
+                if (lines >= maxLines) break
+                SectionHeaderText(section = section, fontSize = fontSize)
+                for (line in section.lines) {
+                    if (lines >= maxLines) break
+                    LineContent(line = line, fontSize = fontSize, transposeSteps = transposeSteps)
+                    lines++
+                }
+                Spacer(Modifier.height(16.dp)) // same bottom spacing SectionContent applies
+            }
         }
     }
 }
