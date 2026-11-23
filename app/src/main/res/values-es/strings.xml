@@ -26,13 +26,17 @@
     <string name="help_add_manual_title">Escribir una canción manualmente</string>
     <string name="help_add_manual_body">Toca el botón + en la esquina inferior derecha y elige "Agregar canción". Completa el título, artista, tonalidad y añade tus acordes y letra con el editor o en texto libre.</string>
     <string name="help_import_title">Importar desde un archivo de respaldo</string>
-    <string name="help_import_body">Toca el botón + y elige "Importar desde archivo". Selecciona un archivo .json exportado previamente desde Cancionero (usa la opción "Respaldo" en el menú de pulsación larga de cualquier canción).</string>
+    <string name="help_import_body">Toca el botón + y elige "Importar desde archivo". Selecciona un archivo .json exportado previamente desde Cancionero (usa la opción "Respaldo" en el menú de pulsación larga de cualquier canción), o un archivo .txt con una canción: se abre en Agregar canción para que lo revises antes de guardar.</string>
     <string name="help_got_it">Entendido</string>
 
     <!-- Pantalla de inicio -->
     <string name="home_title">Cancionero</string>
     <string name="home_subtitle">Mi cancionero personal</string>
     <string name="home_add_song">Agregar canción</string>
+    <string name="import_file_empty">El archivo está vacío.</string>
+    <string name="import_file_too_large">El archivo es demasiado grande para ser una canción.</string>
+    <string name="import_file_not_text">El archivo no parece ser de texto.</string>
+    <string name="import_file_read_error">No se pudo leer el archivo.</string>
     <string name="home_import_from_file">Importar desde archivo</string>
     <string name="home_song_imported">"%1$s" importada correctamente</string>
     <string name="home_song_deleted">"%1$s" eliminada</string>

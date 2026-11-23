@@ -97,6 +97,7 @@ import com.guitarapp.songsbook.presentation.screens.SongReaderScreen
 import com.guitarapp.songsbook.presentation.screens.VersionEditorScreen
 import com.guitarapp.songsbook.presentation.viewmodel.VersionEditorViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.AddSongViewModel
+import com.guitarapp.songsbook.presentation.viewmodel.TextDraftHolder
 import com.guitarapp.songsbook.presentation.viewmodel.FavoritesViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import com.guitarapp.songsbook.presentation.viewmodel.PlaylistsViewModel
@@ -120,6 +121,8 @@ class MainActivity : ComponentActivity() {
     var themeMode by mutableStateOf(ThemeMode.SYSTEM)
 
     private val database by lazy { SongDatabase.getInstance(this) }
+    private val textDraftHolder = TextDraftHolder()
+
     private val songRepository: SongRepository by lazy {
         AssetSongRepository(assets, database.songDao(), database.songVersionDao())
     }
@@ -198,6 +201,7 @@ class MainActivity : ComponentActivity() {
                         GuitarNavHost(
                             navController = navController,
                             songRepository = songRepository,
+                            textDraftHolder = textDraftHolder,
                             playlistRepository = playlistRepository,
                             homeViewModel = homeViewModel,
                             favoritesViewModel = favoritesViewModel,
@@ -329,6 +333,7 @@ private fun Modifier.stitchedTop(color: Color): Modifier =
 private fun GuitarNavHost(
     navController: NavHostController,
     songRepository: SongRepository,
+    textDraftHolder: TextDraftHolder,
     playlistRepository: PlaylistRepository,
     homeViewModel: HomeViewModel,
     favoritesViewModel: FavoritesViewModel,
@@ -375,6 +380,10 @@ private fun GuitarNavHost(
                 onSongClick = { songId -> navController.navigate(Routes.reader(songId)) },
                 onEditClick = { songId -> navController.navigate(Routes.editSong(songId)) },
                 onAddSongClick = { navController.navigate(Routes.ADD_SONG) },
+                onImportTextFile = { draft ->
+                    textDraftHolder.set(draft)
+                    navController.navigate(Routes.ADD_SONG)
+                },
                 showSettings = false,
                 onBackClick = { navController.popBackStack() },
                 onAddToPlaylist = { songId, playlistId ->
@@ -419,7 +428,7 @@ private fun GuitarNavHost(
         }
         composable(Routes.ADD_SONG) {
             val addSongViewModel: AddSongViewModel = viewModel(
-                factory = AddSongViewModel.Factory(songRepository)
+                factory = AddSongViewModel.Factory(songRepository, draftHolder = textDraftHolder)
             )
             AddSongScreen(
                 viewModel = addSongViewModel,

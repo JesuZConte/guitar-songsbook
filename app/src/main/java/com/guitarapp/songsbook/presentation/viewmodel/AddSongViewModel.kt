@@ -13,6 +13,7 @@ import com.guitarapp.songsbook.utils.AnalyticsHelper
 import com.guitarapp.songsbook.utils.BracketParser
 import com.guitarapp.songsbook.utils.BracketSerializer
 import com.guitarapp.songsbook.utils.OverUnderConverter
+import com.guitarapp.songsbook.utils.TextSongDraft
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,15 +32,31 @@ data class AddSongUiState(
     val saveSuccess: Boolean = false,
     val error: String? = null,
     val formatNotDetected: Boolean = false,
-    val pendingConflict: ImportConflict? = null
+    val pendingConflict: ImportConflict? = null,
+    val openedFromImport: Boolean = false
 ) {
     val isValid: Boolean
         get() = title.isNotBlank() && artist.isNotBlank() && rawText.isNotBlank()
 }
 
+/**
+ * Applies an imported .txt draft: fills the metadata fields and converts a chords-over-lyrics
+ * body to bracket format right away (a body already in bracket format is kept as is).
+ */
+internal fun AddSongUiState.withImportedDraft(draft: TextSongDraft): AddSongUiState = copy(
+    title = draft.title,
+    artist = draft.artist,
+    key = draft.key,
+    capo = draft.capo.ifBlank { capo },
+    rawText = OverUnderConverter.convert(draft.body) ?: draft.body,
+    formatNotDetected = false,
+    openedFromImport = true
+)
+
 class AddSongViewModel(
     private val songRepository: SongRepository,
-    private val editSongId: String? = null
+    private val editSongId: String? = null,
+    importedDraft: TextSongDraft? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddSongUiState())
@@ -49,6 +66,7 @@ class AddSongViewModel(
 
     init {
         if (editSongId != null) loadSongForEdit(editSongId)
+        if (importedDraft != null) _uiState.value = _uiState.value.withImportedDraft(importedDraft)
     }
 
     private fun loadSongForEdit(songId: String) {
@@ -229,11 +247,12 @@ class AddSongViewModel(
 
     class Factory(
         private val songRepository: SongRepository,
-        private val editSongId: String? = null
+        private val editSongId: String? = null,
+        private val draftHolder: TextDraftHolder? = null
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return AddSongViewModel(songRepository, editSongId) as T
+            return AddSongViewModel(songRepository, editSongId, draftHolder?.take()) as T
         }
     }
 }

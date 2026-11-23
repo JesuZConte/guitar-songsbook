@@ -116,6 +116,71 @@ class BracketParserTest {
     }
 
     @Test
+    fun `parseSectionHeader - Spanish labels map to canonical keys`() {
+        assertEquals(Pair("verse", 1), BracketParser.parseSectionHeader("[Estrofa 1]"))
+        assertEquals(Pair("verse", 0), BracketParser.parseSectionHeader("[Verso]"))
+        assertEquals(Pair("chorus", 0), BracketParser.parseSectionHeader("[Estribillo]"))
+        assertEquals(Pair("chorus", 2), BracketParser.parseSectionHeader("[Coro 2]"))
+        assertEquals(Pair("bridge", 0), BracketParser.parseSectionHeader("[Puente]"))
+        assertEquals(Pair("intro", 0), BracketParser.parseSectionHeader("[Introducción]"))
+        assertEquals(Pair("outro", 0), BracketParser.parseSectionHeader("[Final]"))
+        assertEquals(Pair("pre-chorus", 0), BracketParser.parseSectionHeader("[Pre-coro]"))
+        assertEquals(Pair("pre-chorus", 0), BracketParser.parseSectionHeader("[Pre-estribillo]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - English behavior is unchanged`() {
+        // Pre-existing: first word decides the type, anything after a non-number is ignored.
+        assertEquals(Pair("chorus", 0), BracketParser.parseSectionHeader("[Chorus x2]"))
+        assertEquals(Pair("instrumental", 0), BracketParser.parseSectionHeader("[Instrumental]"))
+        assertEquals(Pair("interlude", 0), BracketParser.parseSectionHeader("[Interlude]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - Spanish matching ignores case and accents`() {
+        assertEquals(Pair("intro", 0), BracketParser.parseSectionHeader("[INTRODUCCION]"))
+        assertEquals(Pair("verse", 3), BracketParser.parseSectionHeader("[ESTROFA 3]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - ordinal parts map to numbered verses`() {
+        assertEquals(Pair("verse", 1), BracketParser.parseSectionHeader("[Primera Parte]"))
+        assertEquals(Pair("verse", 2), BracketParser.parseSectionHeader("[Segunda Parte]"))
+        assertEquals(Pair("verse", 3), BracketParser.parseSectionHeader("[Tercera Parte]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - unknown multi-word label is kept verbatim`() {
+        assertEquals(Pair("Puente instrumental", 0), BracketParser.parseSectionHeader("[Puente instrumental]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - unknown single word label is kept verbatim`() {
+        assertEquals(Pair("Interludio", 0), BracketParser.parseSectionHeader("[Interludio]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - Latin chord names are chords, not sections`() {
+        assertNull(BracketParser.parseSectionHeader("[Do]"))
+        assertNull(BracketParser.parseSectionHeader("[Sol]"))
+        assertNull(BracketParser.parseSectionHeader("[Lam]"))
+        assertNull(BracketParser.parseSectionHeader("[Rem]"))
+    }
+
+    @Test
+    fun `parseSectionHeader - bracket chord rows are not sections`() {
+        assertNull(BracketParser.parseSectionHeader("[C]   [D]   [Em]"))
+        assertNull(BracketParser.parseSectionHeader("[Am]Hello [F]"))
+    }
+
+    @Test
+    fun `parse - Spanish headers create typed sections and are not chords`() {
+        val sections = BracketParser.parse("[Estrofa 1]\n[C]hola\n\n[Coro]\n[G]adios")
+        assertEquals(listOf("verse", "chorus"), sections.map { it.type })
+        assertEquals(listOf("C", "G"), BracketParser.extractChordNames(sections))
+    }
+
+    @Test
     fun `parseSectionHeader - not bracketed returns null`() {
         assertNull(BracketParser.parseSectionHeader("Verse 1"))
         assertNull(BracketParser.parseSectionHeader("[Verse 1"))

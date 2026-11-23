@@ -17,6 +17,7 @@ object OverUnderConverter {
         """^[A-G][#b]?(m|maj|min|aug|dim|sus|add)?[0-9]{0,2}(/[A-G][#b]?)?$"""
     )
     private val TOKEN_REGEX = Regex("""\S+""")
+    private val INLINE_HEADER_REGEX = Regex("""^\s*(\[[^\[\]]+])\s+(\S.*)$""")
 
     fun isValidChord(token: String): Boolean = CHORD_REGEX.matches(token)
 
@@ -45,6 +46,18 @@ object OverUnderConverter {
         while (i < lines.size) {
             val line = lines[i]
 
+            // "[Intro] F  Bb  Dm  C": split into the header and a chord-only line. Without this
+            // the whole line is either read as a chord row (label dropped) or, when fewer than
+            // 80% of tokens are chords, as lyrics.
+            val inline = matchInlineHeader(line)
+            if (inline != null) {
+                converted = true
+                result.appendLine(inline.first)
+                result.appendLine(bracketChordRow(inline.second))
+                i++
+                continue
+            }
+
             if (isChordLine(line)) {
                 converted = true
                 val next = lines.getOrNull(i + 1)
@@ -57,11 +70,7 @@ object OverUnderConverter {
                     result.appendLine(mergeChordAndLyricLines(line, next!!))
                     i += 2
                 } else {
-                    // Chord-only line — render bracketed chords
-                    val chords = TOKEN_REGEX.findAll(line)
-                        .filter { isValidChord(it.value) }
-                        .joinToString("   ") { "[${it.value}]" }
-                    result.appendLine(chords)
+                    result.appendLine(bracketChordRow(line))
                     i++
                 }
             } else {
@@ -73,6 +82,25 @@ object OverUnderConverter {
         return if (converted) result.toString().trimEnd() else null
     }
 
+    /**
+     * Matches "[Intro] F  Bb  Dm  C": a section label followed by a chord row on the same line.
+     * Returns (label, chordRow), or null when the line is anything else.
+     */
+    internal fun matchInlineHeader(line: String): Pair<String, String>? {
+        val m = INLINE_HEADER_REGEX.find(line) ?: return null
+        val header = m.groupValues[1]
+        val rest = m.groupValues[2]
+        return if (BracketParser.parseSectionHeader(header) != null && isChordLine(rest)) {
+            Pair(header, rest)
+        } else null
+    }
+
+    /** Chord-only line — renders the chords as `[C]   [D]   [Em]`. */
+    private fun bracketChordRow(chordLine: String): String =
+        TOKEN_REGEX.findAll(chordLine)
+            .filter { isValidChord(it.value) }
+            .joinToString("   ") { "[${it.value}]" }
+
     private fun mergeChordAndLyricLines(chordLine: String, lyricLine: String): String {
         // Sort descending so right-to-left insertions don't shift earlier positions
         val chordPositions = TOKEN_REGEX.findAll(chordLine)
@@ -81,9 +109,13 @@ object OverUnderConverter {
             .sortedByDescending { it.first }
 
         val sb = StringBuilder(lyricLine)
+        // Chords can sit past the end of a short lyric. Pad up to the rightmost chord column so
+        // every chord keeps its own column; clamping to the growing string length instead nests
+        // later insertions inside earlier "[...]" brackets.
+        val lastCol = chordPositions.firstOrNull()?.first ?: 0
+        while (sb.length < lastCol) sb.append(' ')
         for ((col, chord) in chordPositions) {
-            val pos = minOf(col, sb.length)
-            sb.insert(pos, "[$chord]")
+            sb.insert(col, "[$chord]")
         }
         return sb.toString()
     }

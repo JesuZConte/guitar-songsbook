@@ -157,7 +157,10 @@ fun AddSongScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var inputMode by remember { mutableStateOf(InputMode.BUILDER) }
+    // A song imported from a file opens as text so the converted result can be reviewed and fixed.
+    var inputMode by remember {
+        mutableStateOf(if (uiState.openedFromImport) InputMode.TEXT else InputMode.BUILDER)
+    }
     var builderSections by remember { mutableStateOf(rawTextToBuilderSections(uiState.rawText)) }
     var builderInitialized by remember { mutableStateOf(!viewModel.isEditMode) }
     var showFormatHelp by remember { mutableStateOf(false) }

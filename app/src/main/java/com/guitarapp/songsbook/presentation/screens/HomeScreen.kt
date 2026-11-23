@@ -94,7 +94,12 @@ import com.guitarapp.songsbook.domain.model.Song
 import com.guitarapp.songsbook.presentation.viewmodel.HomeUiState
 import com.guitarapp.songsbook.presentation.viewmodel.HomeViewModel
 import com.guitarapp.songsbook.utils.ChordNotation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.guitarapp.songsbook.utils.TextImportResult
+import com.guitarapp.songsbook.utils.TextSongDraft
+import com.guitarapp.songsbook.utils.TextSongImport
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import com.guitarapp.songsbook.ui.components.BrassFAB
@@ -108,6 +113,7 @@ fun HomeScreen(
     onSongClick: (String) -> Unit,
     onEditClick: (String) -> Unit = {},
     onAddSongClick: () -> Unit = {},
+    onImportTextFile: (TextSongDraft) -> Unit = {},
     onSettingsClick: () -> Unit = {},
     showSettings: Boolean = true,
     onBackClick: (() -> Unit)? = null,
@@ -131,16 +137,35 @@ fun HomeScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val importEmptyMsg = stringResource(R.string.import_file_empty)
+    val importTooLargeMsg = stringResource(R.string.import_file_too_large)
+    val importNotTextMsg = stringResource(R.string.import_file_not_text)
+    val importReadErrorMsg = stringResource(R.string.import_file_read_error)
+
+    // JSON backups import directly; a .txt opens Add Song pre-filled (ADR-025).
     val importLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri ?: return@rememberLauncherForActivityResult
-        try {
-            val json = context.contentResolver.openInputStream(uri)
-                ?.bufferedReader()
-                ?.use { it.readText() } ?: return@rememberLauncherForActivityResult
-            viewModel.importSongFromJson(json)
-        } catch (_: Exception) { }
+        scope.launch {
+            val file = withContext(Dispatchers.IO) { readImportFile(context, uri) }
+            if (file == null) {
+                snackbarHostState.showSnackbar(importReadErrorMsg)
+                return@launch
+            }
+            if (TextSongImport.looksLikeJson(file.name, file.bytes)) {
+                val json = TextSongImport.decode(file.bytes)
+                if (json == null) snackbarHostState.showSnackbar(importReadErrorMsg)
+                else viewModel.importSongFromJson(json)
+                return@launch
+            }
+            when (val result = TextSongImport.parse(file.name, file.bytes)) {
+                is TextImportResult.Success -> onImportTextFile(result.draft)
+                TextImportResult.Empty -> snackbarHostState.showSnackbar(importEmptyMsg)
+                TextImportResult.TooLarge -> snackbarHostState.showSnackbar(importTooLargeMsg)
+                TextImportResult.NotText -> snackbarHostState.showSnackbar(importNotTextMsg)
+            }
+        }
     }
 
     val importedMsg = uiState.importedSongTitle?.let { stringResource(R.string.home_song_imported, it) }
@@ -219,7 +244,7 @@ fun HomeScreen(
                         colors = MenuDefaults.itemColors(textColor = fabC.cream, leadingIconColor = fabC.brass),
                         onClick = {
                             showFabMenu = false
-                            importLauncher.launch("application/json")
+                            importLauncher.launch(arrayOf("application/json", "text/plain"))
                         }
                     )
                 }
@@ -811,4 +836,17 @@ private fun AddToPlaylistDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         }
     )
+}
+
+private class ImportFile(val name: String, val bytes: ByteArray)
+
+/** Reads the picked file (name + bytes), or null when it can't be opened. Call off the main thread. */
+private fun readImportFile(context: android.content.Context, uri: android.net.Uri): ImportFile? = try {
+    val name = context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)
+        ?.use { if (it.moveToFirst()) it.getString(0) else null }
+        ?: uri.lastPathSegment.orEmpty()
+    val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+    if (bytes == null) null else ImportFile(name, bytes)
+} catch (_: Exception) {
+    null
 }
