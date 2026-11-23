@@ -17,6 +17,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.foundation.layout.size
+import com.guitarapp.songsbook.ui.components.BrassButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -174,15 +177,16 @@ fun VersionEditorScreen(
                 )
             }
 
-            Button(
+            BrassButton(
                 onClick = viewModel::saveVersion,
                 enabled = uiState.isValid && !uiState.isSaving,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (uiState.isSaving) {
                     CircularProgressIndicator(
-                        modifier = Modifier.padding(end = 8.dp),
-                        strokeWidth = 2.dp
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = LocalContentColor.current
                     )
                 }
                 Text(stringResource(R.string.common_save))

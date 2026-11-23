@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
+import com.guitarapp.songsbook.ui.components.BrassButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -350,15 +352,16 @@ fun AddSongScreen(
                     enabled = uiState.isValid && !uiState.isSaving,
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.common_preview)) }
-                Button(
+                BrassButton(
                     onClick = viewModel::saveSong,
                     enabled = uiState.isValid && !uiState.isSaving,
                     modifier = Modifier.weight(1f)
                 ) {
                     if (uiState.isSaving) {
                         CircularProgressIndicator(
-                            modifier = Modifier.padding(end = 8.dp),
-                            strokeWidth = 2.dp
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = LocalContentColor.current
                         )
                     }
                     Text(stringResource(R.string.common_save))

@@ -2,16 +2,26 @@ package com.guitarapp.songsbook.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -76,6 +86,41 @@ fun BrassPill(
         elevation = 2.dp,
     ) {
         Box(Modifier.padding(contentPadding)) { content() }
+    }
+}
+
+// ---------- Button (primary action in forms: Save) ---------------------------
+
+/**
+ * Brass-gradient replacement for Material's flat `Button`. Disabled state fades the whole
+ * surface (gradient, border, shadow) instead of swapping to a grey fill.
+ */
+@Composable
+fun BrassButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val shape = RoundedCornerShape(14.dp)
+    BrassSurface(
+        shape = shape,
+        modifier = modifier.alpha(if (enabled) 1f else 0.4f),
+        elevation = if (enabled) 4.dp else 0.dp,
+    ) {
+        ProvideTextStyle(MaterialTheme.typography.labelLarge) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .clickable(enabled = enabled, onClick = onClick)
+                    .heightIn(min = 40.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                content = content,
+            )
+        }
     }
 }
 
