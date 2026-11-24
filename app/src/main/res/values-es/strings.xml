@@ -131,7 +131,13 @@
     <string name="about_title">Acerca de</string>
     <string name="about_description">Tu cuaderno personal de canciones y acordes de guitarra. Agrega tus propias canciones, organízalas en listas y toca con confianza.</string>
     <string name="about_license_label">Licencia</string>
-    <string name="about_license_text">GNU General Public License v3.0\nEsta app es de código abierto. Las versiones derivadas también deben publicarse bajo GPL v3.</string>
+    <string name="about_license_text">GNU General Public License v3.0 o posterior\nCancionero es software libre: puedes usarlo, estudiarlo, compartirlo y modificarlo. Si distribuyes una versión modificada, debes publicarla bajo la misma licencia, con su código fuente.\nEl nombre «Cancionero» y su logo no están cubiertos por esta licencia.</string>
+    <string name="about_source_label">Código fuente</string>
+    <string name="about_source_text">github.com/JesuZConte/guitar-songsbook</string>
+    <string name="about_content_label">Tus canciones</string>
+    <string name="about_content_text">Cancionero no incluye letras de canciones. Las canciones que agregas se guardan solo en tu dispositivo y son tu responsabilidad: agrega únicamente música que tengas derecho a usar. Los ejemplos incluidos son canciones tradicionales de dominio público.</string>
+    <string name="about_third_party_label">Componentes de código abierto</string>
+    <string name="about_third_party_text">AndroidX, Jetpack Compose, Room, Kotlin, Gson y Reorderable: Apache License 2.0. Fuentes Merriweather y JetBrains Mono: SIL Open Font License 1.1. Google Mobile Ads y Firebase: términos de Google. Detalles en el repositorio del proyecto (THIRD_PARTY_NOTICES.md).</string>
     <string name="about_version">Versión %1$s</string>
 
     <!-- Agregar / editar canción -->

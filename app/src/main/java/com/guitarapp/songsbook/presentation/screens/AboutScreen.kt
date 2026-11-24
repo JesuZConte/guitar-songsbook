@@ -1,5 +1,9 @@
+// SPDX-FileCopyrightText: 2026 Luis Jesus
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package com.guitarapp.songsbook.presentation.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +45,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .padding(bottom = paddingValues.calculateBottomPadding())
                     .padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -71,19 +78,29 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = stringResource(R.string.about_license_label),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = c.section
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.about_license_text),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = c.inkSoft,
-                    textAlign = TextAlign.Center
-                )
+                AboutSection(R.string.about_license_label, R.string.about_license_text)
+                AboutSection(R.string.about_source_label, R.string.about_source_text)
+                AboutSection(R.string.about_content_label, R.string.about_content_text)
+                AboutSection(R.string.about_third_party_label, R.string.about_third_party_text)
             }
         }
     }
+}
+
+@Composable
+private fun AboutSection(@StringRes label: Int, @StringRes text: Int) {
+    val c = LocalLeatherColors.current
+    Text(
+        text = stringResource(label),
+        style = MaterialTheme.typography.labelMedium,
+        color = c.section
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+        text = stringResource(text),
+        style = MaterialTheme.typography.bodySmall,
+        color = c.inkSoft,
+        textAlign = TextAlign.Center
+    )
+    Spacer(modifier = Modifier.height(24.dp))
 }

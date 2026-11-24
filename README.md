@@ -97,4 +97,8 @@ This project is not currently accepting external contributions. The codebase is 
 
 ## License
 
-GPL v3 — see [LICENSE](LICENSE) for details. Derivatives must also be open-sourced under GPL. The "Cancionero" branding is reserved.
+Cancionero is free software, licensed under the **GNU General Public License v3.0 or later** (`GPL-3.0-or-later`). See [LICENSE](LICENSE).
+
+- You may use, study, share and modify it. If you distribute a modified version, you must release it under the same license, with its source code.
+- [NOTICE.md](NOTICE.md) adds a permission to link the proprietary Google SDKs (AdMob, Firebase, Play services) and reserves the name, logo and icon: forks must use their own.
+- The license covers the code only. Songs and lyrics belong to their rights holders; the app ships only public-domain examples. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the libraries and fonts used.

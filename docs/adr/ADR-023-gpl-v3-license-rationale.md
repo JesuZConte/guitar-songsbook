@@ -1,7 +1,7 @@
 # ADR-023: License choice — GPL v3
 
 ## Status
-Accepted
+Accepted — amended by [ADR-026](ADR-026-license-compliance-and-scope.md) (2026-11-24): verbatim license text, `GPL-3.0-or-later`, section 7 permission for Google SDKs, and branding via trademark (not copyright).
 
 ## Context
 

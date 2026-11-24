@@ -131,7 +131,13 @@
     <string name="about_title">About</string>
     <string name="about_description">Your personal notebook for guitar songs and chords. Add your own songs, organize them in playlists, and play with confidence.</string>
     <string name="about_license_label">License</string>
-    <string name="about_license_text">GNU General Public License v3.0\nThis app is open source. Derivatives must also be released under GPL v3.</string>
+    <string name="about_license_text">GNU General Public License v3.0 or later\nCancionero is free software: you can use, study, share and modify it. If you distribute a modified version, you must release it under the same license, with its source code.\nThe name “Cancionero” and its logo are not covered by this license.</string>
+    <string name="about_source_label">Source code</string>
+    <string name="about_source_text">github.com/JesuZConte/guitar-songsbook</string>
+    <string name="about_content_label">Your songs</string>
+    <string name="about_content_text">Cancionero does not provide song lyrics. The songs you add are stored only on your device and are your responsibility: please add only music you have the right to use. The built-in examples are traditional public-domain songs.</string>
+    <string name="about_third_party_label">Open source components</string>
+    <string name="about_third_party_text">AndroidX, Jetpack Compose, Room, Kotlin, Gson and Reorderable: Apache License 2.0. Merriweather and JetBrains Mono fonts: SIL Open Font License 1.1. Google Mobile Ads and Firebase: Google terms. Details in the project repository (THIRD_PARTY_NOTICES.md).</string>
     <string name="about_version">Version %1$s</string>
 
     <!-- Add / Edit song screen -->
