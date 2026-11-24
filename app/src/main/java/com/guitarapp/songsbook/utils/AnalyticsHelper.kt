@@ -26,11 +26,14 @@ object AnalyticsHelper {
     }
 
     // ---- Song events ----
-    fun logSongOpened(songId: String, songTitle: String) {
-        crashlytics.log("song_opened: $songTitle (id=$songId)")
+    /**
+     * Only the internal id is sent, never the title: titles are typed by the user and the app
+     * promises that song content stays on the device (see docs/PRIVACY_POLICY.md).
+     */
+    fun logSongOpened(songId: String) {
+        crashlytics.log("song_opened (id=$songId)")
         analytics.logEvent("song_opened", Bundle().apply {
             putString("song_id", songId)
-            putString("song_title", songTitle)
         })
     }
 

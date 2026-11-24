@@ -83,7 +83,7 @@ class ReaderViewModel(
                         )
                         state.copy(song = song, isLoading = false, selectedVersionIndex = newIndex)
                     }
-                    AnalyticsHelper.logSongOpened(song.id, song.title)
+                    AnalyticsHelper.logSongOpened(song.id)
                 } else {
                     _uiState.update { it.copy(isLoading = false, error = "Song not found") }
                 }
