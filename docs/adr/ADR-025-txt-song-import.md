@@ -24,7 +24,7 @@ So a `.txt` import is mostly a **new entry point into an existing pipeline**, no
 
 ## Phase 0 results (2026-11-23)
 
-Samples: `docs/songs/Camino de Luz.txt`, `docs/songs/Fading like a flower.txt`. Both were run through a faithful Python port of `OverUnderConverter.convert` + `BracketParser.parse` as of `6e09cd4`. It is a port, not the Kotlin code itself, so the findings must be reproduced as unit tests before fixing.
+Samples (kept local only, git-ignored because one contains a commercial song's lyrics): `docs/songs/Camino de Luz.txt`, `docs/songs/Fading like a flower.txt`. Both were run through a faithful Python port of `OverUnderConverter.convert` + `BracketParser.parse` as of `6e09cd4`. It is a port, not the Kotlin code itself, so the findings must be reproduced as unit tests before fixing.
 
 **Good news:**
 - **Column alignment holds.** Chords sit at the right character over the lyric. The core risk that blocks ADR-024 does not apply here.
@@ -37,7 +37,7 @@ Samples: `docs/songs/Camino de Luz.txt`, `docs/songs/Fading like a flower.txt`. 
 
 - **A. Spanish section headers become chords.** `SECTION_NAMES` is English-only. `[Estrofa 1]`, `[Coro]`, `[Estribillo]`, `[Primera Parte]`, `[Segunda Parte]` and `[Final]` are not recognised as headers, so `BracketParser` turns them into chords named "Estrofa 1", "Coro", and so on. The whole song collapses into a single `verse 1`.
 - **B. A header followed by chords on the same line loses the header.** On `[Intro] F  Bb  Dm  C`, 4 of 5 tokens are chords, so the line counts as a chord line and the `[Intro]` label is dropped. On `[Solo] Dm  F  C` only 3 of 4 are chords, which is under the 80% threshold, so `Solo` becomes a chord and `Dm  F  C` becomes lyric text.
-- **C. Chords past the end of the lyric corrupt the brackets (real bug).** In `mergeChordAndLyricLines`, `min(col, sb.length)` uses the length *after* earlier insertions. When several chords fall past the end of a short lyric (`D5  C5  F5  G5` over `Fading like a rose`), one gets inserted *inside* another's bracket: `Fading like a rose[[C5]G5]…` → chords `D5`, `[C5`, `F5` and the visible text `roseG5]`. Fix: pad the lyric with spaces up to the chord column before inserting.
+- **C. Chords past the end of the lyric corrupt the brackets (real bug).** In `mergeChordAndLyricLines`, `min(col, sb.length)` uses the length *after* earlier insertions. When several chords fall past the end of a short lyric (`D5  C5  F5  G5` over a 4-word lyric line), one gets inserted *inside* another's bracket: `…word[[C5]G5]…` → chords `D5`, `[C5`, `F5` and stray `G5]` left in the visible text. Fix: pad the lyric with spaces up to the chord column before inserting.
 - **D. Metadata lines end up as lyrics.** Two header styles were seen: labelled (`Título: …` / `Tono: C (Do mayor) | Tempo: 80 BPM`) and bare (`Fading like a flower` / `Roxette` / `Tono:  F`). Both are rendered as the song's first lyric lines.
 - **E. Tab blocks** (`E|-7--7-9b10r9--…|`) come through as plain lyric lines. That is tolerable: the reader uses a monospace font, but long lines may wrap. Deferred.
 

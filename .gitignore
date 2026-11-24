@@ -19,3 +19,6 @@ app/google-services.json
 .claude/
 personal/
 .idea/
+
+# Tester sample files with third-party song lyrics (kept local, never committed)
+docs/songs/*.txt
