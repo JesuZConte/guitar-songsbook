@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Luis Jesus
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package com.guitarapp.songsbook.data.local
 
 import androidx.room.TypeConverter

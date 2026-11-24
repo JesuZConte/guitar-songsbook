@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Luis Jesus
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 package com.guitarapp.songsbook.presentation.viewmodel
 
 import com.guitarapp.songsbook.domain.model.Song
