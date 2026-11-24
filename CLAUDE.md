@@ -11,8 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Run unit tests
 ./gradlew test
 
-# Run a single test class
-./gradlew test --tests "com.guitarapp.songsbook.presentation.viewmodel.SearchFilterTest"
+# Run a single test class (plain `test --tests` fails on Android: use the variant task)
+./gradlew :app:testDebugUnitTest --tests "com.guitarapp.songsbook.presentation.viewmodel.SearchFilterTest"
 
 # Build and install on connected device/emulator
 ./gradlew installDebug

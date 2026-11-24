@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-06-08
+Last verified: 2026-11-24
 
 ---
 
@@ -14,7 +14,7 @@ Everything in this section is verified in the codebase.
 | Feature | Key file(s) | ADR |
 |---------|-------------|-----|
 | Song library — search, genre/difficulty filters | `HomeScreen.kt`, `HomeViewModel.kt` | — |
-| Room database with seeded content (48+ songs) | `SongDatabase.kt`, `assets/songs.json` | [ADR-002](adr/ADR-002-local-first-no-backend.md) |
+| Room database with seeded content (3 public-domain songs: Amazing Grace, Greensleeves, Scarborough Fair) | `SongDatabase.kt`, `assets/songs.json` | [ADR-002](adr/ADR-002-local-first-no-backend.md) |
 | Bracket format import + song builder | `AddSongScreen.kt`, `BracketParser.kt` | [ADR-012](adr/ADR-012-bracket-format-import.md) |
 | Chord reader with positioned chords | `SongReaderScreen.kt`, `SongContentComponents.kt` | — |
 | Render-then-measure pagination (HorizontalPager) | `SongContentComponents.kt` → `VirtualPagedSong` | [ADR-013](adr/ADR-013-render-then-measure-pagination.md) |
@@ -31,6 +31,7 @@ Everything in this section is verified in the codebase.
 | Chord auto-detection on import ("Detectar Formato") | `OverUnderConverter.kt`, `AddSongViewModel.kt` | [ADR-012](adr/ADR-012-bracket-format-import.md) |
 | Long-press delete with undo snackbar (Home) | `HomeScreen.kt`, `HomeViewModel.kt` | — |
 | Pinch-to-zoom font size in Reader | `SongReaderScreen.kt` → `rememberTransformableState` | — |
+| Import song from `.txt` file (title/artist/key/capo extracted, chords-over-lyrics converted, opens Add Song pre-filled) | `HomeScreen.kt` → `importLauncher`, `TextSongImport.kt`, `TextDraftHolder.kt`, `AddSongViewModel.withImportedDraft` | [ADR-025](adr/ADR-025-txt-song-import.md) |
 | Import song from JSON file | `HomeScreen.kt` → `importLauncher`, `HomeViewModel.importSongFromJson` | — |
 | Smart import — duplicate title detection + version merge | `ImportConflictDialog.kt`, `HomeViewModel`, `AddSongViewModel`, `TitleNormalizer.kt` — accent-insensitive matching; dialog offers merge-as-version or save-separate | — |
 | Language selector (Idiomas) | `SettingsScreen.kt` → `LanguageSelectorRow` | — |
@@ -38,6 +39,56 @@ Everything in this section is verified in the codebase.
 | AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
 | Signed AAB — Play Store ready | `build.gradle.kts` (signing config) | — |
 | Setlist mode | Continuous reader across a collection; forward-only swipe; bottom nav hidden; back returns to Collection | — |
+
+---
+
+## Distribution
+
+| Item | State (2026-11-24) |
+|------|--------------------|
+| Play Console track | **Closed testing** — recruiting 12 testers for 14 continuous days (required before production access) |
+| Latest uploaded bundle | **1.4.5 (versionCode 12)** |
+| Repo `app/build.gradle.kts` | 1.4.5 (12). The changes below are **not** in that bundle; next bundle = 1.4.6 (13) |
+
+---
+
+## v1.4.5 — Uploaded to closed testing ✓
+
+| Change | File(s) |
+|--------|---------|
+| Open a `.json` song from outside the app (VIEW intent, read off the main thread) | `AndroidManifest.xml`, `MainActivity.kt` (`handleIncomingIntent`) — commits `493e83c` (its message says "add space between chords" but it does not touch chords; that fix shipped in 1.4.4) and `52ad60f` |
+| Edit-version routing: reader keeps the right version after reload | `ReaderViewModel.kt` (`resolveVersionIndexOnReload`), `SongReaderScreen.kt`, `ResolveVersionIndexOnReloadTest` |
+| Reader performance: per-page item composition, deferred pagination (Día 30 phases 0, 1, 3) | `SongContentComponents.kt`, `SongReaderScreen.kt` — [ADR-013](adr/ADR-013-render-then-measure-pagination.md), [PLAN_DIA30](PLAN_DIA30_COMPLETADO.md) |
+
+---
+
+## After 1.4.5 — Committed on `main`, not yet released
+
+| Change | File(s) | Ref |
+|--------|---------|-----|
+| `.txt` song import (Home → "Importar desde archivo" accepts `.json` and `.txt`) | `TextSongImport.kt`, `TextDraftHolder.kt`, `HomeScreen.kt`, `MainActivity.kt`, `AddSongScreen.kt` | [ADR-025](adr/ADR-025-txt-song-import.md) |
+| Parser fixes (also for pasted text): Spanish section labels → canonical keys, `[Intro] F Bb` split, chord padding past lyric end | `BracketParser.kt`, `OverUnderConverter.kt` | ADR-025 phase 1a |
+| `BrassButton` for the Save buttons (gradient, faded when disabled) | `ui/components/Brass.kt`, `AddSongScreen.kt`, `VersionEditorScreen.kt` | — |
+| Official GPL v3 `LICENSE`, `GPL-3.0-or-later` SPDX headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, `licenses/`, About screen license block | repo root, all `.kt` | [ADR-026](adr/ADR-026-license-compliance-and-scope.md) |
+| `docs/songs/` is local-only (git-ignored) | `.gitignore` | ADR-026 |
+
+**Uncommitted (2026-11-24):** song titles no longer sent to Firebase Analytics / Crashlytics (`AnalyticsHelper.logSongOpened(songId)`), and the privacy policy draft `docs/PRIVACY_POLICY.md`.
+
+---
+
+## Legal & store compliance
+
+See the full checklist in [ADR-026](adr/ADR-026-license-compliance-and-scope.md).
+
+| Item | State |
+|------|-------|
+| License text, SPDX headers, NOTICE, third-party notices, font licenses | ✓ Done |
+| Privacy policy | **Draft written** (`PRIVACY_POLICY.md`); needs contact email, publication at a public URL and the URL in Play Console |
+| Ad consent flow (Google UMP) for EEA/UK users | ✗ **Not implemented** — blocks serving ads there; the policy text assumes it exists |
+| Play "Data safety" form vs. actual SDK behavior | To reconcile (Analytics, Crashlytics, AdMob advertising ID) |
+| Third-party lyrics in git history (`5ea0339`, `81306c0`) | Open — rewrite history only if Luis decides |
+| Launcher icon rights (made in Canva) | Open — written confirmation + Canva terms |
+| Lyrics can travel in JSON backups shared between users | Open — add a notice on the share action |
 
 ---
 
