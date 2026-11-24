@@ -2,7 +2,7 @@
 DRAFT — do NOT link this from Google Play until every item below is done.
 (HTML comments are not shown when GitHub renders the page.)
 
- 1. Replace [CONTACT EMAIL] and [EFFECTIVE DATE] (both languages).
+ 1. DONE (2026-11-24): contact email and effective date filled in (both languages).
  2. The consent sentence in section 3.3 (EN and ES) is only true once an ad-consent flow
     (Google UMP) is implemented for EEA/UK users. It is NOT implemented yet.
  3. Verify the Firebase retention settings mentioned in section 7 in the Firebase console.
@@ -15,9 +15,9 @@ DRAFT — do NOT link this from Google Play until every item below is done.
 
 # Privacy Policy — Cancionero
 
-*Effective date: [EFFECTIVE DATE] · Español abajo / Spanish version below*
+*Effective date: 2026-11-24 · Español abajo / Spanish version below*
 
-Cancionero ("the app", "we") is a personal songbook for guitarists, published by **Luis Jesus**. This policy explains what information the app handles and why. Contact: **[CONTACT EMAIL]**.
+Cancionero ("the app", "we") is a personal songbook for guitarists, published by **Luis Jesus**. This policy explains what information the app handles and why. Contact: **jesuzconte@gmail.com**.
 
 ## 1. In short
 
@@ -80,7 +80,7 @@ Local data stays until you delete it or uninstall the app. Analytics and crash d
 Depending on where you live, you may have the right to access, correct, delete, restrict or object to the processing of your data, to withdraw consent, and to complain to your data protection authority. You can:
 - delete all local data by uninstalling the app or clearing its storage (this also resets the app's random identifiers);
 - reset or delete your advertising ID and opt out of ad personalization in Android settings;
-- contact us at **[CONTACT EMAIL]**. Because the data is tied to random identifiers and not to your identity, we may ask you for the app version and device details to locate it.
+- contact us at **jesuzconte@gmail.com**. Because the data is tied to random identifiers and not to your identity, we may ask you for the app version and device details to locate it.
 
 California residents: we do not sell personal information. Ad-related sharing can be limited through your Android ad settings.
 
@@ -96,9 +96,9 @@ If we add features that change how data is handled (for example accounts or clou
 
 # Política de privacidad — Cancionero
 
-*Fecha de vigencia: [FECHA DE VIGENCIA]*
+*Fecha de vigencia: 2026-11-24*
 
-Cancionero ("la app", "nosotros") es un cancionero personal para guitarristas, publicado por **Luis Jesus**. Esta política explica qué información maneja la app y para qué. Contacto: **[CORREO DE CONTACTO]**.
+Cancionero ("la app", "nosotros") es un cancionero personal para guitarristas, publicado por **Luis Jesus**. Esta política explica qué información maneja la app y para qué. Contacto: **jesuzconte@gmail.com**.
 
 ## 1. En resumen
 
@@ -161,7 +161,7 @@ Los datos locales permanecen hasta que los borres o desinstales la app. Google c
 Según dónde vivas, puedes tener derecho a acceder, rectificar, suprimir, limitar u oponerte al tratamiento de tus datos, a retirar tu consentimiento y a presentar una reclamación ante tu autoridad de protección de datos. Puedes:
 - borrar todos los datos locales desinstalando la app o borrando su almacenamiento (esto también restablece los identificadores aleatorios de la app);
 - restablecer o eliminar tu ID de publicidad y desactivar la personalización de anuncios en los ajustes de Android;
-- escribirnos a **[CORREO DE CONTACTO]**. Como los datos están asociados a identificadores aleatorios y no a tu identidad, podemos pedirte la versión de la app y datos del dispositivo para localizarlos.
+- escribirnos a **jesuzconte@gmail.com**. Como los datos están asociados a identificadores aleatorios y no a tu identidad, podemos pedirte la versión de la app y datos del dispositivo para localizarlos.
 
 Residentes de California: no vendemos información personal. Puedes limitar el uso compartido relacionado con anuncios en los ajustes de anuncios de Android.
 
