@@ -32,7 +32,8 @@ Product purpose, for coherence ([ADR-009](ADR-009-personal-songbook-vision.md), 
 | Official GPL text in `LICENSE` | Done (2026-11-24): 674 lines / 5,644 words, sections 0-17 in official order (the abridged version also mis-numbered 11-13, omitting "Patents") |
 | SPDX headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, OFL texts, README, About screen | Done |
 | Full Apache-2.0 texts bundled for offline distribution | Open: consider Google's `oss-licenses-plugin` to generate and show them in-app |
-| **Privacy policy URL** (required by Google Play for AdMob, Analytics, Crashlytics) | **Open: none found in the repository.** Must be published and linked in the Play listing; the Data safety form already declares collection |
+| **Privacy policy URL** (required by Google Play for AdMob, Analytics, Crashlytics) | **Draft written** (`docs/PRIVACY_POLICY.md`, EN+ES). Open: contact email, publish at a public URL, link it in Play Console |
+| Song titles were sent to Firebase Analytics and Crashlytics (`song_opened`) | Fixed 2026-11-24: only the internal song id is sent |
 | **Ads consent (GDPR/UK/EEA)**: AdMob requires a consent flow (Google UMP SDK) for users in those regions | **Open: no consent code found.** Needed before serving ads there |
 | Third-party lyrics in git history (`5ea0339`, `81306c0`, already on `origin/main`) | Open: rewrite history with `git filter-repo` + force-push if the repo is public or will be |
 | Launcher icon authorship and Canva terms (made by a family member in Canva) | Open: get written confirmation of rights; check Canva's terms for use in a brand/logo |

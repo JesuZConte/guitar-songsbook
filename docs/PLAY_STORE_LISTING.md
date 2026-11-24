@@ -64,8 +64,23 @@ guitar, chords, songbook, chord chart, tabs, setlist, playlist, musician, band, 
 
 ## Data safety section (Play Store form)
 
-| Item | Value |
-|---|---|
+> Rewritten 2026-11-24 to match the code. The old table said "Data collected: None", which is
+> not accurate: Analytics, Crashlytics and AdMob collect data. **Compare with what is actually
+> declared in Play Console and make them match `docs/PRIVACY_POLICY.md`.**
+
+| Data type | Collected | Shared | Purpose | Source |
+|---|---|---|---|---|
+| App interactions (screens, song opened by internal id, add/edit/delete) | Yes | Yes (Google) | Analytics | Firebase Analytics |
+| Crash logs and diagnostics | Yes | Yes (Google) | App functionality / analytics | Firebase Crashlytics |
+| Device or other IDs (app-instance id, installation id, advertising ID) | Yes | Yes (Google) | Analytics, advertising | Firebase, AdMob |
+| Approximate location (from IP) | Yes | Yes (Google) | Analytics, advertising | Firebase, AdMob |
+| Songs, lyrics, playlists, notes | **No** (never leave the device) | No | — | — |
+| Name, email, phone, precise location, contacts | No | No | — | — |
+
+Encrypted in transit: yes (SDK traffic over HTTPS). Account creation: none. Data deletion
+request: contact email in the privacy policy; local data is removed by uninstalling.
+
+---|---|
 | Data collected | None |
 | Data shared with third parties | Crash data (Firebase Crashlytics, anonymized) |
 | Data encrypted in transit | Yes |
