@@ -143,6 +143,50 @@ Nota: la frase de consentimiento de la política (§3.3) solo es cierta cuando 1
 4. Confirmar que los testers siguen inscritos (una versión nueva no debería reiniciar sus 14 días;
    verificarlo en la consola).
 
+## Progreso del día 32 (2026-11-24 → 25, sesión 1) — para retomar
+
+**Hecho y subido a `main` (`776750d`):** política publicada en Pages
+(`https://jesuzconte.github.io/guitar-songsbook/privacy.html`, workflow en dos jobs, fuente
+"GitHub Actions"); consentimiento UMP completo (ADR-027, 220/220 tests, verificado en el A50 con
+EEE simulado: formulario, rechazar, reabrir desde Ajustes, aceptar, persistencia); `CLAUDE.md`
+reescrito con las reglas de trabajo; planes del día 20 y 23 limpiados.
+
+**En AdMob/Play (hecho por Luis):** URL de la política en AdMob y en Play Console; mensaje GDPR
+publicado (EN por defecto, ES extra, Consentir / No consentir / Gestionar opciones; consentimiento
+alternativo y "cerrar como no consentir" apagados). Formulario de Seguridad de los datos **en curso**:
+respondido "recoge datos: Sí", "cifrado en tránsito: Sí", "no hay cuentas", "eliminación: Sí".
+
+**Preparado, SIN commitear (esperando visto bueno de Luis):**
+- `docs/DATA_DELETION.md` + `sites/delete-data.html` (pasos, qué se borra/conserva, plazos:
+  eventos Analytics 2 meses, datos de usuario 14 meses, Crashlytics 90 días, respuesta en 30 días).
+- `docs/PRIVACY_POLICY.md` (§8 enlaza a la página nueva) y `sites/privacy.html` regenerado.
+- `tools/privacy_md_to_html.py` ampliado (tablas, enlaces, título).
+- `docs/PLAY_STORE_LISTING.md`: tabla antigua "None" eliminada, hoja de respuestas del formulario,
+  fila "recoge datos personales" corregida.
+
+**Siguiente, en orden:**
+1. Commit + push de lo preparado (se despliega solo) y comprobar
+   `https://jesuzconte.github.io/guitar-songsbook/delete-data.html` en EN y ES.
+2. Luis pega esa URL en el campo de eliminación de datos de Play y termina el formulario
+   (tipos: ubicación aproximada, interacciones, fallos y diagnósticos, ID de dispositivo; todos
+   recogidos y compartidos, obligatorios). Cotejar con las páginas "Play data disclosure" de AdMob
+   y Firebase. Comparar el resumen final con la política.
+3. Decidir la reescritura del historial (letras en `5ea0339`, `81306c0`; repo público): respaldo
+   `git clone --mirror`, filter-repo, force-push solo con confirmación, pedir purga a GitHub Support.
+4. Opcional: añadir "prevención de fraude y abuso en publicidad" a §4 de la política (el formulario
+   lo declara como finalidad).
+5. Fase 2: diferir el banner de AdMob y **medir el arranque en release** (el consentimiento puede
+   afectarlo; en debug mide ~4,4 s en el A50, sin referencia previa).
+6. Fase 4: release 1.4.6 (versionCode 13): importar `.txt`, Acerca de, consentimiento; bundle firmado;
+   subir a la prueba cerrada.
+7. Cerrar el día: renombrar a `_COMPLETADO`, actualizar `STATUS.md` ("Last verified"), crear el plan
+   del día 33.
+
+**Sin verificar todavía:** instalación nueva en el EEE sin red (falla cerrado, solo tests unitarios);
+que Analytics se apague/encienda en el dispositivo; la lista de tipos del formulario contra Google.
+
+**Idea futura (Luis):** compra dentro de la app para quitar anuncios (v2).
+
 ## Orden y tiempos estimados
 
 Fase 0 → Fase 1 (≈ medio día; 1.3 es lo más largo) → Fase 4 si 1 termina →

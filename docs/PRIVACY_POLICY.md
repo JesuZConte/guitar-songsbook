@@ -80,7 +80,7 @@ Local data stays until you delete it or uninstall the app. Analytics and crash d
 Depending on where you live, you may have the right to access, correct, delete, restrict or object to the processing of your data, to withdraw consent, and to complain to your data protection authority. You can:
 - delete all local data by uninstalling the app or clearing its storage (this also resets the app's random identifiers);
 - reset or delete your advertising ID and opt out of ad personalization in Android settings;
-- contact us at **jesuzconte@gmail.com**. Because the data is tied to random identifiers and not to your identity, we may ask you for the app version and device details to locate it.
+- contact us at **jesuzconte@gmail.com** (steps, data deleted and retention periods: [Delete your data](delete-data.html)). Because the data is tied to random identifiers and not to your identity, we may ask you for the app version and device details to locate it.
 
 California residents: we do not sell personal information. Ad-related sharing can be limited through your Android ad settings.
 
@@ -161,7 +161,7 @@ Los datos locales permanecen hasta que los borres o desinstales la app. Google c
 Según dónde vivas, puedes tener derecho a acceder, rectificar, suprimir, limitar u oponerte al tratamiento de tus datos, a retirar tu consentimiento y a presentar una reclamación ante tu autoridad de protección de datos. Puedes:
 - borrar todos los datos locales desinstalando la app o borrando su almacenamiento (esto también restablece los identificadores aleatorios de la app);
 - restablecer o eliminar tu ID de publicidad y desactivar la personalización de anuncios en los ajustes de Android;
-- escribirnos a **jesuzconte@gmail.com**. Como los datos están asociados a identificadores aleatorios y no a tu identidad, podemos pedirte la versión de la app y datos del dispositivo para localizarlos.
+- escribirnos a **jesuzconte@gmail.com** (pasos, datos eliminados y plazos de conservación: [Eliminar tus datos](delete-data.html)). Como los datos están asociados a identificadores aleatorios y no a tu identidad, podemos pedirte la versión de la app y datos del dispositivo para localizarlos.
 
 Residentes de California: no vendemos información personal. Puedes limitar el uso compartido relacionado con anuncios en los ajustes de anuncios de Android.
 

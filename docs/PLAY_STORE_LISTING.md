@@ -46,7 +46,7 @@ No unnecessary features. No clutter. Just a clean, fast tool that gets out of th
 | Does the app contain controlled substance references? | No |
 | Does the app target children under 13? | No |
 | Does the app contain ads? | Yes — banner ads (AdMob) |
-| Does the app collect personal data? | No |
+| Does the app collect personal data? | Limited technical data and the advertising ID through Google SDKs (Analytics, Crashlytics, AdMob); no name, email or location; songs stay on the device. See Data safety below |
 | Does the app use location? | No |
 | Does the app use the camera or microphone? | No |
 
@@ -80,11 +80,25 @@ guitar, chords, songbook, chord chart, tabs, setlist, playlist, musician, band, 
 Encrypted in transit: yes (SDK traffic over HTTPS). Account creation: none. Data deletion
 request: contact email in the privacy policy; local data is removed by uninstalling.
 
----|---|
-| Data collected | None |
-| Data shared with third parties | Crash data (Firebase Crashlytics, anonymized) |
-| Data encrypted in transit | Yes |
-| Users can request data deletion | N/A — no data is collected |
+
+### Answers for the Play Console form (prepared 2026-11-24)
+
+Based on the code: manifest permissions come only from the Google SDKs (internet, network state,
+advertising ID); no accounts; songs stay on the device; Analytics is off until consent
+(ADR-027); Crashlytics is always on.
+
+1. **Collects or shares required user data types?** Yes.
+2. **All data encrypted in transit?** Yes.
+3. **Way to request data deletion?** Yes: contact email and the policy page. Local data is removed by uninstalling.
+4. **Data types to tick** (each: *collected* and *shared*; AdMob is a third-party ad network, so treat as shared):
+   - Location > **Approximate location**: Analytics, advertising.
+   - App activity > **App interactions**: Analytics.
+   - App info and performance > **Crash logs** and **Diagnostics**: app functionality, analytics.
+   - Device or other IDs > **Device or other IDs** (app-instance id, installation id, advertising ID): analytics, advertising or marketing, fraud prevention.
+5. **Is collection required or optional?** Required (users outside the EEA/UK/Switzerland cannot opt out; inside them the consent form applies).
+6. **Not collected, leave unticked:** personal info (name, email, phone, address), financial info, health, messages, photos and videos, audio, **files and docs** (imported files are read on the device and never sent), calendar, contacts, web browsing, precise location.
+7. **Cross-check:** verify the AdMob and Firebase lists against Google's own pages ("Google Mobile Ads SDK: Play data disclosure" and "Firebase: Play data disclosure"), since SDK versions can change what they collect. Re-check after each SDK upgrade.
+8. **Privacy policy URL:** https://jesuzconte.github.io/guitar-songsbook/privacy.html
 
 ---
 
