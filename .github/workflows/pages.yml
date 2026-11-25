@@ -1,5 +1,7 @@
 # Publishes the static pages in /sites (privacy policy) with GitHub Pages.
 # One-time setup: repo Settings -> Pages -> Source: "GitHub Actions".
+# Build and deploy are separate jobs (GitHub's official layout): deploying in the same job
+# as the upload can fail with "Found 0 artifact(s)" because the artifact is not listed yet.
 name: Deploy Pages
 on:
   push:
@@ -14,16 +16,20 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: sites
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
