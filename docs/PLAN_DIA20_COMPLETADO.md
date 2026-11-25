@@ -1,5 +1,8 @@
 # Día 20 — Plan (2026-04-20)
 
+**Estado: COMPLETADO** (cerrado retroactivamente el 2026-11-24)
+**Resultado:** se ejecutó el plan A + B: exportar/importar canciones en JSON (v1.3) y detección de formato over/under (v1.4), según el contexto de `PLAN_DIA21_COMPLETADO.md`. Las opciones C y D quedaron como ideas (C se hizo en el Día 23).
+
 ## Contexto
 
 Prueba cerrada alpha en curso. Seguimos con mejoras locales de v1.x que aporten
