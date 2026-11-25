@@ -52,6 +52,8 @@ import com.guitarapp.songsbook.utils.NotationSystem
 fun SettingsScreen(
     onBackClick: () -> Unit,
     onAboutClick: () -> Unit = {},
+    showPrivacyOptions: Boolean = false,
+    onPrivacyOptionsClick: () -> Unit = {},
     onThemeModeChanged: (ThemeMode) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -116,8 +118,12 @@ fun SettingsScreen(
             SignInRow()
             HorizontalDivider()
             SettingsSectionHeader(stringResource(R.string.settings_section_app))
-            AboutRow(onAboutClick)
+            SettingsLinkRow(stringResource(R.string.settings_about), onAboutClick)
             HorizontalDivider()
+            if (showPrivacyOptions) {
+                SettingsLinkRow(stringResource(R.string.settings_privacy_options), onPrivacyOptionsClick)
+                HorizontalDivider()
+            }
             } // inner Column
         } // outer Column
     } // Scaffold
@@ -139,7 +145,7 @@ private fun SettingsSectionHeader(title: String) {
 }
 
 @Composable
-private fun AboutRow(onClick: () -> Unit) {
+private fun SettingsLinkRow(text: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +154,7 @@ private fun AboutRow(onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = stringResource(R.string.settings_about),
+            text = text,
             style = MaterialTheme.typography.bodyLarge,
             color = LocalLeatherColors.current.ink,
             modifier = Modifier.weight(1f)

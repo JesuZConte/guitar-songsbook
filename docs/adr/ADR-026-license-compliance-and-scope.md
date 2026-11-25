@@ -34,7 +34,7 @@ Product purpose, for coherence ([ADR-009](ADR-009-personal-songbook-vision.md), 
 | Full Apache-2.0 texts bundled for offline distribution | Open: consider Google's `oss-licenses-plugin` to generate and show them in-app |
 | **Privacy policy URL** (required by Google Play for AdMob, Analytics, Crashlytics) | **Draft written** (`docs/PRIVACY_POLICY.md`, EN+ES). Open: contact email, publish at a public URL, link it in Play Console |
 | Song titles were sent to Firebase Analytics and Crashlytics (`song_opened`) | Fixed 2026-11-24: only the internal song id is sent |
-| **Ads consent (GDPR/UK/EEA)**: AdMob requires a consent flow (Google UMP SDK) for users in those regions | **Open: no consent code found.** Needed before serving ads there |
+| **Ads consent (GDPR/UK/EEA)**: AdMob requires a consent flow (Google UMP SDK) for users in those regions | **Open: no consent code found.** Decision and design in [ADR-027](ADR-027-ads-and-analytics-consent.md) |
 | Third-party lyrics in git history (`5ea0339`, `81306c0`, already on `origin/main`) | Open: rewrite history with `git filter-repo` + force-push if the repo is public or will be |
 | Launcher icon authorship and Canva terms (made by a family member in Canva) | Open: get written confirmation of rights; check Canva's terms for use in a brand/logo |
 | JSON song sharing between users (WhatsApp workflow) can pass full lyrics | Open: add a short notice on the backup/share action |

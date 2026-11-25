@@ -14,6 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import com.google.android.gms.ads.MobileAds
+import com.guitarapp.songsbook.consent.ConsentController
+import com.guitarapp.songsbook.consent.ConsentState
+import com.guitarapp.songsbook.consent.UmpConsentGateway
+import com.guitarapp.songsbook.utils.AnalyticsHelper
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -125,6 +129,7 @@ class MainActivity : ComponentActivity() {
 
     private val database by lazy { SongDatabase.getInstance(this) }
     private val textDraftHolder = TextDraftHolder()
+    private lateinit var consentController: ConsentController
 
     private val songRepository: SongRepository by lazy {
         AssetSongRepository(assets, database.songDao(), database.songVersionDao())
@@ -160,7 +165,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        MobileAds.initialize(this)
+        // ADR-027: ads and analytics start only after the consent flow allows them.
+        // Debug builds can simulate the EEA: adb shell am start ... --es consent_test_device <hashed id>
+        val debugDevice = if (BuildConfig.DEBUG) intent?.getStringExtra("consent_test_device") else null
+        consentController = ConsentController(
+            gateway = UmpConsentGateway(this, debugDevice),
+            onAdsAllowed = { MobileAds.initialize(this) },
+            onAnalyticsAllowed = { AnalyticsHelper.setCollectionEnabled(it) }
+        )
+        consentController.start()
         lifecycleScope.launch {
             songRepository.getSongs() // ensures songs are seeded before playlist cross-refs
             playlistRepository.ensureDefaultCollections()
@@ -170,6 +183,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         themeMode = UserPreferences.getThemeMode(this)
         setContent {
+            val consentState by consentController.state.collectAsState()
             val darkTheme = when (themeMode) {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
@@ -205,6 +219,8 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             songRepository = songRepository,
                             textDraftHolder = textDraftHolder,
+                            consentState = consentState,
+                            onPrivacyOptionsClick = { consentController.showPrivacyOptions() },
                             playlistRepository = playlistRepository,
                             homeViewModel = homeViewModel,
                             favoritesViewModel = favoritesViewModel,
@@ -337,6 +353,8 @@ private fun GuitarNavHost(
     navController: NavHostController,
     songRepository: SongRepository,
     textDraftHolder: TextDraftHolder,
+    consentState: ConsentState,
+    onPrivacyOptionsClick: () -> Unit,
     playlistRepository: PlaylistRepository,
     homeViewModel: HomeViewModel,
     favoritesViewModel: FavoritesViewModel,
@@ -388,6 +406,7 @@ private fun GuitarNavHost(
                     navController.navigate(Routes.ADD_SONG)
                 },
                 showSettings = false,
+                adsAllowed = consentState.adsAllowed,
                 onBackClick = { navController.popBackStack() },
                 onAddToPlaylist = { songId, playlistId ->
                     playlistsViewModel.addSongToPlaylist(playlistId, songId)
@@ -472,6 +491,8 @@ private fun GuitarNavHost(
             SettingsScreen(
                 onBackClick = { navController.popBackStack() },
                 onAboutClick = { navController.navigate(Routes.ABOUT) },
+                showPrivacyOptions = consentState.privacyOptionsRequired,
+                onPrivacyOptionsClick = onPrivacyOptionsClick,
                 onThemeModeChanged = onThemeModeChanged
             )
         }

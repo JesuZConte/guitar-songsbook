@@ -18,6 +18,11 @@ object AnalyticsHelper {
     private val analytics: FirebaseAnalytics by lazy { Firebase.analytics }
     private val crashlytics: FirebaseCrashlytics by lazy { FirebaseCrashlytics.getInstance() }
 
+    /** Driven by the consent flow (ADR-027); the manifest default is off. */
+    fun setCollectionEnabled(enabled: Boolean) {
+        analytics.setAnalyticsCollectionEnabled(enabled)
+    }
+
     // ---- Screen views ----
     fun logScreenView(screenName: String) {
         analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, Bundle().apply {

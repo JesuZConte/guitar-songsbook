@@ -123,6 +123,7 @@
     <string name="settings_coming_soon">Próximamente</string>
     <string name="settings_section_app">Aplicación</string>
     <string name="settings_about">Acerca de</string>
+    <string name="settings_privacy_options">Opciones de privacidad</string>
     <string name="settings_section_language">Idioma</string>
     <string name="settings_lang_english">English</string>
     <string name="settings_lang_spanish">Español</string>
