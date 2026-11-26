@@ -60,6 +60,7 @@ These Google services process data under Google's own terms; see their policies:
 - To keep the app working and fix crashes (Crashlytics).
 - To understand which features are used and decide what to improve (Analytics).
 - To fund the app through advertising (AdMob).
+- To protect against fraud and abuse, including invalid ad traffic (AdMob, Crashlytics).
 
 Where the law requires a legal basis (GDPR/UK GDPR): crash reports are based on our legitimate interest in keeping the app stable; analytics and personalized advertising are based on your consent where required.
 
@@ -141,6 +142,7 @@ Estos servicios de Google tratan los datos bajo los términos de Google; consult
 - Para que la app funcione y corregir errores (Crashlytics).
 - Para entender qué funciones se usan y decidir qué mejorar (Analytics).
 - Para financiar la app con publicidad (AdMob).
+- Para protegernos del fraude y el abuso, incluido el tráfico publicitario no válido (AdMob, Crashlytics).
 
 Cuando la ley exige una base legal (RGPD/RGPD del Reino Unido): los informes de errores se basan en nuestro interés legítimo en mantener la app estable; el análisis y la publicidad personalizada se basan en tu consentimiento cuando se requiere.
 
