@@ -39,3 +39,12 @@ When Firebase Auth + Firestore sync ships, a **remove ads** IAP or a **Pro subsc
 - `AD_ID` permission must be declared in the manifest (Android 13+)
 - Data safety section must declare Device ID collection for advertising purposes
 - Banner revenue at v1 scale will be negligible — goal is infrastructure, not income
+
+## Implementation note (2026-11-26)
+- Debug builds request Google's public test unit (`AdUnits.GOOGLE_TEST_BANNER`); only release builds
+  use the production unit above, so development devices never produce real impressions.
+- One `AdView` per Activity (`BannerAdHolder`): loaded once, reused when the library screen returns,
+  paused while off screen or with the Activity in the background, destroyed with the Activity.
+- The banner's 50 dp are reserved up front; the first `AdView` is created when the navigation entry
+  reaches RESUMED (after the enter transition). `HomeScreen` takes a `banner` slot and no longer
+  depends on AdMob. Measurements in [PLAN_DIA31](../PLAN_DIA31.md) (day 32, session 2).

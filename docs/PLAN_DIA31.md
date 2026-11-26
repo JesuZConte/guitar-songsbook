@@ -187,6 +187,41 @@ que Analytics se apague/encienda en el dispositivo; la lista de tipos del formul
 
 **Idea futura (Luis):** compra dentro de la app para quitar anuncios (v2).
 
+## Progreso del día 32 (sesión 2, 2026-11-25 → 26)
+
+**Hecho:** Data safety completado por Luis (export cotejado: ubicación aproximada, interacciones,
+fallos, diagnósticos, otros de rendimiento, ID de dispositivo; recogidos y compartidos, obligatorios,
+no temporales); política §4 con "fraude y abuso" (`00c8bf3`, publicado).
+
+**Fase 2.1 — banner de AdMob (sin commitear, esperando visto bueno):**
+- `ads/AdUnits.kt`: debug usa la unidad de prueba de Google (antes el ID de producción estaba fijo
+  y cada prueba en el A50 generaba impresiones reales).
+- `ads/BannerAdHolder.kt`: un solo `AdView` por Activity, se carga una vez, se reutiliza al volver
+  del lector, activo solo con la Activity en primer plano **y** el banner en pantalla, `destroy()`
+  con la Activity. Antes se creaba un `AdView` (WebView + petición) en cada visita y nunca se destruía.
+- `BannerAd.kt`: 50 dp reservados desde el inicio; la primera vez se crea al llegar la entrada de
+  navegación a RESUMED (fin de la transición de 300 ms; medido: 231–290 ms tras componer).
+- `HomeScreen` recibe un slot `banner` en vez de `adsAllowed` (ya no depende de AdMob).
+- Tests: 220 → **231**, todos en verde.
+
+**Mediciones (A50, release, `dumpsys gfxinfo`, anuncio de prueba en ambas versiones):**
+
+| Recorrido | Antes | Después |
+|---|---|---|
+| Entrada en frío a Todas las canciones | jank 35–68 %, p90 36–61 ms, p99 150–250 ms | jank 48–69 %, p90 40–48 ms, p99 150–200 ms |
+| Volver del lector a la biblioteca | 32–36 frames, p90 53–129 ms, p99 121–150 ms | 26–32 frames, p90 30–81 ms, p99 150–200 ms |
+| Control sin banner (entrada en frío) | jank 23–30 %, p99 133–150 ms | — |
+
+- Lección: diferir "dos frames" empeoraba (p99 hasta 300 ms) porque el WebView caía dentro de la
+  animación; esperar a RESUMED lo corrige. El valor real del cambio es corrección (una petición,
+  destroy, pausa fuera de pantalla, IDs de prueba) y menos trabajo al volver; los frames peores no bajan.
+- **Criterio revisado:** "ningún frame >100 ms" no se alcanza por el banner: sin banner ya hay
+  133–150 ms (primera composición/JIT). Ese objetivo pasa a Baseline Profiles + Macrobenchmark
+  (Fase 2.2, día 33). Muestras pequeñas (3–8 corridas, `dumpsys` falla ~1 de cada 4).
+- Sin verificar en el dispositivo: que al volver no se haga una segunda petición de anuncio
+  (cubierto por tests del holder; el SDK no lo registra en release).
+- El A50 quedó con una build release que usa el anuncio de prueba (temporal, ya revertido en el código).
+
 ## Orden y tiempos estimados
 
 Fase 0 → Fase 1 (≈ medio día; 1.3 es lo más largo) → Fase 4 si 1 termina →
