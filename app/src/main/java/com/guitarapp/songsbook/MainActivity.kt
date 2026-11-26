@@ -178,7 +178,6 @@ class MainActivity : ComponentActivity() {
             onAdsAllowed = { MobileAds.initialize(this) },
             onAnalyticsAllowed = { AnalyticsHelper.setCollectionEnabled(it) }
         )
-        consentController.start()
         lifecycleScope.launch {
             songRepository.getSongs() // ensures songs are seeded before playlist cross-refs
             playlistRepository.ensureDefaultCollections()
@@ -241,6 +240,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        // Start consent only after setContent has installed the window decor. UMP touches the
+        // Activity's window from its own thread; started earlier it raced the main thread's
+        // installDecor() and crashed ~1 in 8 cold starts ("Window couldn't find content container
+        // view", Galaxy A50). Google's UMP sample does the same: content first, then consent.
+        consentController.start()
     }
 
     override fun onResume() {
