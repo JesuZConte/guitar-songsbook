@@ -10,8 +10,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-
-private const val BANNER_AD_UNIT_ID = "ca-app-pub-8804586949821046/3185447057"
+import com.guitarapp.songsbook.ads.AdUnits
 
 @Composable
 fun BannerAd(modifier: Modifier = Modifier) {
@@ -20,7 +19,7 @@ fun BannerAd(modifier: Modifier = Modifier) {
         factory = { context ->
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
-                adUnitId = BANNER_AD_UNIT_ID
+                adUnitId = AdUnits.banner()
                 loadAd(AdRequest.Builder().build())
             }
         }
