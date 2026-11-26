@@ -91,6 +91,9 @@ import com.guitarapp.songsbook.data.repository.SongRepository
 import androidx.annotation.StringRes
 import com.guitarapp.songsbook.R
 import com.guitarapp.songsbook.presentation.Routes
+import com.guitarapp.songsbook.ads.BannerAdHolder
+import com.guitarapp.songsbook.presentation.screens.AdViewBanner
+import com.guitarapp.songsbook.presentation.screens.BannerAd
 import com.guitarapp.songsbook.presentation.screens.AboutScreen
 import com.guitarapp.songsbook.presentation.screens.AddSongScreen
 import com.guitarapp.songsbook.presentation.screens.CollectionsLandingScreen
@@ -130,6 +133,8 @@ class MainActivity : ComponentActivity() {
     private val database by lazy { SongDatabase.getInstance(this) }
     private val textDraftHolder = TextDraftHolder()
     private lateinit var consentController: ConsentController
+    /** One banner per Activity, reused across visits to the library (see BannerAdHolder). */
+    private val bannerAds = BannerAdHolder { AdViewBanner(this) }
 
     private val songRepository: SongRepository by lazy {
         AssetSongRepository(assets, database.songDao(), database.songVersionDao())
@@ -220,6 +225,7 @@ class MainActivity : ComponentActivity() {
                             songRepository = songRepository,
                             textDraftHolder = textDraftHolder,
                             consentState = consentState,
+                            bannerAds = bannerAds,
                             onPrivacyOptionsClick = { consentController.showPrivacyOptions() },
                             playlistRepository = playlistRepository,
                             homeViewModel = homeViewModel,
@@ -235,6 +241,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bannerAds.onActivityResumed()
+    }
+
+    override fun onPause() {
+        bannerAds.onActivityPaused()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        bannerAds.destroy()
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -354,6 +375,7 @@ private fun GuitarNavHost(
     songRepository: SongRepository,
     textDraftHolder: TextDraftHolder,
     consentState: ConsentState,
+    bannerAds: BannerAdHolder<AdViewBanner>,
     onPrivacyOptionsClick: () -> Unit,
     playlistRepository: PlaylistRepository,
     homeViewModel: HomeViewModel,
@@ -406,7 +428,7 @@ private fun GuitarNavHost(
                     navController.navigate(Routes.ADD_SONG)
                 },
                 showSettings = false,
-                adsAllowed = consentState.adsAllowed,
+                banner = { if (consentState.adsAllowed) BannerAd(bannerAds) },
                 onBackClick = { navController.popBackStack() },
                 onAddToPlaylist = { songId, playlistId ->
                     playlistsViewModel.addSongToPlaylist(playlistId, songId)

@@ -119,7 +119,7 @@ fun HomeScreen(
     onImportTextFile: (TextSongDraft) -> Unit = {},
     onSettingsClick: () -> Unit = {},
     showSettings: Boolean = true,
-    adsAllowed: Boolean = false,
+    banner: @Composable () -> Unit = {},
     onBackClick: (() -> Unit)? = null,
     onAddToPlaylist: (songId: String, playlistId: Long) -> Unit = { _, _ -> }
 ) {
@@ -254,7 +254,7 @@ fun HomeScreen(
                 }
             }
         },
-        bottomBar = { if (adsAllowed) BannerAd() }
+        bottomBar = banner
     ) { paddingValues ->
         Column(Modifier.fillMaxSize()) {
             LeatherHeader(
