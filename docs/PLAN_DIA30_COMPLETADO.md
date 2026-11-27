@@ -4,7 +4,7 @@
 
 > Cierre del día: el trabajo de rendimiento se hizo el 2026-07-03/04 y salió en la 1.4.5.
 > El plan quedó abierto por meses sin cerrarse. Las fases que **no** se ejecutaron no se
-> descartan: pasan al [plan del día 32](PLAN_DIA31.md#parte-b--plan-del-día-32).
+> descartan: pasan al [plan del día 32](PLAN_DIA31_COMPLETADO.md#parte-b--plan-del-día-32).
 >
 > | Fase | Resultado |
 > |---|---|

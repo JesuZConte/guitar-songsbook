@@ -217,10 +217,49 @@ no temporales); política §4 con "fraude y abuso" (`00c8bf3`, publicado).
   destroy, pausa fuera de pantalla, IDs de prueba) y menos trabajo al volver; los frames peores no bajan.
 - **Criterio revisado:** "ningún frame >100 ms" no se alcanza por el banner: sin banner ya hay
   133–150 ms (primera composición/JIT). Ese objetivo pasa a Baseline Profiles + Macrobenchmark
-  (Fase 2.2, día 33). Muestras pequeñas (3–8 corridas, `dumpsys` falla ~1 de cada 4).
+  (Fase 2.2, día 33). Muestras pequeñas (3–8 corridas). Las corridas "vacías" (~1 de cada 4) que
+  atribuí a `dumpsys` eran en realidad el crash de arranque descrito abajo.
 - Sin verificar en el dispositivo: que al volver no se haga una segunda petición de anuncio
   (cubierto por tests del holder; el SDK no lo registra en release).
-- El A50 quedó con una build release que usa el anuncio de prueba (temporal, ya revertido en el código).
+
+Commits: `7d94802` (unidad de prueba en debug), `2ba990a` (holder + banner diferido), `8404d73`
+(mediciones + nota en ADR-016), `1fdcf15` (1.4.6, versionCode 13). Push hecho.
+
+## Progreso del día 32 (sesión 3, 2026-11-26) — crash de arranque y release
+
+**Crash al abrir la app** (`RuntimeException: Window couldn't find content container view` en
+`PhoneWindow.installDecor` ← `MainActivity.onCreate`), ~1 de cada 8 arranques en frío en el A50.
+- Causa: `consentController.start()` se llamaba antes de `setContent`. UMP toca la ventana de la
+  Activity desde su propio hilo y competía con `installDecor()` del hilo principal (el log muestra
+  dos `DecorView` creados en el mismo milisegundo, uno en el hilo de UMP).
+- Introducido con UMP (`da12066`); **no** estaba en la 1.4.5.
+- Arreglo: iniciar el consentimiento al final de `onCreate`, después de `setContent` (como el
+  ejemplo de Google). Antes 2/15 arranques fallaban; después 0/40. Luis lo confirmó a mano.
+  Commit `45f1809`, push hecho. 231/231 tests en verde.
+- Lección: la verificación de UMP de la sesión 1 no hizo suficientes arranques en frío para un
+  fallo intermitente. Para cambios en `onCreate`, repetir ≥20 arranques en frío en release.
+
+**AdMob:** el A50 quedó registrado como dispositivo de prueba en la consola de AdMob (hay que poner
+el ID de publicidad, no el hash del log; tardó unos minutos). Se ve "Anuncio de prueba". Ojo: el
+aviso `setTestDeviceIds` del log aparece igual aunque el dispositivo esté registrado en la consola;
+la prueba fiable es la etiqueta en el anuncio.
+
+**Release 1.4.6 (versionCode 13):** bundle generado desde `45f1809`, firmado con la clave de subida,
+subido a la prueba cerrada y enviado a revisión por Luis (2026-11-26). Única advertencia: "código
+nativo sin símbolos de depuración" (viene de las librerías; ignorada).
+
+## Cierre del día 32 — qué se hizo realmente
+
+| Fase | Estado |
+|---|---|
+| 0 — Arranque | Hecho. Push al día. **Reescritura del historial: pendiente** (pasa al día 33). |
+| 1 — Privacidad y consentimiento | Hecho: política publicada en Pages, URL en Play y AdMob, UMP (ADR-027), página de eliminación de datos, Data safety completado. |
+| 2.1 — Banner diferido | Hecho, pero el criterio "sin frame >100 ms" no se cumple: el banner no era la causa principal (ver mediciones). |
+| 2.2 — Baseline Profiles | No empezado → día 33. |
+| 3 — Pendientes menores | No empezados → día 33. |
+| 4 — Release 1.4.6 | Hecho, más el arreglo del crash de arranque. |
+
+Suite: **231 tests, 0 fallos**.
 
 ## Orden y tiempos estimados
 

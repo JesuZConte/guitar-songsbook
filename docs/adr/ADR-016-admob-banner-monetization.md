@@ -47,4 +47,4 @@ When Firebase Auth + Firestore sync ships, a **remove ads** IAP or a **Pro subsc
   paused while off screen or with the Activity in the background, destroyed with the Activity.
 - The banner's 50 dp are reserved up front; the first `AdView` is created when the navigation entry
   reaches RESUMED (after the enter transition). `HomeScreen` takes a `banner` slot and no longer
-  depends on AdMob. Measurements in [PLAN_DIA31](../PLAN_DIA31.md) (day 32, session 2).
+  depends on AdMob. Measurements in [PLAN_DIA31](../PLAN_DIA31_COMPLETADO.md) (day 32, session 2).

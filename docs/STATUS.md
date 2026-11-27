@@ -3,7 +3,7 @@
 Single source of truth for what is built, what is pending, and what is planned.
 **Check this file at the start of every session before implementing anything.**
 
-Last verified: 2026-11-24
+Last verified: 2026-11-26
 
 ---
 
@@ -36,7 +36,8 @@ Everything in this section is verified in the codebase.
 | Smart import — duplicate title detection + version merge | `ImportConflictDialog.kt`, `HomeViewModel`, `AddSongViewModel`, `TitleNormalizer.kt` — accent-insensitive matching; dialog offers merge-as-version or save-separate | — |
 | Language selector (Idiomas) | `SettingsScreen.kt` → `LanguageSelectorRow` | — |
 | Firebase Analytics + Crashlytics + breadcrumbs | `AnalyticsHelper.kt`, `google-services.json` | [ADR-022](adr/ADR-022-security-hardening-and-crashlytics-breadcrumbs.md) |
-| AdMob banner (Home screen, production ID) | `BannerAd.kt`, `AndroidManifest.xml` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
+| AdMob banner (All songs screen; production unit in release, Google test unit in debug; one `AdView` per Activity, created after the enter transition, paused off screen) | `BannerAd.kt`, `ads/BannerAdHolder.kt`, `ads/AdUnits.kt` | [ADR-016](adr/ADR-016-admob-banner-monetization.md) |
+| Ad & analytics consent (Google UMP), "Privacy options" in Settings | `consent/ConsentController.kt`, `consent/UmpConsentGateway.kt`, `SettingsScreen.kt` | [ADR-027](adr/ADR-027-ads-and-analytics-consent.md) |
 | Signed AAB — Play Store ready | `build.gradle.kts` (signing config) | — |
 | Setlist mode | Continuous reader across a collection; forward-only swipe; bottom nav hidden; back returns to Collection | — |
 
@@ -44,15 +45,30 @@ Everything in this section is verified in the codebase.
 
 ## Distribution
 
-| Item | State (2026-11-24) |
+| Item | State (2026-11-26) |
 |------|--------------------|
 | Play Console track | **Closed testing** — recruiting 12 testers for 14 continuous days (required before production access) |
-| Latest uploaded bundle | **1.4.5 (versionCode 12)** |
-| Repo `app/build.gradle.kts` | 1.4.5 (12). The changes below are **not** in that bundle; next bundle = 1.4.6 (13) |
+| Latest uploaded bundle | **1.4.6 (versionCode 13)**, built from `45f1809`, sent to review 2026-11-26 |
+| Repo `app/build.gradle.kts` | 1.4.6 (13). Next bundle = 1.4.7 (14) |
 
 ---
 
-## v1.4.5 — Uploaded to closed testing ✓
+## v1.4.6 — Uploaded to closed testing (in review, 2026-11-26)
+
+| Change | File(s) | Ref |
+|--------|---------|-----|
+| `.txt` song import (Home → "Importar desde archivo" accepts `.json` and `.txt`) | `TextSongImport.kt`, `TextDraftHolder.kt`, `HomeScreen.kt`, `MainActivity.kt`, `AddSongScreen.kt` | [ADR-025](adr/ADR-025-txt-song-import.md) |
+| Parser fixes (also for pasted text): Spanish section labels → canonical keys, `[Intro] F Bb` split, chord padding past lyric end | `BracketParser.kt`, `OverUnderConverter.kt` | ADR-025 phase 1a |
+| `BrassButton` for the Save buttons | `ui/components/Brass.kt`, `AddSongScreen.kt`, `VersionEditorScreen.kt` | — |
+| GPL v3 `LICENSE`, SPDX headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, About screen license block | repo root, all `.kt` | [ADR-026](adr/ADR-026-license-compliance-and-scope.md) |
+| Song titles no longer sent to Analytics / Crashlytics (song ID only) | `AnalyticsHelper.kt` — `c1f9d9f` | — |
+| Ad & analytics consent (UMP) + Privacy options in Settings | `consent/` — `da12066` | [ADR-027](adr/ADR-027-ads-and-analytics-consent.md) |
+| Banner: test unit in debug, one `AdView` per Activity, created after the enter transition | `ads/`, `BannerAd.kt` — `7d94802`, `2ba990a` | ADR-016 implementation note |
+| Launch crash fix: consent started after `setContent` (UMP raced `installDecor`, ~1 in 8 cold starts; introduced by `da12066`, never shipped) | `MainActivity.kt` — `45f1809` | — |
+
+---
+
+## v1.4.5 — In closed testing ✓
 
 | Change | File(s) |
 |--------|---------|
@@ -61,18 +77,6 @@ Everything in this section is verified in the codebase.
 | Reader performance: per-page item composition, deferred pagination (Día 30 phases 0, 1, 3) | `SongContentComponents.kt`, `SongReaderScreen.kt` — [ADR-013](adr/ADR-013-render-then-measure-pagination.md), [PLAN_DIA30](PLAN_DIA30_COMPLETADO.md) |
 
 ---
-
-## After 1.4.5 — Committed on `main`, not yet released
-
-| Change | File(s) | Ref |
-|--------|---------|-----|
-| `.txt` song import (Home → "Importar desde archivo" accepts `.json` and `.txt`) | `TextSongImport.kt`, `TextDraftHolder.kt`, `HomeScreen.kt`, `MainActivity.kt`, `AddSongScreen.kt` | [ADR-025](adr/ADR-025-txt-song-import.md) |
-| Parser fixes (also for pasted text): Spanish section labels → canonical keys, `[Intro] F Bb` split, chord padding past lyric end | `BracketParser.kt`, `OverUnderConverter.kt` | ADR-025 phase 1a |
-| `BrassButton` for the Save buttons (gradient, faded when disabled) | `ui/components/Brass.kt`, `AddSongScreen.kt`, `VersionEditorScreen.kt` | — |
-| Official GPL v3 `LICENSE`, `GPL-3.0-or-later` SPDX headers, `NOTICE.md`, `THIRD_PARTY_NOTICES.md`, `licenses/`, About screen license block | repo root, all `.kt` | [ADR-026](adr/ADR-026-license-compliance-and-scope.md) |
-| `docs/songs/` is local-only (git-ignored) | `.gitignore` | ADR-026 |
-
-**Uncommitted (2026-11-24):** song titles no longer sent to Firebase Analytics / Crashlytics (`AnalyticsHelper.logSongOpened(songId)`), and the privacy policy draft `docs/PRIVACY_POLICY.md`.
 
 ---
 
@@ -83,9 +87,10 @@ See the full checklist in [ADR-026](adr/ADR-026-license-compliance-and-scope.md)
 | Item | State |
 |------|-------|
 | License text, SPDX headers, NOTICE, third-party notices, font licenses | ✓ Done |
-| Privacy policy | **Draft written** (`PRIVACY_POLICY.md`); needs contact email, publication at a public URL and the URL in Play Console |
-| Ad consent flow (Google UMP) for EEA/UK users | ✗ **Not implemented** — blocks serving ads there; the policy text assumes it exists |
-| Play "Data safety" form vs. actual SDK behavior | To reconcile (Analytics, Crashlytics, AdMob advertising ID) |
+| Privacy policy | ✓ Published on GitHub Pages (`sites/privacy.html`, EN/ES), URL in Play Console and AdMob |
+| Data deletion page | ✓ Published (`sites/delete-data.html`), URL in the Data safety form |
+| Ad consent flow (Google UMP) for EEA/UK users | ✓ Implemented (ADR-027); GDPR message published in AdMob |
+| Play "Data safety" form vs. actual SDK behavior | ✓ Submitted 2026-11-25, matches the policy (answers in `PLAY_STORE_LISTING.md`) |
 | Third-party lyrics in git history (`5ea0339`, `81306c0`) | Open — rewrite history only if Luis decides |
 | Launcher icon rights (made in Canva) | Open — written confirmation + Canva terms |
 | Lyrics can travel in JSON backups shared between users | Open — add a notice on the share action |
