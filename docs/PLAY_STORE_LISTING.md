@@ -46,7 +46,7 @@ No unnecessary features. No clutter. Just a clean, fast tool that gets out of th
 | Does the app contain controlled substance references? | No |
 | Does the app target children under 13? | No |
 | Does the app contain ads? | Yes — banner ads (AdMob) |
-| Does the app collect personal data? | Limited technical data and the advertising ID through Google SDKs (Analytics, Crashlytics, AdMob); no name, email or location; songs stay on the device. See Data safety below |
+| Does the app collect personal data? | Limited technical data and the advertising ID through Google SDKs (Analytics, Crashlytics, AdMob); approximate location (from IP) through those SDKs; no name, email or precise location; songs stay on the device. See Data safety below |
 | Does the app use location? | No |
 | Does the app use the camera or microphone? | No |
 
